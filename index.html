@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;var obj={username:name};localStorage.setItem('freinzUserProfile',JSON.stringify(obj));document.getElementById('profileModal').classList.add('hidden');location.reload();">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;localStorage.setItem('freinzDisplayName',name);document.getElementById('profileModal').classList.add('hidden');location.reload();">Save</button>
         </div>
     </div>
 
@@ -359,8 +359,9 @@
                 const email = user.email?.toLowerCase() || '';
                 isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
                 var savedProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-                let name = user.displayName || savedProfile.username || user.email?.split('@')[0] || 'User';
-                if(isAdmin && !savedProfile.username) name = 'ZENNZ Gaming';
+                var displayName = localStorage.getItem('freinzDisplayName');
+                let name = user.displayName || displayName || savedProfile.username || user.email?.split('@')[0] || 'User';
+                if(isAdmin && !displayName && !savedProfile.username) name = 'ZENNZ Gaming';
                 $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
                 $('userName').textContent = name;
                 $('userSection').classList.remove('hidden');
