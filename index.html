@@ -332,9 +332,10 @@
             var myName = localStorage.getItem('myName');
             if(user) {
                 currentUser = user;
-                var email = user.email ? user.email.toLowerCase() : '';
+                var email = '';
+                if(user.email) { email = user.email.toLowerCase(); }
                 isAdmin = (email === 'zennzgaming9@gmail.com');
-                var name = myName || user.displayName || 'User';
+                var name = myName || (user.displayName || 'User');
                 if(isAdmin && !myName) name = 'ZENNZ Gaming';
                 document.getElementById('userAvatar').src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
                 document.getElementById('userName').innerText = name;
