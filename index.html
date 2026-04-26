@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="userProfile.username = $('profileUsername').value; saveUserProfile(); $('userName').textContent = userProfile.username; $('profileModal').classList.add('hidden'); showToast('Profile saved!');">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="const newName = document.getElementById('profileUsername').value; if(newName) { userProfile.username = newName; localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); document.getElementById('userName').textContent = newName; document.getElementById('profileModal').classList.add('hidden'); showToast('Profile saved!'); }">Save</button>
         </div>
     </div>
 
@@ -238,14 +238,11 @@
             </div>
             <form id="addForm" class="space-y-3">
                 <input type="text" id="phoneName" placeholder="Phone Name" required class="w-full p-3 rounded-xl glass text-white">
-                <input type="number" id="phonePrice" placeholder="Price (Rp)" required class="w-full p-3 rounded-xl glass text-white">
-                <input type="number" id="phoneRating" placeholder="Rating (1-5)" step="0.1" min="1" max="5" required class="w-full p-3 rounded-xl glass text-white">
-                <div id="imageDropzone" class="border-2 border-dashed border-gray-600 rounded-xl p-6 text-center cursor-pointer">
-                    <i class="fas fa-camera text-2xl text-gray-400 mb-2"></i>
-                    <p class="text-gray-400 text-sm">Click to upload image</p>
-                </div>
+                <input type="number" id="phonePrice" placeholder="Price (Rp)" required class="w-full p-3 rounded-xl glass text-white" inputmode="numeric">
+                <input type="number" id="phoneRating" placeholder="Rating (1-5)" step="0.1" min="1" max="5" required class="w-full p-3 rounded-xl glass text-white" inputmode="decimal">
+                <input type="file" id="phoneImage" accept="image/*" class="hidden" onclick="this.nextElementSibling.click()">
+                <button type="button" class="w-full py-3 rounded-xl glass font-semibold" onclick="document.getElementById('phoneImage').click()">Upload Image</button>
                 <img id="imagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-3">
-                <input type="file" id="phoneImage" accept="image/*" class="hidden">
                 <button type="submit" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
             </form>
         </div>
@@ -483,7 +480,7 @@ function doResetFilter() {
         $('closeAddModal').onclick = () => $('addModal').classList.add('hidden');
         $('addModal').onclick = e => { if(e.target === $('addModal')) $('addModal').classList.add('hidden'); };
         $('imageDropzone').onclick = () => $('phoneImage').click();
-        $('phoneImage').onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; $('imagePreview').src = base64Image; $('imagePreview').classList.remove('hidden'); $('imageDropzone').classList.add('hidden'); }; r.readAsDataURL(f); } };
+        $('phoneImage').onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; document.getElementById('imagePreview').src = base64Image; document.getElementById('imagePreview').classList.remove('hidden'); }; r.readAsDataURL(f); } };
         document.getElementById('addForm').onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: document.getElementById('phoneName').value, price: parseFloat(document.getElementById('phonePrice').value), rating: parseFloat(document.getElementById('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); document.getElementById('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
 
         // Search
