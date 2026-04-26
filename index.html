@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!');">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="userProfile.username = $('profileUsername').value; saveUserProfile(); $('userName').textContent = userProfile.username; $('profileModal').classList.add('hidden'); showToast('Profile saved!');">Save</button>
         </div>
     </div>
 
