@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;localStorage.setItem('freinzDisplayName',name);document.getElementById('profileModal').classList.add('hidden');location.reload();">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="document.getElementById('profileModal').classList.add('hidden');document.getElementById('userName').innerText=document.getElementById('profileUsername').value;localStorage.setItem('myName',document.getElementById('profileUsername').value);alert('Saved as '+document.getElementById('profileUsername').value);">Save</button>
         </div>
     </div>
 
@@ -353,15 +353,16 @@
             $('filterBadge').textContent = count;
         }
 
+        // Check for saved name on page load
+        var storedName = localStorage.getItem('myName');
+        
         function updateUserUI(user) {
             if(user) {
-                currentUser = user;
-                const email = user.email?.toLowerCase() || '';
                 isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
                 var savedProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-                var displayName = localStorage.getItem('freinzDisplayName');
-                let name = user.displayName || displayName || savedProfile.username || user.email?.split('@')[0] || 'User';
-                if(isAdmin && !displayName && !savedProfile.username) name = 'ZENNZ Gaming';
+                var myName = localStorage.getItem('myName');
+                let name = myName || user.displayName || user.email?.split('@')[0] || 'User';
+                if(isAdmin && !myName) name = 'ZENNZ Gaming';
                 $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
                 $('userName').textContent = name;
                 $('userSection').classList.remove('hidden');
