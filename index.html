@@ -361,8 +361,7 @@
 
         // Admin emails - add your email here to get admin access
         const ADMIN_EMAILS = [
-            'your-email@gmail.com',
-            'admin@example.com'
+            'zennzgaming9@gmail.com'
         ];
 
         // Initialize Firebase
@@ -550,7 +549,7 @@
                 const result = await auth.signInWithPopup(googleProvider);
                 updateUserUI(result.user);
                 showPage(catalogPage);
-                showToast('Welcome ' + (result.user.displayName || 'User') + '!');
+                showToast('Logged in as: ' + (result.user.email || 'User'));
             } catch (err) {
                 console.error('Google login error:', err);
                 showToast(err.message);
@@ -562,7 +561,7 @@
                 const result = await auth.signInWithPopup(facebookProvider);
                 updateUserUI(result.user);
                 showPage(catalogPage);
-                showToast('Welcome!');
+                showToast('Logged in as: ' + (result.user.email || 'User'));
             } catch (err) {
                 console.error('Facebook login error:', err);
                 showToast(err.message);
@@ -574,7 +573,7 @@
                 const result = await auth.signInWithPopup(appleProvider);
                 updateUserUI(result.user);
                 showPage(catalogPage);
-                showToast('Welcome!');
+                showToast('Logged in as: ' + (result.user.email || 'User'));
             } catch (err) {
                 console.error('Apple login error:', err);
                 showToast(err.message);
