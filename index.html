@@ -113,13 +113,13 @@
                 <div class="flex items-center gap-2 md:gap-3">
                     <button id="homeBtn" class="p-2 rounded-lg glass hover:bg-white/10" onclick="showPage($('landingPage'))"><i class="fas fa-home"></i></button>
                     <div id="userSection" class="hidden flex items-center gap-2">
-                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {}; $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden');">
+                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="var sp=JSON.parse(localStorage.getItem('freinzUserProfile'))||{};document.getElementById('profileAvatar').src=document.getElementById('userAvatar').src;document.getElementById('profileEmail').textContent=currentUser?.email||'';document.getElementById('profileUsername').value=sp.username||currentUser?.displayName||'';document.getElementById('profileModal').classList.remove('hidden');">
                             <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
                             <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
                         </button>
                         <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout" onclick="document.getElementById('logoutModal').classList.remove('hidden')"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
-                    <button id="adminBtn" class="hidden px-3 md:px-4 py-2 rounded-xl gradient-bg text-xs md:text-sm" onclick="document.getElementById('addForm').reset(); base64Image = ''; document.getElementById('imagePreview').classList.add('hidden'); document.getElementById('imageDropzone').classList.remove('hidden'); document.getElementById('addModal').classList.remove('hidden');">+ Add</button>
+                    <button id="adminBtn" class="hidden px-3 md:px-4 py-2 rounded-xl gradient-bg text-xs md:text-sm" onclick="document.getElementById('addForm').reset();base64Image='';var p=document.getElementById('imagePreview');if(p){p.classList.add('hidden');}document.getElementById('addModal').classList.remove('hidden');">+ Add</button>
                 </div>
             </div>
         </nav>
@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;localStorage.setItem('freinzUserProfile',JSON.stringify({username:name}));document.getElementById('userName').innerText=name;document.getElementById('profileModal').classList.add('hidden');alert('Saved: '+name);">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;if(name){localStorage.setItem('freinzUserProfile',JSON.stringify({username:name}));document.getElementById('userName').innerText=name;document.getElementById('profileModal').classList.add('hidden');alert('Saved!');}">Save</button>
         </div>
     </div>
 
@@ -236,13 +236,13 @@
                 <h3 class="text-lg font-bold">Add Phone</h3>
                 <button class="w-8 h-8 rounded-full glass hover:bg-white/10 flex items-center justify-center" onclick="$('addModal').classList.add('hidden')">×</button>
             </div>
-            <form id="addForm" class="space-y-3">
-                <input type="text" id="phoneName" placeholder="Phone Name" required class="w-full p-3 rounded-xl glass text-white">
-                <input type="number" id="phonePrice" placeholder="Price (Rp)" required class="w-full p-3 rounded-xl glass text-white" inputmode="numeric">
-                <input type="number" id="phoneRating" placeholder="Rating (1-5)" step="0.1" min="1" max="5" required class="w-full p-3 rounded-xl glass text-white" inputmode="decimal">
-                <button type="button" class="w-full py-3 rounded-xl glass font-semibold" onclick="document.getElementById('phoneImage').click()">Upload Image</button>
-                <input type="file" id="phoneImage" accept="image/*" class="hidden" onchange="var f=this.files[0];if(f){var r=new FileReader();r.onload=function(ev){base64Image=ev.target.result;document.getElementById('imagePreview').src=base64Image;document.getElementById('imagePreview').classList.remove('hidden')};r.readAsDataURL(f)}">
+            <form id="addForm" onsubmit="event.preventDefault();var p=document.getElementById('phonePrice').value;var r=document.getElementById('phoneRating').value;var i=document.getElementById('phoneImage').files[0];if(i){var reader=new FileReader();reader.onload=function(e){base64Image=e.target.result;addPhoneFinish(p,r)};reader.readAsDataURL(i)}else{addPhoneFinish(p,r)}">
+                <input type="text" id="phoneName" placeholder="Phone Name" required class="w-full p-3 rounded-xl glass text-white mb-2" style="margin-bottom:8px">
+                <input type="number" id="phonePrice" placeholder="Price (Rp)" required class="w-full p-3 rounded-xl glass text-white mb-2" inputmode="numeric" step="1" style="margin-bottom:8px">
+                <input type="number" id="phoneRating" placeholder="Rating (1-5)" required class="w-full p-3 rounded-xl glass text-white mb-2" inputmode="decimal" step="0.1" min="1" max="5" style="margin-bottom:8px">
+                <input type="file" id="phoneImage" accept="image/*" class="hidden">
                 <img id="imagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-3">
+                <button type="button" class="w-full py-3 rounded-xl glass font-semibold mb-2" onclick="document.getElementById('phoneImage').click()">Upload Image</button>
                 <button type="submit" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
             </form>
         </div>
@@ -358,7 +358,8 @@
                 currentUser = user;
                 const email = user.email?.toLowerCase() || '';
                 isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-                let name = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
+                var savedProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
+                let name = user.displayName || savedProfile.username || user.email?.split('@')[0] || 'User';
                 if(isAdmin) name = 'ZENNZ Gaming';
                 $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
                 $('userName').textContent = name;
@@ -481,7 +482,14 @@ function doResetFilter() {
         $('addModal').onclick = e => { if(e.target === $('addModal')) $('addModal').classList.add('hidden'); };
         $('imageDropzone').onclick = () => $('phoneImage').click();
         $('phoneImage').onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; document.getElementById('imagePreview').src = base64Image; document.getElementById('imagePreview').classList.remove('hidden'); }; r.readAsDataURL(f); } };
-        document.getElementById('addForm').onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: document.getElementById('phoneName').value, price: parseFloat(document.getElementById('phonePrice').value), rating: parseFloat(document.getElementById('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); document.getElementById('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
+        function addPhoneFinish(price,rating){
+var id=phones.length?Math.max(...phones.map(p=>p.id))+1:1;
+phones.push({id,name:document.getElementById('phoneName').value,price:parseFloat(price),rating:parseFloat(rating),image:base64Image||'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'});
+localStorage.setItem('freinzPhones',JSON.stringify(phones));
+document.getElementById('addModal').classList.add('hidden');
+renderPhones(phones);
+alert('Phone added!');
+}
 
         // Search
         $('searchInput').oninput = applyFilters;
