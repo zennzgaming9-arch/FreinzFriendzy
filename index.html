@@ -329,21 +329,24 @@
         }
 
         function updateUserUI(user) {
+            var myName = localStorage.getItem('myName');
             if(user) {
                 currentUser = user;
-                const email = user.email?.toLowerCase() || '';
-                isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-                let name = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
-                if(isAdmin) name = 'ZENNZ Gaming';
-                $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
-                $('userName').textContent = name;
-                $('userSection').classList.remove('hidden');
-                $('adminBtn').classList.remove('hidden');
+                var email = user.email ? user.email.toLowerCase() : '';
+                isAdmin = (email === 'zennzgaming9@gmail.com');
+                var name = myName || user.displayName || 'User';
+                if(isAdmin && !myName) name = 'ZENNZ Gaming';
+                document.getElementById('userAvatar').src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
+                document.getElementById('userName').innerText = name;
+                document.getElementById('userSection').classList.remove('hidden');
+                document.getElementById('adminBtn').classList.remove('hidden');
+                document.getElementById('homeBtn').classList.add('hidden');
             } else {
                 currentUser = null;
                 isAdmin = false;
-                $('userSection').classList.add('hidden');
-                $('adminBtn').classList.add('hidden');
+                document.getElementById('userSection').classList.add('hidden');
+                document.getElementById('adminBtn').classList.add('hidden');
+                document.getElementById('homeBtn').classList.remove('hidden');
             }
             applyFilters();
         }
@@ -351,7 +354,7 @@
         // Initial render
         renderPhones();
         
-        // Load saved username on start
+        // Auto-load saved username
         var savedName = localStorage.getItem('myName');
         if(savedName) {
             var nameEl = document.getElementById('userName');
