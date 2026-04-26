@@ -75,21 +75,24 @@
                 <h1 class="text-4xl md:text-6xl font-bold mb-3 md:mb-4"><span class="gradient-text">Freinz Friendzy</span></h1>
                 <p class="text-lg md:text-xl text-gray-300 mb-2">Your Phone Rating Platform</p>
                 <p class="text-gray-400 mb-6 md:mb-8">Discover & rate the best smartphones</p>
-                <div class="flex flex-col gap-3 md:gap-4 max-w-sm mx-auto">
-                    <button id="loginGoogle" class="login-btn login-google w-full py-3 md:py-4 rounded-xl glass flex items-center justify-center gap-3 border border-transparent">
-                        <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                        <span class="font-semibold text-sm md:text-base">Google</span>
-                    </button>
-                    <button id="loginFacebook" class="login-btn login-facebook w-full py-3 md:py-4 rounded-xl flex items-center justify-center gap-3 border border-transparent" style="background:rgba(24,119,242,0.15);">
-                        <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        <span class="font-semibold text-sm md:text-base">Facebook</span>
-                    </button>
-                    <button id="loginApple" class="login-btn login-apple w-full py-3 md:py-4 rounded-xl glass flex items-center justify-center gap-3 border border-transparent">
-                        <i class="fab fa-apple text-lg md:text-xl"></i>
-                        <span class="font-semibold text-sm md:text-base">Apple</span>
-                    </button>
+<div class="flex flex-col gap-3 max-w-md mx-auto items-center">
+                    <button id="guestBtn" class="py-3 px-6 rounded-xl gradient-bg font-semibold text-base flex items-center justify-center gap-2">Continue As Guest <i class="fas fa-arrow-right"></i></button>
+                    
+                    <p class="text-xs font-medium gradient-text">Login with real account for full access</p>
+                    
+                    <div class="flex gap-2 items-center">
+                        <button id="loginGoogle" class="login-btn login-google w-12 h-12 rounded-xl glass flex items-center justify-center border border-transparent">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        </button>
+                        <button id="loginFacebook" class="login-btn login-facebook w-12 h-12 rounded-xl flex items-center justify-center border border-transparent" style="background:rgba(24,119,242,0.15);">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </button>
+                        <button id="loginApple" class="login-btn login-apple w-12 h-12 rounded-xl glass flex items-center justify-center border border-transparent">
+                            <i class="fab fa-apple text-xl"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
+                </div>
         </main>
         <div class="glass py-6 md:py-8 px-4 md:px-6 relative z-50">
             <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
@@ -130,7 +133,7 @@
                     <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
                     <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
                 </div>
-                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base">
+                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base" onclick="document.getElementById('filterModal').classList.remove('hidden')">
                     <i class="fas fa-sliders-h"></i><span>Filter</span>
                     <span id="filterBadge" class="hidden w-5 h-5 rounded-full bg-vivid text-white text-xs flex items-center justify-center">0</span>
                 </button>
@@ -149,19 +152,19 @@
         <div class="glass w-full max-w-md h-full overflow-y-auto">
             <div class="sticky top-0 glass p-4 flex justify-between items-center z-10">
                 <h2 class="text-lg font-bold">Filter</h2>
-                <button id="closeFilterModal" class="w-9 h-9 rounded-full glass hover:bg-white/10 flex items-center justify-center">×</button>
+                <button id="closeFilterModal" class="w-9 h-9 rounded-full glass hover:bg-white/10 flex items-center justify-center" onclick="document.getElementById('filterModal').classList.add('hidden')">×</button>
             </div>
             
             <div class="p-4 border-b border-gray-700">
                 <h3 class="font-semibold mb-3 text-sm">Rating</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-rating="5">
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-rating="5" onclick="doFilterRating(5, this)">
                         <span class="text-vivid">★</span> 5
                     </button>
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4">
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)">
                         <span class="text-vivid">★</span> 4+
                     </button>
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3">
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)">
                         <span class="text-vivid">★</span> 3+
                     </button>
                 </div>
@@ -170,12 +173,12 @@
             <div class="p-4 border-b border-gray-700">
                 <h3 class="font-semibold mb-3 text-sm">Harga</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="0" data-max="1000000">&lt; 1 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="1000000" data-max="2000000">1-2 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="2000000" data-max="3000000">2-3 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="3000000" data-max="5000000">3-5 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="5000000" data-max="10000000">5-10 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="10000000" data-max="999999999">&gt; 10 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="0" data-max="1000000" onclick="doFilterPrice(0, 1000000, this)">&lt; 1 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="1000000" data-max="2000000" onclick="doFilterPrice(1000000, 2000000, this)">1-2 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="2000000" data-max="3000000" onclick="doFilterPrice(2000000, 3000000, this)">2-3 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="3000000" data-max="5000000" onclick="doFilterPrice(3000000, 5000000, this)">3-5 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="5000000" data-max="10000000" onclick="doFilterPrice(5000000, 10000000, this)">5-10 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="10000000" data-max="999999999" onclick="doFilterPrice(10000000, 999999999, this)">&gt; 10 JT</button>
                 </div>
             </div>
             
@@ -183,27 +186,18 @@
                 <h3 class="font-semibold mb-3 text-sm">Kisaran Harga</h3>
                 <div class="flex items-center gap-3">
                     <div class="flex-1">
-                        <input type="number" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm">
+                        <input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric">
                     </div>
                     <span class="text-gray-400">-</span>
                     <div class="flex-1">
-                        <input type="number" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm">
+                        <input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric">
                     </div>
-                </div>
-            </div>
-            
-            <div class="p-4">
-                <h3 class="font-semibold mb-3 text-sm">Urutkan</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-sort="termurah">Termurah</button>
-                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-sort="termahal">Termahal</button>
-                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-sort="rating">Rating Tertinggi</button>
                 </div>
             </div>
             
             <div class="sticky bottom-0 glass p-4 flex gap-3 z-10">
-                <button id="resetFilter" class="flex-1 py-3 rounded-xl glass font-semibold text-sm">Reset</button>
-                <button id="applyFilter" class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm">Terapkan</button>
+                <button class="flex-1 py-3 rounded-xl glass font-semibold text-sm" onclick="doResetFilter()">Reset</button>
+                <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Terapkan</button>
             </div>
 </div>
     </div>
@@ -385,52 +379,38 @@
             }
         });
         
-        // Rating buttons
-        document.querySelectorAll('.filter-rating').forEach(b => {
-            b.onclick = () => { 
-                const r = parseInt(b.dataset.rating);
-                activeFilters.ratings = [r]; // Single select
-                document.querySelectorAll('.filter-rating').forEach(btn => btn.classList.remove('selected'));
-                b.classList.add('selected');
-            };
-        });
-        
-        // Price buttons
-        document.querySelectorAll('.price-btn').forEach(b => {
-            b.onclick = () => {
-                activeFilters.minPrice = parseInt(b.dataset.min);
-                activeFilters.maxPrice = parseInt(b.dataset.max);
-                document.querySelectorAll('.price-btn').forEach(btn => btn.classList.remove('selected'));
-                b.classList.add('selected');
-            };
-        });
-        
-        // Sort buttons
-        document.querySelectorAll('.sort-btn').forEach(b => {
-            b.onclick = () => {
-                activeSort = b.dataset.sort;
-                document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('selected'));
-                b.classList.add('selected');
-            };
-        });
-        
-        $('resetFilter').onclick = () => { 
-            activeFilters = { ratings:[], minPrice:null, maxPrice:null }; 
-            activeSort = 'termurah';
-            $('filterMinPrice').value = ''; 
-            $('filterMaxPrice').value = ''; 
-            document.querySelectorAll('.filter-rating, .price-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelector('.sort-btn[data-sort="termurah"]').classList.add('selected');
-        };
-        
-        $('applyFilter').onclick = () => { 
-            activeFilters.minPrice = $('filterMinPrice').value ? parseInt($('filterMinPrice').value) : null;
-            activeFilters.maxPrice = $('filterMaxPrice').value ? parseInt($('filterMaxPrice').value) : null;
-            $('filterModal').classList.add('hidden'); 
-            applyFilters(); 
-            showToast('Filter applied');
-        };
+        function doFilterRating(r, el) {
+    activeFilters.ratings = [r];
+    document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+function doFilterPrice(min, max, el) {
+    activeFilters.minPrice = min;
+    activeFilters.maxPrice = max;
+    document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+function doFilterSort(sort, el) {
+    activeSort = sort;
+    document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+    el.classList.add('selected');
+}
+function doApplyFilter() {
+    activeFilters.minPrice = document.getElementById('filterMinPrice').value ? parseInt(document.getElementById('filterMinPrice').value) : null;
+    activeFilters.maxPrice = document.getElementById('filterMaxPrice').value ? parseInt(document.getElementById('filterMaxPrice').value) : null;
+    document.getElementById('filterModal').classList.add('hidden');
+    applyFilters();
+    showToast('Filter applied');
+}
+function doResetFilter() {
+    activeFilters = { ratings: [], minPrice: null, maxPrice: null };
+    activeSort = 'termurah';
+    document.getElementById('filterMinPrice').value = '';
+    document.getElementById('filterMaxPrice').value = '';
+    document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelector('.sort-btn[data-sort="termurah"]').classList.add('selected');
+}
 
         // Override applyFilters to include sorting
         applyFilters = function() {
