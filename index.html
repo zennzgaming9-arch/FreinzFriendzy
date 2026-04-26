@@ -309,11 +309,12 @@
                 currentUser = user;
                 const email = user.email?.toLowerCase() || '';
                 isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
-                const name = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
+                let name = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
+                if(isAdmin) name = 'ZENNZ Gaming';
                 $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
                 $('userName').textContent = name;
                 $('userSection').classList.remove('hidden');
-                $('adminBtn').classList.toggle('hidden', !isAdmin);
+                $('adminBtn').classList.remove('hidden');
             } else {
                 currentUser = null;
                 isAdmin = false;
@@ -354,11 +355,8 @@
         $('saveProfile').onclick = () => { userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!'); };
         $('profileModal').onclick = e => { if(e.target === $('profileModal')) $('profileModal').classList.add('hidden'); };
 
-        // Logout modal
-        $('logoutBtn').onclick = () => $('logoutModal').classListremove('hidden');
-        $('cancelLogout').onclick = () => $('logoutModal').classList.add('hidden');
-        $('confirmLogout').onclick = () => { $('logoutModal').classList.add('hidden'); if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
-        $('logoutModal').onclick = e => { if(e.target === $('logoutModal')) $('logoutModal').classList.add('hidden'); };
+        // Logout - direct sign out
+        $('logoutBtn').onclick = () => { if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
         // Filter modal
         let activeSort = 'termurah';
