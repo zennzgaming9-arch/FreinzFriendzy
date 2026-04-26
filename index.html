@@ -113,7 +113,7 @@
                 <div class="flex items-center gap-2 md:gap-3">
                     <button id="homeBtn" class="p-2 rounded-lg glass hover:bg-white/10" onclick="showPage($('landingPage'))"><i class="fas fa-home"></i></button>
                     <div id="userSection" class="hidden flex items-center gap-2">
-                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="$('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden');">
+                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {}; $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden');">
                             <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
                             <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
                         </button>
@@ -210,8 +210,8 @@
                 <img id="profileAvatar" class="w-20 h-20 rounded-full mx-auto mb-2" src="">
                 <p id="profileEmail" class="text-gray-400 text-sm"></p>
             </div>
-            <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3">
-            <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4"></textarea>
+            <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
+            <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
             <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!');">Save</button>
         </div>
     </div>
