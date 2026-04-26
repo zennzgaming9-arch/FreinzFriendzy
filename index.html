@@ -519,6 +519,59 @@
 
 searchInput.addEventListener('input', applyFilters);
 
+        document.getElementById('toCatalogBtn').addEventListener('click', () => showPage(catalogPage));
+
+        document.getElementById('loginGoogle').addEventListener('click', async () => {
+            if (!authAvailable) return showToast('Firebase not configured');
+            try {
+                const result = await auth.signInWithPopup(googleProvider);
+                updateUserUI(result.user);
+                isAdmin = true;
+                adminBtn.classList.remove('hidden');
+                showPage(catalogPage);
+                showToast('Signed in with Google');
+            } catch (error) {
+                showToast(error.message);
+            }
+        });
+
+        document.getElementById('loginFacebook').addEventListener('click', async () => {
+            if (!authAvailable) return showToast('Firebase not configured');
+            try {
+                const result = await auth.signInWithPopup(facebookProvider);
+                updateUserUI(result.user);
+                isAdmin = true;
+                adminBtn.classList.remove('hidden');
+                showPage(catalogPage);
+                showToast('Signed in with Facebook');
+            } catch (error) {
+                showToast(error.message);
+            }
+        });
+
+        document.getElementById('loginApple').addEventListener('click', async () => {
+            if (!authAvailable) return showToast('Firebase not configured');
+            try {
+                const result = await auth.signInWithPopup(appleProvider);
+                updateUserUI(result.user);
+                isAdmin = true;
+                adminBtn.classList.remove('hidden');
+                showPage(catalogPage);
+                showToast('Signed in with Apple');
+            } catch (error) {
+                showToast(error.message);
+            }
+        });
+
+        document.getElementById('homeBtn').addEventListener('click', () => showPage(landingPage));
+
+        logoutBtn.addEventListener('click', async () => {
+            if (auth.currentUser) await auth.signOut();
+            updateUserUI(null);
+            showPage(landingPage);
+            showToast('Signed out');
+        });
+
         filterModal.addEventListener('click', (e) => { if (e.target === filterModal) filterModal.classList.add('hidden'); });
 
         document.getElementById('openFilterBtn').addEventListener('click', () => {
