@@ -111,12 +111,13 @@
                     <span class="text-lg md:text-2xl font-bold gradient-text">Freinz Friendzy</span>
                 </div>
                 <div class="flex items-center gap-2 md:gap-3">
+                    <button id="homeBtn" class="p-2 rounded-lg glass hover:bg-white/10" onclick="showPage($('landingPage'))"><i class="fas fa-home"></i></button>
                     <div id="userSection" class="hidden flex items-center gap-2">
                         <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
                             <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
                             <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
                         </button>
-                        <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+                        <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout" onclick="auth.signOut().then(() => { updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); })"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
                     <button id="adminBtn" class="hidden px-3 md:px-4 py-2 rounded-xl gradient-bg text-xs md:text-sm">+ Add</button>
                 </div>
@@ -314,11 +315,13 @@
                 $('userName').textContent = name;
                 $('userSection').classList.remove('hidden');
                 $('adminBtn').classList.remove('hidden');
+                $('homeBtn').classList.add('hidden');
             } else {
                 currentUser = null;
                 isAdmin = false;
                 $('userSection').classList.add('hidden');
                 $('adminBtn').classList.add('hidden');
+                $('homeBtn').classList.remove('hidden');
             }
             applyFilters();
         }
@@ -341,7 +344,7 @@
 
         // Event Listeners
         $('guestBtn').onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
-        $('homeBtn').onclick = () => { $('userSection').classList.add('hidden'); showPage($('landingPage')); };
+        $('homeBtn').onclick = () => { showPage($('landingPage')); };
 
         // Login handlers
         $('loginGoogle').onclick = async () => { try { const r = await auth.signInWithPopup(googleProvider); updateUserUI(r.user); showPage($('catalogPage')); showToast('Welcome ' + (r.user.displayName || 'User') + '!'); } catch(e) { showToast(e.message || 'Login failed'); } };
