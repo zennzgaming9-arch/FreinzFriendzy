@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="const newName = document.getElementById('profileUsername').value; if(newName) { userProfile.username = newName; localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); document.getElementById('userName').textContent = newName; document.getElementById('profileModal').classList.add('hidden'); showToast('Profile saved!'); }">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;localStorage.setItem('freinzUserProfile',JSON.stringify({username:name}));document.getElementById('userName').innerText=name;document.getElementById('profileModal').classList.add('hidden');alert('Saved: '+name);">Save</button>
         </div>
     </div>
 
@@ -240,8 +240,8 @@
                 <input type="text" id="phoneName" placeholder="Phone Name" required class="w-full p-3 rounded-xl glass text-white">
                 <input type="number" id="phonePrice" placeholder="Price (Rp)" required class="w-full p-3 rounded-xl glass text-white" inputmode="numeric">
                 <input type="number" id="phoneRating" placeholder="Rating (1-5)" step="0.1" min="1" max="5" required class="w-full p-3 rounded-xl glass text-white" inputmode="decimal">
-                <input type="file" id="phoneImage" accept="image/*" class="hidden" onclick="this.nextElementSibling.click()">
                 <button type="button" class="w-full py-3 rounded-xl glass font-semibold" onclick="document.getElementById('phoneImage').click()">Upload Image</button>
+                <input type="file" id="phoneImage" accept="image/*" class="hidden" onchange="var f=this.files[0];if(f){var r=new FileReader();r.onload=function(ev){base64Image=ev.target.result;document.getElementById('imagePreview').src=base64Image;document.getElementById('imagePreview').classList.remove('hidden')};r.readAsDataURL(f)}">
                 <img id="imagePreview" class="hidden w-full h-40 object-cover rounded-xl mb-3">
                 <button type="submit" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
             </form>
