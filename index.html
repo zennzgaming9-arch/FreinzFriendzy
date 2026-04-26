@@ -12,11 +12,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        obsidian: '#050505',
-                        vivid: '#f97316',
-                        deep: '#a855f7'
-                    }
+                    colors: { vivid: '#f97316', deep: '#a855f7', obsidian: '#050505' }
                 }
             }
         }
@@ -24,61 +20,33 @@
     <style>
         * { box-sizing: border-box; }
         body { background: #050505; font-family: system-ui, -apple-system, sans-serif; }
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .card-glow:hover { box-shadow: 0 0 30px rgba(249, 115, 22, 0.3); }
-        .gradient-text {
-            background: linear-gradient(135deg, #f97316, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #f97316, #a855f7);
-        }
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(4px);
-        }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .card-glow:hover { box-shadow: 0 0 30px rgba(249,115,22,0.3); }
+        .gradient-text { background: linear-gradient(135deg, #f97316, #a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-bg { background: linear-gradient(135deg, #f97316, #a855f7); }
+        .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
+        input, textarea, select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
+        input:focus, textarea:focus { outline: none; border-color: #f97316; }
         .star-filled { color: #f97316; }
-        input, select, textarea {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #f97316;
-        }
+        .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(150px); opacity: 0.15; pointer-events: none; }
+        .login-btn { transition: all 0.2s; }
+        .login-btn:active { transform: scale(0.98); }
+        .login-google:hover { box-shadow: 0 0 25px rgba(66,133,244,0.5); border-color: #4285F4 !important; }
+        .login-facebook:hover { box-shadow: 0 0 25px rgba(24,119,242,0.5); border-color: #1877F2 !important; }
+        .login-apple:hover { box-shadow: 0 0 25px rgba(255,255,255,0.3); border-color: #fff !important; }
+        .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; border-color: transparent !important; }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
-        .float-animation { animation: float 6s ease-in-out infinite; }
+        .float { animation: float 6s ease-in-out infinite; }
         .float-delay-1 { animation-delay: -2s; }
         .float-delay-2 { animation-delay: -4s; }
-        .bg-glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        .login-btn:active { transform: scale(0.98); }
-        .login-google:hover { box-shadow: 0 0 25px rgba(66, 133, 244, 0.5); border-color: #4285F4 !important; }
-        .login-facebook:hover { box-shadow: 0 0 25px rgba(24, 119, 242, 0.5); border-color: #1877F2 !important; }
-        .login-apple:hover { box-shadow: 0 0 25px rgba(255, 255, 255, 0.3); border-color: #fff !important; }
-        .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7); border-color: transparent; }
     </style>
 </head>
 <body class="min-h-screen text-white">
-    <div class="bg-glow bg-glow-orange top-0 left-0 -translate-x-1/2 -translate-y-1/2" style="background: #f97316;"></div>
-    <div class="bg-glow bg-glow-purple bottom-0 right-0 translate-x-1/2 translate-y-1/2" style="background: #a855f7;"></div>
+    <div class="bg-glow top-0 left-0 -translate-x-1/2 -translate-y-1/2" style="background:#f97316;"></div>
+    <div class="bg-glow bottom-0 right-0 translate-x-1/2 translate-y-1/2" style="background:#a855f7;"></div>
 
     <!-- Landing Page -->
     <div id="landingPage">
@@ -86,84 +54,47 @@
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-2 md:gap-3">
                     <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl gradient-bg flex items-center justify-center">
-                        <i class="fas fa-mobile-alt text-sm md:text-lg text-white"></i>
+                        <i class="fas fa-mobile-alt text-white"></i>
                     </div>
                     <span class="text-lg md:text-2xl font-bold gradient-text">Freinz Friendzy</span>
                 </div>
-                <button id="toCatalogBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 transition-all flex items-center gap-2 text-sm md:text-base">
-                    <i class="fas fa-th-large"></i>
-                    <span class="hidden md:inline">Catalog</span>
-                </button>
-                <button id="guestBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 transition-all flex items-center gap-2 text-sm md:text-base">
-                    <i class="fas fa-user"></i>
-                    <span class="hidden md:inline">Guest</span>
-                </button>
+                <div class="flex gap-2">
+                    <button id="toCatalogBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 text-sm md:text-base">Catalog</button>
+                    <button id="guestBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 text-sm md:text-base">Guest</button>
+                </div>
             </div>
         </nav>
-
         <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
-            <div class="text-center max-w-2xl w-full">
-                <div class="flex justify-center gap-4 mb-8">
-                    <i class="fas fa-mobile-alt text-5xl gradient-text float-animation"></i>
-                    <i class="fas fa-star text-5xl text-vivid float-animation float-delay-1"></i>
-                    <i class="fas fa-tablet-alt text-5xl gradient-text float-animation float-delay-2"></i>
+            <div class="text-center max-w-2xl">
+                <div class="flex justify-center gap-3 md:gap-4 mb-6 md:mb-8">
+                    <i class="fas fa-mobile-alt text-4xl md:text-6xl gradient-text float"></i>
+                    <i class="fas fa-star text-4xl md:text-6xl text-vivid float float-delay-1"></i>
+                    <i class="fas fa-tablet-alt text-4xl md:text-6xl gradient-text float float-delay-2"></i>
                 </div>
-                
-                <h1 class="text-4xl md:text-6xl font-bold mb-4">
-                    <span class="gradient-text">Freinz Friendzy</span>
-                </h1>
-                <p class="text-xl text-gray-300 mb-2">Your Phone Rating Platform</p>
-                <p class="text-gray-400 mb-8">Discover & compare the best smartphones</p>
-                
-                <div class="flex flex-col gap-4 max-w-sm mx-auto">
-                    <button id="loginGoogle" class="login-btn login-google w-full py-4 rounded-xl glass flex items-center justify-center gap-4 border border-transparent">
-                        <svg class="w-6 h-6" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        <span class="font-semibold text-lg">Google</span>
+                <h1 class="text-4xl md:text-6xl font-bold mb-3 md:mb-4"><span class="gradient-text">Freinz Friendzy</span></h1>
+                <p class="text-lg md:text-xl text-gray-300 mb-2">Your Phone Rating Platform</p>
+                <p class="text-gray-400 mb-6 md:mb-8">Discover & rate the best smartphones</p>
+                <div class="flex flex-col gap-3 md:gap-4 max-w-sm mx-auto">
+                    <button id="loginGoogle" class="login-btn login-google w-full py-3 md:py-4 rounded-xl glass flex items-center justify-center gap-3 border border-transparent">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        <span class="font-semibold text-sm md:text-base">Google</span>
                     </button>
-
-                    <button id="loginFacebook" class="login-btn login-facebook w-full py-4 rounded-xl flex items-center justify-center gap-4 border border-transparent" style="background: rgba(24, 119, 242, 0.15);">
-                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#fff">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        <span class="font-semibold text-lg">Facebook</span>
+                    <button id="loginFacebook" class="login-btn login-facebook w-full py-3 md:py-4 rounded-xl flex items-center justify-center gap-3 border border-transparent" style="background:rgba(24,119,242,0.15);">
+                        <svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <span class="font-semibold text-sm md:text-base">Facebook</span>
                     </button>
-
-                    <button id="loginApple" class="login-btn login-apple w-full py-4 rounded-xl glass flex items-center justify-center gap-4 border border-transparent">
-                        <i class="fab fa-apple text-2xl"></i>
-                        <span class="font-semibold text-lg">Apple</span>
+                    <button id="loginApple" class="login-btn login-apple w-full py-3 md:py-4 rounded-xl glass flex items-center justify-center gap-3 border border-transparent">
+                        <i class="fab fa-apple text-lg md:text-xl"></i>
+                        <span class="font-semibold text-sm md:text-base">Apple</span>
                     </button>
                 </div>
             </div>
         </main>
-
-        <div class="glass py-8 px-6 relative z-50">
-            <div class="max-w-4xl mx-auto grid grid-cols-3 gap-6 text-center">
-                <div>
-                    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-search text-xl"></i>
-                    </div>
-                    <h3 class="font-bold mb-1">Search</h3>
-                    <p class="text-gray-400 text-sm">Find phones</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-filter text-xl"></i>
-                    </div>
-                    <h3 class="font-bold mb-1">Filter</h3>
-                    <p class="text-gray-400 text-sm">By price/rating</p>
-                </div>
-                <div>
-                    <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-3">
-                        <i class="fas fa-users text-xl"></i>
-                    </div>
-                    <h3 class="font-bold mb-1">Community</h3>
-                    <p class="text-gray-400 text-sm">Real ratings</p>
-                </div>
+        <div class="glass py-6 md:py-8 px-4 md:px-6 relative z-50">
+            <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
+                <div><div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-2 md:mb-3"><i class="fas fa-search"></i></div><h3 class="font-bold text-sm md:text-base">Search</h3><p class="text-gray-400 text-xs md:text-sm">Find phones</p></div>
+                <div><div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-2 md:mb-3"><i class="fas fa-filter"></i></div><h3 class="font-bold text-sm md:text-base">Filter</h3><p class="text-gray-400 text-xs md:text-sm">By rating/price</p></div>
+                <div><div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center mx-auto mb-2 md:mb-3"><i class="fas fa-star"></i></div><h3 class="font-bold text-sm md:text-base">Rate</h3><p class="text-gray-400 text-xs md:text-sm">Community</p></div>
             </div>
         </div>
     </div>
@@ -174,181 +105,90 @@
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-2 md:gap-3">
                     <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl gradient-bg flex items-center justify-center">
-                        <i class="fas fa-mobile-alt text-sm md:text-lg text-white"></i>
+                        <i class="fas fa-mobile-alt text-white"></i>
                     </div>
-                    <span class="text-lg md:text-2xl font-bold gradient-text hidden sm:inline">Freinz Friendzy</span>
+                    <span class="text-lg md:text-2xl font-bold gradient-text">Freinz Friendzy</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button id="homeBtn" class="p-2 rounded-lg glass hover:bg-white/10 transition-all" title="Home">
-                        <i class="fas fa-home"></i>
-                    </button>
+                <div class="flex items-center gap-2 md:gap-3">
+                    <button id="homeBtn" class="p-2 rounded-lg glass hover:bg-white/10"><i class="fas fa-home"></i></button>
                     <div id="userSection" class="hidden flex items-center gap-2">
-                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10 transition-all">
-                            <img id="userAvatar" class="w-8 h-8 rounded-full" src="" alt="Avatar">
-                            <span id="userName" class="text-sm font-medium hidden md:inline"></span>
+                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
+                            <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
+                            <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
                         </button>
-                        <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10 transition-all" title="Logout">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </button>
+                        <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
-                    <button id="adminBtn" class="hidden px-4 py-2 rounded-xl gradient-bg flex items-center gap-2 text-sm">
-                        <i class="fas fa-plus"></i>
-                        <span class="hidden md:inline">Add</span>
-                    </button>
+                    <button id="adminBtn" class="hidden px-3 md:px-4 py-2 rounded-xl gradient-bg text-xs md:text-sm">+ Add</button>
                 </div>
             </div>
         </nav>
-
         <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl md:text-5xl font-bold mb-2">Phone Catalog</h1>
-                <p class="text-gray-400">Discover the best smartphones</p>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-4 mb-8">
+            <h1 class="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">Phone Catalog</h1>
+            <div class="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
                 <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-12 pr-4 py-3 rounded-xl">
+                    <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
+                    <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
                 </div>
-                <button id="openFilterBtn" class="px-6 py-3 rounded-xl glass flex items-center justify-center gap-2">
-                    <i class="fas fa-sliders-h"></i>
-                    <span>Filter</span>
+                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base">
+                    <i class="fas fa-sliders-h"></i><span>Filter</span>
                     <span id="filterBadge" class="hidden w-5 h-5 rounded-full bg-vivid text-white text-xs flex items-center justify-center">0</span>
                 </button>
             </div>
-
-            <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            </div>
-
-            <div id="emptyState" class="hidden text-center py-16">
-                <i class="fas fa-mobile-alt text-6xl text-gray-600 mb-4"></i>
-                <p class="text-gray-400 text-xl">No phones found</p>
+            <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
+            <div id="emptyState" class="hidden text-center py-12 md:py-20">
+                <i class="fas fa-mobile-alt text-5xl md:text-7xl text-gray-600 mb-4"></i>
+                <p id="emptyMsg" class="text-gray-400 text-lg md:text-xl">No phones found</p>
             </div>
         </main>
-
-        <footer class="glass py-6 mt-8 text-center">
-            <p class="text-gray-400">&copy; 2024 Freinz Friendzy</p>
-        </footer>
+        <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm md:text-base">&copy; 2024 Freinz Friendzy</p></footer>
     </div>
 
     <!-- Filter Modal -->
     <div id="filterModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-6">
+        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold">Filter</h2>
-                <button id="closeFilterModal" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button id="closeFilterModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
             </div>
-            
             <div class="mb-5">
-                <h3 class="font-semibold mb-3">Rating</h3>
+                <h3 class="font-semibold mb-3 text-sm md:text-base">Rating</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm" data-rating="5">5 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm" data-rating="4">4 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm" data-rating="3">3 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm" data-rating="2">2 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm" data-rating="1">1 Star</button>
+                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="5">5 Star</button>
+                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="4">4 Star</button>
+                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="3">3 Star</button>
+                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="2">2 Star</button>
+                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="1">1 Star</button>
                 </div>
             </div>
-            
-            <div class="mb-6">
-                <h3 class="font-semibold mb-3">Price Range</h3>
+            <div class="mb-5">
+                <h3 class="font-semibold mb-3 text-sm md:text-base">Price Range (Min - Max)</h3>
                 <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="block text-gray-400 mb-1 text-xs">Min</label>
-                        <input type="number" id="filterMinPrice" placeholder="例: 1000000" class="w-full px-3 py-2 rounded-lg" step="100000">
+                        <label class="text-gray-400 text-xs">Min Price</label>
+                        <input type="number" id="filterMinPrice" placeholder="��: 1000000" class="w-full px-3 py-2 rounded-lg text-sm" step="100000">
                     </div>
                     <div class="flex items-center pb-2 text-gray-400">-</div>
                     <div class="flex-1">
-                        <label class="block text-gray-400 mb-1 text-xs">Max</label>
-                        <input type="number" id="filterMaxPrice" placeholder="例: 5000000" class="w-full px-3 py-2 rounded-lg" step="100000">
+                        <label class="text-gray-400 text-xs">Max Price</label>
+                        <input type="number" id="filterMaxPrice" placeholder="例: 5000000" class="w-full px-3 py-2 rounded-lg text-sm" step="100000">
                     </div>
                 </div>
             </div>
-            
             <div class="flex gap-3">
-                <button id="resetFilter" class="flex-1 py-3 rounded-xl glass font-semibold">Reset</button>
-                <button id="applyFilter" class="flex-1 py-3 rounded-xl gradient-bg font-semibold">Apply</button>
+                <button id="resetFilter" class="flex-1 py-2 md:py-3 rounded-xl glass font-semibold text-sm md:text-base">Reset</button>
+                <button id="applyFilter" class="flex-1 py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Apply</button>
             </div>
         </div>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Profile</h2>
-                <button id="closeProfileModal" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="text-center mb-6">
-                <img id="profileAvatar" class="w-24 h-24 rounded-full mx-auto mb-3" src="" alt="Avatar">
-                <p id="profileEmail" class="text-gray-400 text-sm"></p>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-gray-400 mb-2 text-sm">Username</label>
-                <input type="text" id="profileUsername" placeholder="Enter username" class="w-full px-4 py-3 rounded-xl">
-            </div>
-            
-            <div class="mb-6">
-                <label class="block text-gray-400 mb-2 text-sm">Bio</label>
-                <textarea id="profileBio" placeholder="Tell us about yourself" class="w-full px-4 py-3 rounded-xl h-24 resize-none"></textarea>
-            </div>
-            
-            <button id="saveProfile" class="w-full py-3 rounded-xl gradient-bg font-semibold">Save Profile</button>
-        </div>
-    </div>
-
-    <!-- Add Phone Modal -->
-    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold">Add Phone</h2>
-                <button id="closeAddModal" class="w-10 h-10 rounded-full glass hover:bg-white/10 flex items-center justify-center">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="addForm">
-                <div class="mb-4">
-                    <label class="block text-gray-400 mb-2">Phone Name</label>
-                    <input type="text" id="phoneName" required class="w-full px-4 py-3 rounded-xl">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-400 mb-2">Price (Rp)</label>
-                    <input type="number" id="phonePrice" min="0" required class="w-full px-4 py-3 rounded-xl">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-400 mb-2">Rating (1-5)</label>
-                    <input type="number" id="phoneRating" min="1" max="5" step="0.1" required class="w-full px-4 py-3 rounded-xl">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-400 mb-2">Image</label>
-                    <div class="relative">
-                        <input type="file" id="phoneImage" accept="image/*" class="hidden">
-                        <div id="imageDropzone" class="w-full h-32 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-vivid">
-                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
-                            <span class="text-gray-400 text-sm">Click to upload</span>
-                        </div>
-                        <img id="imagePreview" class="hidden w-full h-32 object-cover rounded-xl mt-2">
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Logout Confirmation Modal -->
+    <!-- Logout Modal -->
     <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
         <div class="glass rounded-2xl p-6 w-full max-w-sm text-center">
             <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-sign-out-alt text-2xl"></i>
             </div>
             <h2 class="text-xl font-bold mb-2">Log Out?</h2>
-            <p class="text-gray-400 mb-6">Are you sure you want to log out?</p>
+            <p class="text-gray-400 mb-5">Are you sure you want to log out?</p>
             <div class="flex gap-3">
                 <button id="cancelLogout" class="flex-1 py-3 rounded-xl glass font-semibold">Cancel</button>
                 <button id="confirmLogout" class="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold">Log Out</button>
@@ -356,8 +196,67 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
+        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-bold">Profile</h2>
+                <button id="closeProfileModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
+            </div>
+            <div class="text-center mb-4">
+                <img id="profileAvatar" class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto mb-2" src="">
+                <p id="profileEmail" class="text-gray-400 text-xs md:text-sm"></p>
+            </div>
+            <div class="mb-4">
+                <label class="text-gray-400 text-sm block mb-2">Username</label>
+                <input type="text" id="profileUsername" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
+            </div>
+            <div class="mb-5">
+                <label class="text-gray-400 text-sm block mb-2">Bio</label>
+                <textarea id="profileBio" class="w-full px-4 py-2 md:py-3 rounded-xl h-20 text-sm md:text-base resize-none"></textarea>
+            </div>
+            <button id="saveProfile" class="w-full py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Save Profile</button>
+        </div>
+    </div>
+
+    <!-- Add Phone Modal -->
+    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
+        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-bold">Add Phone</h2>
+                <button id="closeAddModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
+            </div>
+            <form id="addForm">
+                <div class="mb-3 md:mb-4">
+                    <label class="text-gray-400 text-sm block mb-2">Phone Name</label>
+                    <input type="text" id="phoneName" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" required>
+                </div>
+                <div class="mb-3 md:mb-4">
+                    <label class="text-gray-400 text-sm block mb-2">Price (Rp)</label>
+                    <input type="number" id="phonePrice" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" required>
+                </div>
+                <div class="mb-3 md:mb-4">
+                    <label class="text-gray-400 text-sm block mb-2">Rating (1-5)</label>
+                    <input type="number" id="phoneRating" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" step="0.1" min="1" max="5" required>
+                </div>
+                <div class="mb-4 md:mb-5">
+                    <label class="text-gray-400 text-sm block mb-2">Image</label>
+                    <div class="relative">
+                        <input type="file" id="phoneImage" accept="image/*" class="hidden">
+                        <div id="imageDropzone" class="h-28 md:h-32 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-vivid transition-colors">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-1"></i>
+                            <span class="text-gray-400 text-xs md:text-sm">Click to upload</span>
+                        </div>
+                        <img id="imagePreview" class="hidden w-full h-28 md:h-32 object-cover rounded-xl mt-2">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Add Phone</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast -->
-    <div id="toast" class="hidden fixed bottom-6 right-6 z-50 glass px-6 py-4 rounded-xl">
+    <div id="toast" class="hidden fixed bottom-4 md:bottom-6 right-4 md:right-6 z-50 glass px-5 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base">
         <span id="toastMsg"></span>
     </div>
 
@@ -371,416 +270,176 @@
             appId: "1:953972561417:web:2458d6790134a3b7878ad8"
         };
 
-        let auth = null;
-        let authAvailable = false;
-        let currentUser = null;
-        let userProfile = {};
-        let base64Image = '';
-        let isAdmin = false;
-
-        // Admin emails - add your email here to get admin access
-        const ADMIN_EMAILS = [
-            'zennzgaming9@gmail.com'
-        ];
-
-        // Initialize Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            authAvailable = true;
-            console.log("Firebase initialized");
-        } catch (e) {
-            console.error("Firebase init error:", e);
-        }
-
-        // Default phones
         const DEFAULT_PHONES = [
-            { id: 1, name: "iPhone 15 Pro Max", price: 17999000, rating: 4.8, image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop" },
-            { id: 2, name: "Samsung Galaxy S24 Ultra", price: 19499000, rating: 4.7, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop" },
-            { id: 3, name: "Google Pixel 8 Pro", price: 14999000, rating: 4.6, image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop" },
-            { id: 4, name: "OnePlus 12", price: 11999000, rating: 4.4, image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop" }
+            { id:1, name:"iPhone 15 Pro Max", price:17999000, rating:4.8, image:"https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop" },
+            { id:2, name:"Samsung Galaxy S24 Ultra", price:19499000, rating:4.7, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop" },
+            { id:3, name:"Google Pixel 8 Pro", price:14999000, rating:4.6, image:"https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop" },
+            { id:4, name:"OnePlus 12", price:11999000, rating:4.4, image:"https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop" }
         ];
 
+        const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
         let phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
+        let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
+        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
-        // Load user profile from localStorage
-        userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-
-        // DOM elements
-        const landingPage = document.getElementById('landingPage');
-        const catalogPage = document.getElementById('catalogPage');
-        const phoneGrid = document.getElementById('phoneGrid');
-        const emptyState = document.getElementById('emptyState');
-        const searchInput = document.getElementById('searchInput');
-        const filterModal = document.getElementById('filterModal');
-        const profileModal = document.getElementById('profileModal');
-        const addModal = document.getElementById('addModal');
-        const toast = document.getElementById('toast');
-        const toastMsg = document.getElementById('toastMsg');
-
-        const filterMinPrice = document.getElementById('filterMinPrice');
-        const filterMaxPrice = document.getElementById('filterMaxPrice');
-        const userSection = document.getElementById('userSection');
-        const userAvatar = document.getElementById('userAvatar');
-        const userName = document.getElementById('userName');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const adminBtn = document.getElementById('adminBtn');
-        const filterBadge = document.getElementById('filterBadge');
+        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
 
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         const facebookProvider = new firebase.auth.FacebookAuthProvider();
         const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-        let activeFilters = { ratings: [], minPrice: null, maxPrice: null };
+        let activeFilters = { ratings:[], minPrice:null, maxPrice:null };
+        const $ = id => document.getElementById(id);
 
-        function showPage(page) {
-            landingPage.classList.add('hidden');
-            catalogPage.classList.add('hidden');
-            page.classList.remove('hidden');
-        }
+        function showPage(p) { $('landingPage').classList.toggle('hidden', p !== $('landingPage')); $('catalogPage').classList.toggle('hidden', p !== $('catalogPage')); }
+        
+        function showToast(msg) { $('toastMsg').textContent = msg; $('toast').classList.remove('hidden'); setTimeout(() => $('toast').classList.add('hidden'), 3000); }
+        
+        function savePhones() { localStorage.setItem('freinzPhones', JSON.stringify(phones)); }
+        function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
 
-        function savePhones() {
-            localStorage.setItem('freinzPhones', JSON.stringify(phones));
-        }
-
-        function showToast(msg) {
-            toastMsg.textContent = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function saveUserProfile() {
-            localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile));
-        }
-
-        function renderStars(rating) {
-            let stars = '';
-            const fullStars = Math.floor(rating);
-            const hasHalf = rating % 1 >= 0.5;
-            for (let i = 0; i < 5; i++) {
-                if (i < fullStars) stars += '<i class="fas fa-star star-filled"></i>';
-                else if (i === fullStars && hasHalf) stars += '<i class="fas fa-star-half-alt star-filled"></i>';
-                else stars += '<i class="fas fa-star text-gray-600"></i>';
+        function renderStars(r) { 
+            let stars = ''; 
+            for(let i=0;i<5;i++) {
+                stars += i<Math.floor(r) ? '<i class="fas fa-star star-filled"></i>' : 
+                       (i===Math.floor(r)&&r%1>=0.5 ? '<i class="fas fa-star-half-alt star-filled"></i>' : 
+                       '<i class="fas fa-star text-gray-600"></i>');
             }
             return stars;
         }
 
-        function renderPhones(filtered = phones) {
-            phoneGrid.innerHTML = '';
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                phoneGrid.classList.add('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                phoneGrid.classList.remove('hidden');
-                filtered.forEach(phone => {
-                    const card = document.createElement('div');
-                    card.className = 'glass rounded-2xl overflow-hidden card-glow transition-all';
-                    card.innerHTML = `
-                        <div class="relative h-44 overflow-hidden">
-                            <img src="${phone.image}" alt="${phone.name}" class="w-full h-full object-cover">
-                            ${isAdmin ? `<button onclick="deletePhone(${phone.id})" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center">
-                                <i class="fas fa-trash"></i>
-                            </button>` : ''}
-                        </div>
-                        <div class="p-4">
-                            <h3 class="text-lg font-bold mb-2 truncate">${phone.name}</h3>
-                            <div class="flex items-center gap-2 mb-3">
-                                <div class="flex text-sm">${renderStars(phone.rating)}</div>
-                                <span class="text-gray-400 text-sm">${phone.rating.toFixed(1)}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-2xl font-bold gradient-text">Rp ${phone.price.toLocaleString('id-ID')}</span>
-                            </div>
-                        </div>
-                    `;
-                    phoneGrid.appendChild(card);
-                });
+        function renderPhones(list = phones) {
+            $('phoneGrid').innerHTML = '';
+            if(list.length === 0) {
+                $('emptyState').classList.remove('hidden');
+                $('phoneGrid').classList.add('hidden');
+                let msg = 'No phones found';
+                if(activeFilters.maxPrice && activeFilters.maxPrice < 1000000) msg = 'Sayangnya Gaada Smartphone Yang Bagus Di Bawah 1 Jutaan';
+                else if(activeFilters.minPrice && activeFilters.minPrice > 13000000) msg = 'Semua Yang Diatas Harga Segini Udah Termasuk Bagus Kok. Pilih Aja Sesuai Seleramu';
+                $('emptyMsg').textContent = msg;
+                return;
             }
+            $('emptyState').classList.add('hidden');
+            $('phoneGrid').classList.remove('hidden');
+            list.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'glass rounded-2xl overflow-hidden card-glow transition-all duration-300';
+                card.innerHTML = `
+                    <div class="relative h-40 md:h-48 overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        ${isAdmin ? `<button onclick="deletePhone(${p.id})" class="absolute top-2 right-2 w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors" title="Delete"><i class="fas fa-trash text-sm"></i></button>` : ''}
+                    </div>
+                    <div class="p-4 md:p-5">
+                        <h3 class="text-base md:text-lg font-bold mb-2 truncate">${p.name}</h3>
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="flex text-xs md:text-sm">${renderStars(p.rating)}</div>
+                            <span class="text-gray-400 text-xs md:text-sm">${p.rating.toFixed(1)}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl md:text-2xl font-bold gradient-text">Rp ${p.price.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>`;
+                $('phoneGrid').appendChild(card);
+            });
         }
 
         function applyFilters() {
-            let filtered = [...phones];
-            const term = searchInput.value.toLowerCase();
-            if (term) filtered = filtered.filter(p => p.name.toLowerCase().includes(term));
-            if (activeFilters.ratings.length > 0) {
-                filtered = filtered.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
-            }
-            if (activeFilters.minPrice || activeFilters.maxPrice) {
-                filtered = filtered.filter(p => {
-                    if (activeFilters.minPrice && activeFilters.maxPrice) {
-                        return p.price >= activeFilters.minPrice && p.price <= activeFilters.maxPrice;
-                    } else if (activeFilters.minPrice) {
-                        return p.price >= activeFilters.minPrice;
-                    } else {
-                        return p.price <= activeFilters.maxPrice;
-                    }
-                });
-            }
-            // Apply guest filter - only show 4.5-5 star for guests
-            if (!currentUser || !isAdmin) {
-                filtered = filtered.filter(p => p.rating >= 4.5);
-            }
-            renderPhones(filtered);
-        }
-
-        function deletePhone(id) {
-            phones = phones.filter(p => p.id !== id);
-            savePhones();
-            applyFilters();
-            showToast('Phone deleted');
-        }
-
-        function updateUserUI(user) {
-            if (user) {
-                currentUser = user;
-                userSection.classList.remove('hidden');
-                // Check if user email is in admin list (case-insensitive)
-                const userEmail = user.email?.toLowerCase() || '';
-                const isUserAdmin = ADMIN_EMAILS.some(admin => admin.toLowerCase() === userEmail);
-                isAdmin = isUserAdmin;
-                const displayName = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
-                userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=f97316&color=fff&bold=true`;
-                userName.textContent = displayName;
-                // Show admin button only for admins
-                if (isUserAdmin) {
-                    adminBtn.classList.remove('hidden');
-                } else {
-                    adminBtn.classList.add('hidden');
-                }
-            } else {
-                currentUser = null;
-                userSection.classList.add('hidden');
-                isAdmin = false;
-                adminBtn.classList.add('hidden');
-            }
+            let f = [...phones];
+            const term = $('searchInput').value.toLowerCase();
+            if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
+            if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
+            renderPhones(f);
+            updateFilterBadge();
         }
 
         function updateFilterBadge() {
-            const count = activeFilters.ratings.length + (activeFilters.minPrice ? 1 : 0) + (activeFilters.maxPrice ? 1 : 0);
-            filterBadge.classList.toggle('hidden', count === 0);
-            filterBadge.textContent = count;
+            const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0);
+            $('filterBadge').classList.toggle('hidden', count === 0);
+            $('filterBadge').textContent = count;
         }
 
-        // Event Listeners
-        document.getElementById('toCatalogBtn').addEventListener('click', () => showPage(catalogPage));
-        document.getElementById('homeBtn').addEventListener('click', () => showPage(landingPage));
-
-        // Login handlers
-        document.getElementById('loginGoogle').addEventListener('click', async () => {
-            try {
-                const result = await auth.signInWithPopup(googleProvider);
-                updateUserUI(result.user);
-                showPage(catalogPage);
-                showToast('Logged in as: ' + (result.user.email || 'User'));
-            } catch (err) {
-                console.error('Google login error:', err);
-                showToast(err.message);
-            }
-        });
-
-        document.getElementById('loginFacebook').addEventListener('click', async () => {
-            try {
-                const result = await auth.signInWithPopup(facebookProvider);
-                updateUserUI(result.user);
-                showPage(catalogPage);
-                showToast('Logged in as: ' + (result.user.email || 'User'));
-            } catch (err) {
-                console.error('Facebook login error:', err);
-                showToast(err.message);
-            }
-        });
-
-        document.getElementById('loginApple').addEventListener('click', async () => {
-            try {
-                const result = await auth.signInWithPopup(appleProvider);
-                updateUserUI(result.user);
-                showPage(catalogPage);
-                showToast('Logged in as: ' + (result.user.email || 'User'));
-            } catch (err) {
-                console.error('Apple login error:', err);
-                showToast(err.message);
-            }
-        });
-
-        // Profile modal
-        document.getElementById('profileBtn')?.addEventListener('click', () => {
-            const displayName = currentUser?.displayName || userProfile.username || currentUser?.email?.split('@')[0] || '';
-            document.getElementById('profileAvatar').src = userAvatar.src;
-            document.getElementById('profileEmail').textContent = currentUser?.email || '';
-            document.getElementById('profileUsername').value = userProfile.username || displayName;
-            document.getElementById('profileBio').value = userProfile.bio || '';
-            profileModal.classList.remove('hidden');
-        });
-
-        document.getElementById('closeProfileModal').addEventListener('click', () => profileModal.classList.add('hidden'));
-        document.getElementById('saveProfile').addEventListener('click', () => {
-            userProfile.username = document.getElementById('profileUsername').value;
-            userProfile.bio = document.getElementById('profileBio').value;
-            saveUserProfile();
-            updateUserUI(currentUser);
-            profileModal.classList.add('hidden');
-            showToast('Profile saved!');
-        });
-
-        profileModal.addEventListener('click', (e) => { if (e.target === profileModal) profileModal.classList.add('hidden'); });
-
-        // Logout with confirmation modal
-        logoutBtn.addEventListener('click', () => {
-            document.getElementById('logoutModal').classList.remove('hidden');
-        });
-
-        document.getElementById('cancelLogout').addEventListener('click', () => {
-            document.getElementById('logoutModal').classList.add('hidden');
-        });
-
-        document.getElementById('confirmLogout').addEventListener('click', () => {
-            document.getElementById('logoutModal').classList.add('hidden');
-            if (auth.currentUser) auth.signOut();
-            updateUserUI(null);
-            showPage(landingPage);
-            showToast('Signed out');
-        });
-
-        document.getElementById('logoutModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('logoutModal')) {
-                document.getElementById('logoutModal').classList.add('hidden');
-            }
-        });
-
-        // Filter
-        document.getElementById('openFilterBtn').addEventListener('click', () => filterModal.classList.remove('hidden'));
-        document.getElementById('closeFilterModal').addEventListener('click', () => filterModal.classList.add('hidden'));
-        
-        filterModal.addEventListener('click', (e) => { if (e.target === filterModal) filterModal.classList.add('hidden'); });
-
-        document.querySelectorAll('.filter-rating').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const rating = parseInt(btn.dataset.rating);
-                if (activeFilters.ratings.includes(rating)) {
-                    activeFilters.ratings = activeFilters.ratings.filter(r => r !== rating);
-                    btn.classList.remove('selected');
-                } else {
-                    activeFilters.ratings.push(rating);
-                    btn.classList.add('selected');
-                }
-            });
-        });
-
-        document.getElementById('resetFilter').addEventListener('click', () => {
-            activeFilters = { ratings: [], minPrice: null, maxPrice: null };
-            filterMinPrice.value = '';
-            filterMaxPrice.value = '';
-            document.querySelectorAll('.filter-rating').forEach(b => b.classList.remove('selected'));
-        });
-
-        document.getElementById('applyFilter').addEventListener('click', () => {
-            activeFilters.minPrice = filterMinPrice.value ? parseInt(filterMinPrice.value) : null;
-            activeFilters.maxPrice = filterMaxPrice.value ? parseInt(filterMaxPrice.value) : null;
-            filterModal.classList.add('hidden');
-            applyFilters();
-            updateFilterBadge();
-            
-            if ((activeFilters.minPrice && activeFilters.minPrice < 1000000) || (activeFilters.maxPrice && activeFilters.maxPrice < 1000000)) {
-                showToast('Sayangnya Gaada Smartphone Yang Bagus Di Bawah 1 Jutaan');
-            } else if (activeFilters.minPrice && activeFilters.minPrice > 13000000) {
-                showToast('Semua Yang Diatas Harga Segini Udah Termasuk Bagus Kok. Pilih Aja Sesuai Seleramu');
+        function updateUserUI(user) {
+            if(user) {
+                currentUser = user;
+                const email = user.email?.toLowerCase() || '';
+                isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === email);
+                const name = user.displayName || userProfile.username || user.email?.split('@')[0] || 'User';
+                $('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=f97316&color=fff&bold=true`;
+                $('userName').textContent = name;
+                $('userSection').classList.remove('hidden');
+                $('adminBtn').classList.toggle('hidden', !isAdmin);
             } else {
-                showToast('Filter applied');
+                currentUser = null;
+                isAdmin = false;
+                $('userSection').classList.add('hidden');
+                $('adminBtn').classList.add('hidden');
             }
-        });
-
-        // Add phone modal
-        adminBtn.addEventListener('click', () => {
-            document.getElementById('addForm').reset();
-            base64Image = '';
-            document.getElementById('imagePreview').classList.add('hidden');
-            document.getElementById('imageDropzone').classList.remove('hidden');
-            addModal.classList.remove('hidden');
-        });
-
-        document.getElementById('closeAddModal').addEventListener('click', () => addModal.classList.add('hidden'));
-        addModal.addEventListener('click', (e) => { if (e.target === addModal) addModal.classList.add('hidden'); });
-
-        // Image upload
-        const phoneImage = document.getElementById('phoneImage');
-        const imageDropzone = document.getElementById('imageDropzone');
-        const imagePreview = document.getElementById('imagePreview');
-
-        imageDropzone.addEventListener('click', () => phoneImage.click());
-        phoneImage.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    base64Image = ev.target.result;
-                    imagePreview.src = base64Image;
-                    imagePreview.classList.remove('hidden');
-                    imageDropzone.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('addForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = phones.length > 0 ? Math.max(...phones.map(p => p.id)) + 1 : 1;
-            const newPhone = {
-                id,
-                name: document.getElementById('phoneName').value,
-                price: parseFloat(document.getElementById('phonePrice').value),
-                rating: parseFloat(document.getElementById('phoneRating').value),
-                image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'
-            };
-            phones.push(newPhone);
-            savePhones();
-            addModal.classList.add('hidden');
             applyFilters();
-            showToast('Phone added!');
-        });
-
-        // Search
-        searchInput.addEventListener('input', applyFilters);
-
-        // Auth state
-        if (authAvailable) {
-            auth.onAuthStateChanged((user) => {
-                updateUserUI(user);
-                if (user) {
-                    showPage(catalogPage);
-                } else {
-                    applyFilters();
-                }
-            });
         }
 
         // Initial render
         renderPhones();
 
-        // Check if user is already logged in - show catalog directly
-        if (authAvailable && auth.currentUser) {
-            updateUserUI(auth.currentUser);
-            showPage(catalogPage);
-        }
+        // Auth state
+        if(authAvailable) auth.onAuthStateChanged(user => { if(user) { updateUserUI(user); showPage($('catalogPage')); } });
+
+        // Check if already logged in
+        setTimeout(() => { 
+            if(authAvailable && auth.currentUser) { 
+                updateUserUI(auth.currentUser); 
+                showPage($('catalogPage')); 
+            } else {
+                renderPhones(phones.filter(p => p.rating >= 4.5));
+            }
+        }, 500);
 
         // Event Listeners
-        document.getElementById('toCatalogBtn').addEventListener('click', () => {
-            if (currentUser) {
-                showPage(catalogPage);
-                applyFilters();
-            } else {
-                showPage(catalogPage);
-            }
+        $('toCatalogBtn').onclick = () => showPage($('catalogPage'));
+        $('guestBtn').onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
+        $('homeBtn').onclick = () => { currentUser = null; showPage($('landingPage')); };
+
+        // Login handlers
+        $('loginGoogle').onclick = async () => { try { const r = await auth.signInWithPopup(googleProvider); updateUserUI(r.user); showPage($('catalogPage')); showToast('Welcome ' + (r.user.displayName || 'User') + '!'); } catch(e) { showToast(e.message || 'Login failed'); } };
+        $('loginFacebook').onclick = async () => { try { const r = await auth.signInWithPopup(facebookProvider); updateUserUI(r.user); showPage($('catalogPage')); showToast('Welcome!'); } catch(e) { showToast(e.message || 'Login failed'); } };
+        $('loginApple').onclick = async () => { try { const r = await auth.signInWithPopup(appleProvider); updateUserUI(r.user); showPage($('catalogPage')); showToast('Welcome!'); } catch(e) { showToast(e.message || 'Login failed'); } };
+
+        // Profile modal
+        $('profileBtn').onclick = () => { $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden'); };
+        $('closeProfileModal').onclick = () => $('profileModal').classList.add('hidden');
+        $('saveProfile').onclick = () => { userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!'); };
+        $('profileModal').onclick = e => { if(e.target === $('profileModal')) $('profileModal').classList.add('hidden'); };
+
+        // Logout modal
+        $('logoutBtn').onclick = () => $('logoutModal').classListremove('hidden');
+        $('cancelLogout').onclick = () => $('logoutModal').classList.add('hidden');
+        $('confirmLogout').onclick = () => { $('logoutModal').classList.add('hidden'); if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+        $('logoutModal').onclick = e => { if(e.target === $('logoutModal')) $('logoutModal').classList.add('hidden'); };
+
+        // Filter modal
+        $('openFilterBtn').onclick = () => $('filterModal').classList.remove('hidden');
+        $('closeFilterModal').onclick = () => $('filterModal').classList.add('hidden');
+        $('filterModal').onclick = e => { if(e.target === $('filterModal')) $('filterModal').classList.add('hidden'); };
+        document.querySelectorAll('.filter-rating').forEach(b => {
+            b.onclick = () => { const r = parseInt(b.dataset.rating); if(activeFilters.ratings.includes(r)) { activeFilters.ratings = activeFilters.ratings.filter(x => x !== r); b.classList.remove('selected'); } else { activeFilters.ratings.push(r); b.classList.add('selected'); } };
         });
-        document.getElementById('guestBtn').addEventListener('click', () => {
-            showPage(catalogPage);
-            showToast('Guest view (4.5★+ only)');
-            applyFilters();
-        });
-        document.getElementById('homeBtn').addEventListener('click', () => {
-            currentUser = null;
-            showPage(landingPage);
-        });
+        $('resetFilter').onclick = () => { activeFilters = { ratings:[], minPrice:null, maxPrice:null }; $('filterMinPrice').value = ''; $('filterMaxPrice').value = ''; document.querySelectorAll('.filter-rating').forEach(b => b.classList.remove('selected')); };
+        $('applyFilter').onclick = () => { activeFilters.minPrice = $('filterMinPrice').value ? parseInt($('filterMinPrice').value) : null; activeFilters.maxPrice = $('filterMaxPrice').value ? parseInt($('filterMaxPrice').value) : null; $('filterModal').classList.add('hidden'); applyFilters(); showToast('Filter applied'); };
+
+        // Add phone modal
+        $('adminBtn').onclick = () => { $('addForm').reset(); base64Image = ''; $('imagePreview').classList.add('hidden'); $('imageDropzone').classList.remove('hidden'); $('addModal').classList.remove('hidden'); };
+        $('closeAddModal').onclick = () => $('addModal').classList.add('hidden');
+        $('addModal').onclick = e => { if(e.target === $('addModal')) $('addModal').classList.add('hidden'); };
+        $('imageDropzone').onclick = () => $('phoneImage').click();
+        $('phoneImage').onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; $('imagePreview').src = base64Image; $('imagePreview').classList.remove('hidden'); $('imageDropzone').classList.add('hidden'); }; r.readAsDataURL(f); } };
+        $('addForm').onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: $('phoneName').value, price: parseFloat($('phonePrice').value), rating: parseFloat($('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); $('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
+
+        // Search
+        $('searchInput').oninput = applyFilters;
+
+        // Delete function
+        window.deletePhone = id => { phones = phones.filter(p => p.id !== id); savePhones(); applyFilters(); showToast('Phone deleted!'); };
     </script>
 </body>
 </html>
