@@ -361,18 +361,25 @@
             if(nameEl) nameEl.innerText = savedName;
         }
 
-        // Auth state
-        if(authAvailable) auth.onAuthStateChanged(user => { if(user) { updateUserUI(user); showPage($('catalogPage')); } });
-
-        // Check if already logged in
-        setTimeout(() => { 
-            if(authAvailable && auth.currentUser) { 
-                updateUserUI(auth.currentUser); 
-                showPage($('catalogPage')); 
+        // Check if already logged in - multiple checks for reliability
+        setTimeout(function(){
+            if(auth && auth.currentUser) {
+                updateUserUI(auth.currentUser);
+                showPage(document.getElementById('catalogPage'));
             } else {
-                renderPhones(phones.filter(p => p.rating >= 4.5));
+                renderPhones(phones.filter(function(p){return p.rating >= 4.5}));
             }
-        }, 500);
+        }, 1000);
+
+        // Auth state listener
+        if(auth) {
+            auth.onAuthStateChanged(function(user) {
+                if(user) {
+                    updateUserUI(user);
+                    showPage(document.getElementById('catalogPage'));
+                }
+            });
+        }
 
         // Event Listeners
         $('guestBtn').onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
