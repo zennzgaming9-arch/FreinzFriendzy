@@ -34,7 +34,9 @@
         .login-google:hover { box-shadow: 0 0 25px rgba(66,133,244,0.5); border-color: #4285F4 !important; }
         .login-facebook:hover { box-shadow: 0 0 25px rgba(24,119,242,0.5); border-color: #1877F2 !important; }
         .login-apple:hover { box-shadow: 0 0 25px rgba(255,255,255,0.3); border-color: #fff !important; }
-        .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; border-color: transparent !important; }
+        .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
+        .price-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
+        .sort-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -142,116 +144,68 @@
         <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm md:text-base">&copy; 2024 Freinz Friendzy</p></footer>
     </div>
 
-    <!-- Filter Modal -->
-    <div id="filterModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-xl font-bold">Filter</h2>
-                <button id="closeFilterModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
+<!-- Filter Modal -->
+    <div id="filterModal" class="hidden fixed inset-0 z-50 flex items-center justify-end modal-overlay p-0">
+        <div class="glass w-full max-w-md h-full overflow-y-auto">
+            <div class="sticky top-0 glass p-4 flex justify-between items-center z-10">
+                <h2 class="text-lg font-bold">Filter</h2>
+                <button id="closeFilterModal" class="w-9 h-9 rounded-full glass hover:bg-white/10 flex items-center justify-center">×</button>
             </div>
-            <div class="mb-5">
-                <h3 class="font-semibold mb-3 text-sm md:text-base">Rating</h3>
+            
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="font-semibold mb-3 text-sm">Rating</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="5">5 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="4">4 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="3">3 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="2">2 Star</button>
-                    <button class="filter-rating px-3 py-2 rounded-lg glass text-sm cursor-pointer" data-rating="1">1 Star</button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-rating="5">
+                        <span class="text-vivid">★</span> 5
+                    </button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4">
+                        <span class="text-vivid">★</span> 4+
+                    </button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3">
+                        <span class="text-vivid">★</span> 3+
+                    </button>
                 </div>
             </div>
-            <div class="mb-5">
-                <h3 class="font-semibold mb-3 text-sm md:text-base">Price Range (Min - Max)</h3>
-                <div class="flex gap-3">
+            
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="font-semibold mb-3 text-sm">Harga</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="0" data-max="1000000">&lt; 1 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="1000000" data-max="2000000">1-2 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="2000000" data-max="3000000">2-3 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="3000000" data-max="5000000">3-5 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="5000000" data-max="10000000">5-10 JT</button>
+                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="10000000" data-max="999999999">&gt; 10 JT</button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="font-semibold mb-3 text-sm">Kisaran Harga</h3>
+                <div class="flex items-center gap-3">
                     <div class="flex-1">
-                        <label class="text-gray-400 text-xs">Min Price</label>
-                        <input type="number" id="filterMinPrice" placeholder="��: 1000000" class="w-full px-3 py-2 rounded-lg text-sm" step="100000">
+                        <input type="number" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm">
                     </div>
-                    <div class="flex items-center pb-2 text-gray-400">-</div>
+                    <span class="text-gray-400">-</span>
                     <div class="flex-1">
-                        <label class="text-gray-400 text-xs">Max Price</label>
-                        <input type="number" id="filterMaxPrice" placeholder="例: 5000000" class="w-full px-3 py-2 rounded-lg text-sm" step="100000">
+                        <input type="number" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm">
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button id="resetFilter" class="flex-1 py-2 md:py-3 rounded-xl glass font-semibold text-sm md:text-base">Reset</button>
-                <button id="applyFilter" class="flex-1 py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Apply</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logout Modal -->
-    <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-6 w-full max-w-sm text-center">
-            <div class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-sign-out-alt text-2xl"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2">Log Out?</h2>
-            <p class="text-gray-400 mb-5">Are you sure you want to log out?</p>
-            <div class="flex gap-3">
-                <button id="cancelLogout" class="flex-1 py-3 rounded-xl glass font-semibold">Cancel</button>
-                <button id="confirmLogout" class="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold">Log Out</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Profile Modal -->
-    <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-xl font-bold">Profile</h2>
-                <button id="closeProfileModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
-            </div>
-            <div class="text-center mb-4">
-                <img id="profileAvatar" class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto mb-2" src="">
-                <p id="profileEmail" class="text-gray-400 text-xs md:text-sm"></p>
-            </div>
-            <div class="mb-4">
-                <label class="text-gray-400 text-sm block mb-2">Username</label>
-                <input type="text" id="profileUsername" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
-            </div>
-            <div class="mb-5">
-                <label class="text-gray-400 text-sm block mb-2">Bio</label>
-                <textarea id="profileBio" class="w-full px-4 py-2 md:py-3 rounded-xl h-20 text-sm md:text-base resize-none"></textarea>
-            </div>
-            <button id="saveProfile" class="w-full py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Save Profile</button>
-        </div>
-    </div>
-
-    <!-- Add Phone Modal -->
-    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay p-4">
-        <div class="glass rounded-2xl p-5 md:p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-xl font-bold">Add Phone</h2>
-                <button id="closeAddModal" class="w-9 h-9 md:w-10 md:h-10 rounded-full glass hover:bg-white/10">×</button>
-            </div>
-            <form id="addForm">
-                <div class="mb-3 md:mb-4">
-                    <label class="text-gray-400 text-sm block mb-2">Phone Name</label>
-                    <input type="text" id="phoneName" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" required>
+            
+            <div class="p-4">
+                <h3 class="font-semibold mb-3 text-sm">Urutkan</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-sort="termurah">Termurah</button>
+                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-sort="termahal">Termahal</button>
+                    <button class="sort-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-sort="rating">Rating Tertinggi</button>
                 </div>
-                <div class="mb-3 md:mb-4">
-                    <label class="text-gray-400 text-sm block mb-2">Price (Rp)</label>
-                    <input type="number" id="phonePrice" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" required>
-                </div>
-                <div class="mb-3 md:mb-4">
-                    <label class="text-gray-400 text-sm block mb-2">Rating (1-5)</label>
-                    <input type="number" id="phoneRating" class="w-full px-4 py-2 md:py-3 rounded-xl text-sm md:text-base" step="0.1" min="1" max="5" required>
-                </div>
-                <div class="mb-4 md:mb-5">
-                    <label class="text-gray-400 text-sm block mb-2">Image</label>
-                    <div class="relative">
-                        <input type="file" id="phoneImage" accept="image/*" class="hidden">
-                        <div id="imageDropzone" class="h-28 md:h-32 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-vivid transition-colors">
-                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-1"></i>
-                            <span class="text-gray-400 text-xs md:text-sm">Click to upload</span>
-                        </div>
-                        <img id="imagePreview" class="hidden w-full h-28 md:h-32 object-cover rounded-xl mt-2">
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-2 md:py-3 rounded-xl gradient-bg font-semibold text-sm md:text-base">Add Phone</button>
-            </form>
-        </div>
+            </div>
+            
+            <div class="sticky bottom-0 glass p-4 flex gap-3 z-10">
+                <button id="resetFilter" class="flex-1 py-3 rounded-xl glass font-semibold text-sm">Reset</button>
+                <button id="applyFilter" class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm">Terapkan</button>
+            </div>
+</div>
     </div>
 
     <!-- Toast -->
@@ -416,14 +370,84 @@
         $('logoutModal').onclick = e => { if(e.target === $('logoutModal')) $('logoutModal').classList.add('hidden'); };
 
         // Filter modal
-        $('openFilterBtn').onclick = () => $('filterModal').classList.remove('hidden');
-        $('closeFilterModal').onclick = () => $('filterModal').classList.add('hidden');
-        $('filterModal').onclick = e => { if(e.target === $('filterModal')) $('filterModal').classList.add('hidden'); };
-        document.querySelectorAll('.filter-rating').forEach(b => {
-            b.onclick = () => { const r = parseInt(b.dataset.rating); if(activeFilters.ratings.includes(r)) { activeFilters.ratings = activeFilters.ratings.filter(x => x !== r); b.classList.remove('selected'); } else { activeFilters.ratings.push(r); b.classList.add('selected'); } };
+        let activeSort = 'termurah';
+        console.log('Filter setup starting...');
+        $('openFilterBtn').onclick = function() { 
+            console.log('Filter clicked'); 
+            $('filterModal').classList.remove('hidden'); 
+        };
+        $('closeFilterModal').onclick = function() { $('filterModal').classList.add('hidden'); };
+        
+        // Close when clicking outside
+        $('filterModal').addEventListener('click', function(e) {
+            if (e.target === $('filterModal')) {
+                $('filterModal').classList.add('hidden');
+            }
         });
-        $('resetFilter').onclick = () => { activeFilters = { ratings:[], minPrice:null, maxPrice:null }; $('filterMinPrice').value = ''; $('filterMaxPrice').value = ''; document.querySelectorAll('.filter-rating').forEach(b => b.classList.remove('selected')); };
-        $('applyFilter').onclick = () => { activeFilters.minPrice = $('filterMinPrice').value ? parseInt($('filterMinPrice').value) : null; activeFilters.maxPrice = $('filterMaxPrice').value ? parseInt($('filterMaxPrice').value) : null; $('filterModal').classList.add('hidden'); applyFilters(); showToast('Filter applied'); };
+        
+        // Rating buttons
+        document.querySelectorAll('.filter-rating').forEach(b => {
+            b.onclick = () => { 
+                const r = parseInt(b.dataset.rating);
+                activeFilters.ratings = [r]; // Single select
+                document.querySelectorAll('.filter-rating').forEach(btn => btn.classList.remove('selected'));
+                b.classList.add('selected');
+            };
+        });
+        
+        // Price buttons
+        document.querySelectorAll('.price-btn').forEach(b => {
+            b.onclick = () => {
+                activeFilters.minPrice = parseInt(b.dataset.min);
+                activeFilters.maxPrice = parseInt(b.dataset.max);
+                document.querySelectorAll('.price-btn').forEach(btn => btn.classList.remove('selected'));
+                b.classList.add('selected');
+            };
+        });
+        
+        // Sort buttons
+        document.querySelectorAll('.sort-btn').forEach(b => {
+            b.onclick = () => {
+                activeSort = b.dataset.sort;
+                document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('selected'));
+                b.classList.add('selected');
+            };
+        });
+        
+        $('resetFilter').onclick = () => { 
+            activeFilters = { ratings:[], minPrice:null, maxPrice:null }; 
+            activeSort = 'termurah';
+            $('filterMinPrice').value = ''; 
+            $('filterMaxPrice').value = ''; 
+            document.querySelectorAll('.filter-rating, .price-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelector('.sort-btn[data-sort="termurah"]').classList.add('selected');
+        };
+        
+        $('applyFilter').onclick = () => { 
+            activeFilters.minPrice = $('filterMinPrice').value ? parseInt($('filterMinPrice').value) : null;
+            activeFilters.maxPrice = $('filterMaxPrice').value ? parseInt($('filterMaxPrice').value) : null;
+            $('filterModal').classList.add('hidden'); 
+            applyFilters(); 
+            showToast('Filter applied');
+        };
+
+        // Override applyFilters to include sorting
+        applyFilters = function() {
+            let f = [...phones];
+            const term = $('searchInput').value.toLowerCase();
+            if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
+            if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
+            
+            if(activeSort === 'termurah') f.sort((a,b) => a.price - b.price);
+            else if(activeSort === 'termahal') f.sort((a,b) => b.price - a.price);
+            else if(activeSort === 'rating') f.sort((a,b) => b.rating - a.rating);
+            
+            updateFilterBadge();
+            renderPhones(f);
+        };
 
         // Add phone modal
         $('adminBtn').onclick = () => { $('addForm').reset(); base64Image = ''; $('imagePreview').classList.add('hidden'); $('imageDropzone').classList.remove('hidden'); $('addModal').classList.remove('hidden'); };
