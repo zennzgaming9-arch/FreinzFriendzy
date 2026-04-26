@@ -59,7 +59,6 @@
                     <span class="text-lg md:text-2xl font-bold gradient-text">Freinz Friendzy</span>
                 </div>
                 <div class="flex gap-2">
-                    <button id="toCatalogBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 text-sm md:text-base">Catalog</button>
                     <button id="guestBtn" class="px-3 py-2 rounded-lg glass hover:bg-white/10 text-sm md:text-base">Guest</button>
                 </div>
             </div>
@@ -396,7 +395,6 @@
         }, 500);
 
         // Event Listeners
-        $('toCatalogBtn').onclick = () => showPage($('catalogPage'));
         $('guestBtn').onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
         $('homeBtn').onclick = () => { currentUser = null; showPage($('landingPage')); };
 
