@@ -212,7 +212,7 @@
             </div>
             <input type="text" id="profileUsername" placeholder="Username" class="w-full p-3 rounded-xl glass mb-3 text-white" value="">
             <textarea id="profileBio" placeholder="Bio" rows="3" class="w-full p-3 rounded-xl glass mb-4 text-white"></textarea>
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;if(name){localStorage.setItem('freinzUserProfile',JSON.stringify({username:name}));document.getElementById('userName').innerText=name;document.getElementById('profileModal').classList.add('hidden');alert('Saved!');}">Save</button>
+            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var name=document.getElementById('profileUsername').value;var obj={username:name};localStorage.setItem('freinzUserProfile',JSON.stringify(obj));document.getElementById('profileModal').classList.add('hidden');location.reload();">Save</button>
         </div>
     </div>
 
