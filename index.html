@@ -314,6 +314,7 @@
         function savePhonesToJSONBin() {
             localStorage.setItem('freinzPhones', JSON.stringify(phones));
             if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
+                console.log('Saving to JSONBin:', phones);
                 fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
                     method: 'PUT',
                     headers: {
@@ -321,22 +322,35 @@
                         'X-Master-Key': JSONBIN_API_KEY
                     },
                     body: JSON.stringify(phones)
-                }).catch(e => console.error('Error saving to JSONBin:', e));
+                })
+                .then(response => {
+                    console.log('Save response:', response);
+                    return response.json();
+                })
+                .then(data => console.log('Save success:', data))
+                .catch(e => console.error('Error saving to JSONBin:', e));
             }
         }
         
         function loadPhonesFromJSONBin() {
             if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
+                console.log('Loading from JSONBin...');
                 fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
                     method: 'GET',
                     headers: {
                         'X-Master-Key': JSONBIN_API_KEY
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Load response status:', response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Load data:', data);
                     if (data && data.record) {
                         phones = data.record;
+                    } else if (data && data.length !== undefined) {
+                        phones = data;
                     } else {
                         phones = [];
                     }
