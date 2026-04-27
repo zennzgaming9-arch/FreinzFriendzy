@@ -278,7 +278,7 @@
         let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
         // JSONBin setup
-        const JSONBIN_BIN_ID = '69ef3fbe36566621a8f813fd';
+        const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
         const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
 
         try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
@@ -347,10 +347,10 @@
                 })
                 .then(data => {
                     console.log('Load data:', data);
-                    if (data && data.record) {
-                        phones = data.record;
-                    } else if (data && data.length !== undefined) {
-                        phones = data;
+                    if (data && data.record && Array.isArray(data.record)) {
+                        phones = data.record.filter(p => p && p.name && typeof p.rating === 'number');
+                    } else if (data && Array.isArray(data)) {
+                        phones = data.filter(p => p && p.name && typeof p.rating === 'number');
                     } else {
                         phones = [];
                     }
