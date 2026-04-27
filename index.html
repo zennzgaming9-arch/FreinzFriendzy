@@ -382,7 +382,7 @@
                 if (userAvatar) userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
                 if (userName) userName.innerText = name;
                 if (userSection) userSection.classList.remove('hidden');
-                if (adminBtn) adminBtn.classList.remove('hidden');
+                if (isAdmin && adminBtn) adminBtn.classList.remove('hidden');
                 if (homeBtn) homeBtn.classList.add('hidden');
             } else {
                 currentUser = null;
@@ -410,7 +410,7 @@
                 updateUserUI(auth.currentUser);
                 showPage(document.getElementById('catalogPage'));
             } else {
-                renderPhones(phones.filter(function(p){return p.rating >= 4.5}));
+                renderPhones(phones);
             }
         }, 1000);
 
@@ -427,7 +427,7 @@
         // Event Listeners
         const guestBtn = $('guestBtn');
         const homeBtn = $('homeBtn');
-        if (guestBtn) guestBtn.onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
+        if (guestBtn) guestBtn.onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Viewing all phones'); applyFilters(); };
         if (homeBtn) homeBtn.onclick = () => { const us = $('userSection'); if (us) us.classList.add('hidden'); showPage($('landingPage')); };
 
         // Login handlers - removed duplicates
@@ -532,7 +532,6 @@ function doResetFilter() {
             }
             if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
             
             if(activeSort === 'termurah') f.sort((a,b) => a.price - b.price);
             else if(activeSort === 'termahal') f.sort((a,b) => b.price - a.price);
