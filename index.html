@@ -37,6 +37,9 @@
         .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         .price-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         .sort-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
+        .tab-active { background: linear-gradient(135deg, #f97316, #a855f7); color: white; }
+        .tab-inactive { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
+        .tab-inactive:hover { background: rgba(255,255,255,0.1); }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -118,7 +121,6 @@
                         </button>
                         <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
-                    <button id="adminBtn" class="hidden px-3 md:px-4 py-2 rounded-xl gradient-bg text-xs md:text-sm" onclick="document.getElementById('addModal').classList.remove('hidden')">+ Add</button>
                 </div>
             </div>
         </nav>
@@ -129,12 +131,33 @@
                     <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
                     <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
                 </div>
-                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base" onclick="document.getElementById('filterModal').classList.remove('hidden')">
+                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base">
                     <i class="fas fa-sliders-h"></i><span>Filter</span>
                     <span id="filterBadge" class="hidden w-5 h-5 rounded-full bg-vivid text-white text-xs flex items-center justify-center">0</span>
                 </button>
             </div>
+            
+            <div id="tabNav" class="hidden flex justify-center gap-4 mb-6 md:mb-8">
+                <button id="tabCatalog" class="px-6 py-2 rounded-xl font-semibold tab-active">Catalog</button>
+                <button id="tabAdmin" class="px-6 py-2 rounded-xl font-semibold tab-inactive">Admin Panel</button>
+            </div>
+            
             <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
+            <div id="adminPanel" class="hidden">
+                <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+                <div class="glass p-6 rounded-xl mb-6">
+                    <h3 class="text-lg font-bold mb-4">Add New Phone</h3>
+                    <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl glass mb-2 text-white">
+                    <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl glass mb-2 text-white">
+                    <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl glass mb-2 text-white">
+                    <input type="file" id="phoneImage" accept="image/*" class="hidden">
+                    <button type="button" id="uploadImageBtn" class="w-full py-3 rounded-xl glass mb-2">Upload Image</button>
+                    <img id="imagePreview" class="hidden w-full h-32 object-cover rounded mb-2">
+                    <button id="addPhoneBtn" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
+                </div>
+                <h3 class="text-lg font-bold mb-4">Manage Phones</h3>
+                <div id="adminPhoneList" class="space-y-4"></div>
+            </div>
             <div id="emptyState" class="hidden text-center py-12 md:py-20">
                 <i class="fas fa-mobile-alt text-5xl md:text-7xl text-gray-600 mb-4"></i>
                 <p id="emptyMsg" class="text-gray-400 text-lg md:text-xl">No phones found</p>
@@ -370,7 +393,7 @@
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userSection = document.getElementById('userSection');
-            const adminBtn = document.getElementById('adminBtn');
+            const tabNav = document.getElementById('tabNav');
             const homeBtn = document.getElementById('homeBtn');
             if(user) {
                 currentUser = user;
@@ -382,13 +405,13 @@
                 if (userAvatar) userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
                 if (userName) userName.innerText = name;
                 if (userSection) userSection.classList.remove('hidden');
-                if (isAdmin && adminBtn) adminBtn.classList.remove('hidden');
+                if (isAdmin && tabNav) tabNav.classList.remove('hidden');
                 if (homeBtn) homeBtn.classList.add('hidden');
             } else {
                 currentUser = null;
                 isAdmin = false;
                 if (userSection) userSection.classList.add('hidden');
-                if (adminBtn) adminBtn.classList.add('hidden');
+                if (tabNav) tabNav.classList.add('hidden');
                 if (homeBtn) homeBtn.classList.remove('hidden');
             }
             applyFilters();
@@ -541,26 +564,150 @@ function doResetFilter() {
             renderPhones(f);
         };
 
-        // Add phone modal
-        const adminBtn = $('adminBtn');
-        const closeAddModal = $('closeAddModal');
-        const addModal = $('addModal');
-        if (adminBtn) adminBtn.onclick = () => { const af = $('addForm'); if (af) af.reset(); base64Image = ''; const ip = $('imagePreview'); if (ip) ip.classList.add('hidden'); const idz = $('imageDropzone'); if (idz) idz.classList.remove('hidden'); const am = $('addModal'); if (am) am.classList.remove('hidden'); };
-        if (closeAddModal) closeAddModal.onclick = () => $('addModal').classList.add('hidden');
-        if (addModal) addModal.onclick = e => { if(e.target === addModal) addModal.classList.add('hidden'); };
-        const imageDropzone = $('imageDropzone');
-        if (imageDropzone) imageDropzone.onclick = () => { const pi = $('phoneImage'); if (pi) pi.click(); };
-        const phoneImage = $('phoneImage');
-        if (phoneImage) phoneImage.onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; const ip2 = $('imagePreview'); if (ip2) ip2.src = base64Image; if (ip2) ip2.classList.remove('hidden'); const idz2 = $('imageDropzone'); if (idz2) idz2.classList.add('hidden'); }; r.readAsDataURL(f); } };
-        const addForm = $('addForm');
-        if (addForm) addForm.onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: $('phoneName').value, price: parseFloat($('phonePrice').value), rating: parseFloat($('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); $('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
+        // Tabs
+        let currentTab = 'catalog';
+        const tabCatalog = $('tabCatalog');
+        const tabAdmin = $('tabAdmin');
+        const phoneGrid = $('phoneGrid');
+        const adminPanel = $('adminPanel');
+        const searchBar = document.querySelector('.flex.flex-col.md\\:flex-row.gap-3');
+        const filterBtn = $('openFilterBtn');
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            if (tab === 'catalog') {
+                if (tabCatalog) {
+                    tabCatalog.classList.remove('tab-inactive');
+                    tabCatalog.classList.add('tab-active');
+                }
+                if (tabAdmin) {
+                    tabAdmin.classList.remove('tab-active');
+                    tabAdmin.classList.add('tab-inactive');
+                }
+                if (phoneGrid) phoneGrid.classList.remove('hidden');
+                if (adminPanel) adminPanel.classList.add('hidden');
+                if (searchBar) searchBar.classList.remove('hidden');
+                if (filterBtn) filterBtn.classList.remove('hidden');
+            } else {
+                if (tabCatalog) {
+                    tabCatalog.classList.remove('tab-active');
+                    tabCatalog.classList.add('tab-inactive');
+                }
+                if (tabAdmin) {
+                    tabAdmin.classList.remove('tab-inactive');
+                    tabAdmin.classList.add('tab-active');
+                }
+                if (phoneGrid) phoneGrid.classList.add('hidden');
+                if (adminPanel) adminPanel.classList.remove('hidden');
+                if (searchBar) searchBar.classList.add('hidden');
+                if (filterBtn) filterBtn.classList.add('hidden');
+                renderAdminPhoneList();
+            }
+        }
+        
+        if (tabCatalog) tabCatalog.onclick = () => switchTab('catalog');
+        if (tabAdmin) tabAdmin.onclick = () => switchTab('admin');
+        
+        function renderAdminPhoneList() {
+            const adminPhoneList = $('adminPhoneList');
+            if (!adminPhoneList) return;
+            adminPhoneList.innerHTML = '';
+            phones.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'glass p-4 rounded-xl flex items-center gap-4';
+                item.innerHTML = '<img src="' + p.image + '" class="w-16 h-16 object-cover rounded">' +
+                    '<div class="flex-1">' +
+                    '<h4 class="font-bold">' + p.name + '</h4>' +
+                    '<p class="text-sm text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</p>' +
+                    '</div>' +
+                    '<button onclick="deletePhone(' + p.id + ')" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600">Delete</button>';
+                adminPhoneList.appendChild(item);
+            });
+        }
+        
+        // Admin panel functions
+        base64Image = '';
+        const uploadImageBtn = $('uploadImageBtn');
+        const phoneImageInput = $('phoneImage');
+        const imagePreviewEl = $('imagePreview');
+        
+        if (uploadImageBtn && phoneImageInput) {
+            uploadImageBtn.onclick = () => phoneImageInput.click();
+        }
+        
+        if (phoneImageInput) {
+            phoneImageInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        base64Image = event.target.result;
+                        if (imagePreviewEl) {
+                            imagePreviewEl.src = base64Image;
+                            imagePreviewEl.classList.remove('hidden');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+        
+        const addPhoneBtn = $('addPhoneBtn');
+        if (addPhoneBtn) {
+            addPhoneBtn.onclick = function() {
+                const phoneNameInput = $('phoneName');
+                const phonePriceInput = $('phonePrice');
+                const phoneRatingInput = $('phoneRating');
+                
+                if (!phoneNameInput || !phoneNameInput.value) {
+                    showToast('Please enter phone name');
+                    return;
+                }
+                if (!phonePriceInput || !phonePriceInput.value) {
+                    showToast('Please enter phone price');
+                    return;
+                }
+                if (!phoneRatingInput || !phoneRatingInput.value) {
+                    showToast('Please enter phone rating');
+                    return;
+                }
+                
+                const newId = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1;
+                const newPhone = {
+                    id: newId,
+                    name: phoneNameInput.value,
+                    price: parseFloat(phonePriceInput.value),
+                    rating: parseFloat(phoneRatingInput.value),
+                    image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'
+                };
+                
+                phones.push(newPhone);
+                savePhones();
+                
+                phoneNameInput.value = '';
+                phonePriceInput.value = '';
+                phoneRatingInput.value = '';
+                base64Image = '';
+                if (imagePreviewEl) imagePreviewEl.classList.add('hidden');
+                
+                applyFilters();
+                renderAdminPhoneList();
+                showToast('Phone added!');
+            };
+        }
 
         // Search
-        const searchInput = $('searchInput');
-        if (searchInput) searchInput.oninput = applyFilters;
+        const searchInputEl = $('searchInput');
+        if (searchInputEl) searchInputEl.oninput = applyFilters;
 
         // Delete function
-        window.deletePhone = id => { phones = phones.filter(p => p.id !== id); savePhones(); applyFilters(); showToast('Phone deleted!'); };
+        window.deletePhone = function(id) {
+            phones = phones.filter(p => p.id !== id);
+            savePhones();
+            applyFilters();
+            renderAdminPhoneList();
+            showToast('Phone deleted!');
+        };
     </script>
 </body>
 </html>
