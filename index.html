@@ -112,7 +112,7 @@
                 </div>
                 <div class="flex items-center gap-2 md:gap-3">
                     <div id="userSection" class="hidden flex items-center gap-2">
-                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="document.getElementById('profileUsername').value=localStorage.getItem('myName')||'';document.getElementById('profileModal').classList.remove('hidden')">
+                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
                             <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
                             <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
                         </button>
@@ -201,10 +201,15 @@
     <!-- Profile Modal -->
     <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
         <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="text-lg font-bold mb-4">Edit Username</h3>
-            <input type="text" id="profileUsername" placeholder="Your name" class="w-full p-3 rounded-xl glass mb-4 text-white">
-            <button class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="localStorage.setItem('myName',document.getElementById('profileUsername').value);document.getElementById('userName').innerText=document.getElementById('profileUsername').value;document.getElementById('profileModal').classList.add('hidden');">Save</button>
-            <button class="w-full py-2 text-gray-400 mt-2" onclick="document.getElementById('profileModal').classList.add('hidden')">Cancel</button>
+            <div class="flex justify-center mb-4">
+                <img id="profileAvatar" class="w-20 h-20 rounded-full" src="">
+            </div>
+            <p id="profileEmail" class="text-center text-gray-400 text-sm mb-4"></p>
+            <h3 class="text-lg font-bold mb-4">Edit Profile</h3>
+            <input type="text" id="profileUsername" placeholder="Your name" class="w-full p-3 rounded-xl glass mb-3 text-white">
+            <textarea id="profileBio" placeholder="Your bio" class="w-full p-3 rounded-xl glass mb-4 text-white resize-none h-20"></textarea>
+            <button id="saveProfile" class="w-full py-3 rounded-xl gradient-bg font-semibold">Save</button>
+            <button id="closeProfileModal" class="w-full py-2 text-gray-400 mt-2">Cancel</button>
         </div>
     </div>
 
@@ -427,9 +432,33 @@
         const closeProfileModal = $('closeProfileModal');
         const saveProfile = $('saveProfile');
         const profileModal = $('profileModal');
-        if (profileBtn) profileBtn.onclick = () => { $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden'); };
-        if (closeProfileModal) closeProfileModal.onclick = () => $('profileModal').classList.add('hidden');
-        if (saveProfile) saveProfile.onclick = () => { userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!'); };
+        if (profileBtn) {
+            profileBtn.onclick = () => {
+                const pa = $('profileAvatar');
+                const pe = $('profileEmail');
+                const pu = $('profileUsername');
+                const pb = $('profileBio');
+                const ua = $('userAvatar');
+                if (pa && ua) pa.src = ua.src;
+                if (pe) pe.textContent = currentUser?.email || '';
+                if (pu) pu.value = userProfile.username || currentUser?.displayName || '';
+                if (pb) pb.value = userProfile.bio || '';
+                if (profileModal) profileModal.classList.remove('hidden');
+            };
+        }
+        if (closeProfileModal) closeProfileModal.onclick = () => { if (profileModal) profileModal.classList.add('hidden'); };
+        if (saveProfile) {
+            saveProfile.onclick = () => {
+                const pu = $('profileUsername');
+                const pb = $('profileBio');
+                if (pu) userProfile.username = pu.value;
+                if (pb) userProfile.bio = pb.value;
+                saveUserProfile();
+                updateUserUI(currentUser);
+                if (profileModal) profileModal.classList.add('hidden');
+                showToast('Profile saved!');
+            };
+        }
         if (profileModal) profileModal.onclick = e => { if(e.target === profileModal) profileModal.classList.add('hidden'); };
 
         // Logout - direct sign out
