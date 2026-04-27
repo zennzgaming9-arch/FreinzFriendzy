@@ -279,11 +279,16 @@
         ];
 
         const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
-        let phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
+        let phones = [];
         let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
+        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, db = null;
 
-        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            auth = firebase.auth(); 
+            db = firebase.firestore();
+            authAvailable = true; 
+        } catch(e) { console.error('Firebase init error:', e); }
 
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         const facebookProvider = new firebase.auth.FacebookAuthProvider();
@@ -313,7 +318,40 @@
             }
         }
         
-        function savePhones() { localStorage.setItem('freinzPhones', JSON.stringify(phones)); }
+        function savePhonesToFirestore() {
+            if (db) {
+                db.collection('phones').doc('phones').set({ phones: phones })
+                    .catch(e => console.error('Error saving to Firestore:', e));
+            }
+            localStorage.setItem('freinzPhones', JSON.stringify(phones));
+        }
+        
+        function loadPhonesFromFirestore() {
+            if (db) {
+                db.collection('phones').doc('phones').get()
+                    .then(doc => {
+                        if (doc.exists && doc.data().phones) {
+                            phones = doc.data().phones;
+                        } else {
+                            phones = [...DEFAULT_PHONES];
+                            savePhonesToFirestore();
+                        }
+                        applyFilters();
+                        renderPhones(phones);
+                    })
+                    .catch(e => {
+                        console.error('Error loading from Firestore:', e);
+                        phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
+                        applyFilters();
+                        renderPhones(phones);
+                    });
+            } else {
+                phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
+                applyFilters();
+                renderPhones(phones);
+            }
+        }
+        
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
 
         function renderStars(r) { 
@@ -349,7 +387,6 @@
                 card.innerHTML = `
                     <div class="relative h-40 md:h-48 overflow-hidden">
                         <img src="${p.image}" class="w-full h-full object-cover">
-                        ${isAdmin ? `<button onclick="deletePhone(${p.id})" class="absolute top-2 right-2 w-9 h-9 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors" title="Delete"><i class="fas fa-trash text-sm"></i></button>` : ''}
                     </div>
                     <div class="p-4 md:p-5">
                         <h3 class="text-base md:text-lg font-bold mb-2 truncate">${p.name}</h3>
@@ -427,15 +464,18 @@
             if(nameEl) nameEl.innerText = savedName;
         }
 
-        // Check if already logged in - multiple checks for reliability
+        // Load phones from Firestore first
+        loadPhonesFromFirestore();
+
+        // Check if already logged in
         setTimeout(function(){
             if(auth && auth.currentUser) {
                 updateUserUI(auth.currentUser);
                 showPage(document.getElementById('catalogPage'));
             } else {
-                renderPhones(phones);
+                showPage(document.getElementById('landingPage'));
             }
-        }, 1000);
+        }, 1500);
 
         // Auth state listener
         if(auth) {
@@ -682,7 +722,7 @@ function doResetFilter() {
                 };
                 
                 phones.push(newPhone);
-                savePhones();
+                savePhonesToFirestore();
                 
                 phoneNameInput.value = '';
                 phonePriceInput.value = '';
@@ -703,7 +743,7 @@ function doResetFilter() {
         // Delete function
         window.deletePhone = function(id) {
             phones = phones.filter(p => p.id !== id);
-            savePhones();
+            savePhonesToFirestore();
             applyFilters();
             renderAdminPhoneList();
             showToast('Phone deleted!');
