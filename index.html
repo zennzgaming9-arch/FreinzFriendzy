@@ -223,6 +223,16 @@
         </div>
     </div>
 
+    <!-- Logout Confirm Modal -->
+    <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
+            <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
+            <p class="text-gray-400 text-sm text-center mb-4">You will be signed out</p>
+            <button id="confirmLogout" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Sign Out</button>
+            <button id="cancelLogout" class="w-full py-2 text-gray-400">Cancel</button>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div id="toast" class="hidden fixed bottom-4 md:bottom-6 right-4 md:right-6 z-50 glass px-5 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base">
         <span id="toastMsg"></span>
@@ -447,9 +457,15 @@
         }
         if (profileModal) profileModal.onclick = e => { if(e.target === profileModal) profileModal.classList.add('hidden'); };
 
-        // Logout - direct sign out
+        // Logout modal
         const logoutBtn = $('logoutBtn');
-        if (logoutBtn) logoutBtn.onclick = () => { if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+        const logoutModal = $('logoutModal');
+        const confirmLogout = $('confirmLogout');
+        const cancelLogout = $('cancelLogout');
+        if (logoutBtn) logoutBtn.onclick = () => { if (logoutModal) logoutModal.classList.remove('hidden'); };
+        if (cancelLogout) cancelLogout.onclick = () => { if (logoutModal) logoutModal.classList.add('hidden'); };
+        if (logoutModal) logoutModal.onclick = e => { if (e.target === logoutModal) logoutModal.classList.add('hidden'); };
+        if (confirmLogout) confirmLogout.onclick = () => { if (logoutModal) logoutModal.classList.add('hidden'); if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
         // Filter modal
         let activeSort = 'termurah';
