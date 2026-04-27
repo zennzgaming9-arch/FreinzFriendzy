@@ -275,14 +275,13 @@
         const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
         let phones = [];
         let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, database = null;
+        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
-        try { 
-            firebase.initializeApp(firebaseConfig); 
-            auth = firebase.auth(); 
-            database = firebase.database();
-            authAvailable = true; 
-        } catch(e) { console.error('Firebase init error:', e); }
+        // JSONBin setup
+        const JSONBIN_BIN_ID = '69ef3fbe36566621a8f813fd';
+        const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
+
+        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
 
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         const facebookProvider = new firebase.auth.FacebookAuthProvider();
@@ -312,26 +311,40 @@
             }
         }
         
-        function savePhonesToFirebase() {
-            if (database) {
-                database.ref('phones').set(phones)
-                    .catch(e => console.error('Error saving to Firebase:', e));
-            }
+        function savePhonesToJSONBin() {
             localStorage.setItem('freinzPhones', JSON.stringify(phones));
+            if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
+                fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(phones)
+                }).catch(e => console.error('Error saving to JSONBin:', e));
+            }
         }
         
-        function loadPhonesFromFirebase() {
-            if (database) {
-                database.ref('phones').on('value', snapshot => {
-                    if (snapshot.exists()) {
-                        phones = snapshot.val() || [];
+        function loadPhonesFromJSONBin() {
+            if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
+                fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': JSONBIN_API_KEY
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.record) {
+                        phones = data.record;
                     } else {
                         phones = [];
                     }
                     applyFilters();
                     renderPhones(phones);
-                }, e => {
-                    console.error('Error loading from Firebase:', e);
+                })
+                .catch(e => {
+                    console.error('Error loading from JSONBin:', e);
                     phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                     applyFilters();
                     renderPhones(phones);
@@ -455,8 +468,8 @@
             if(nameEl) nameEl.innerText = savedName;
         }
 
-        // Load phones from Firebase first
-        loadPhonesFromFirebase();
+        // Load phones from JSONBin first
+        loadPhonesFromJSONBin();
 
         // Check if already logged in
         setTimeout(function(){
@@ -713,7 +726,7 @@ function doResetFilter() {
                 };
                 
                 phones.push(newPhone);
-                savePhonesToFirebase();
+                savePhonesToJSONBin();
                 
                 phoneNameInput.value = '';
                 phonePriceInput.value = '';
@@ -734,7 +747,7 @@ function doResetFilter() {
         // Delete function
         window.deletePhone = function(id) {
             phones = phones.filter(p => p.id !== id);
-            savePhonesToFirebase();
+            savePhonesToJSONBin();
             applyFilters();
             renderAdminPhoneList();
             showToast('Phone deleted!');
