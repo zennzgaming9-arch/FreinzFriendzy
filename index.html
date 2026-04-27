@@ -261,10 +261,11 @@
         <span id="toastMsg"></span>
     </div>
 
-    <script>
+<script>
         const firebaseConfig = {
             apiKey: "AIzaSyAk6RZ_epQdkl213qy-Dqdcim-ZDRe3Xbs",
             authDomain: "freinzfriendzyprojectadv.firebaseapp.com",
+            databaseURL: "https://freinzfriendzyprojectadv-default-rtdb.firebaseio.com",
             projectId: "freinzfriendzyprojectadv",
             storageBucket: "freinzfriendzyprojectadv.firebasestorage.app",
             messagingSenderId: "953972561417",
@@ -281,12 +282,12 @@
         const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
         let phones = [];
         let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, db = null;
+        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, database = null;
 
         try { 
             firebase.initializeApp(firebaseConfig); 
             auth = firebase.auth(); 
-            db = firebase.firestore();
+            database = firebase.database();
             authAvailable = true; 
         } catch(e) { console.error('Firebase init error:', e); }
 
@@ -318,29 +319,29 @@
             }
         }
         
-        function savePhonesToFirestore() {
-            if (db) {
-                db.collection('phones').doc('phones').set({ phones: phones })
-                    .catch(e => console.error('Error saving to Firestore:', e));
+        function savePhonesToFirebase() {
+            if (database) {
+                database.ref('phones').set(phones)
+                    .catch(e => console.error('Error saving to Firebase:', e));
             }
             localStorage.setItem('freinzPhones', JSON.stringify(phones));
         }
         
-        function loadPhonesFromFirestore() {
-            if (db) {
-                db.collection('phones').doc('phones').get()
-                    .then(doc => {
-                        if (doc.exists && doc.data().phones) {
-                            phones = doc.data().phones;
+        function loadPhonesFromFirebase() {
+            if (database) {
+                database.ref('phones').once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            phones = snapshot.val() || [];
                         } else {
                             phones = [...DEFAULT_PHONES];
-                            savePhonesToFirestore();
+                            savePhonesToFirebase();
                         }
                         applyFilters();
                         renderPhones(phones);
                     })
                     .catch(e => {
-                        console.error('Error loading from Firestore:', e);
+                        console.error('Error loading from Firebase:', e);
                         phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
                         applyFilters();
                         renderPhones(phones);
@@ -464,8 +465,8 @@
             if(nameEl) nameEl.innerText = savedName;
         }
 
-        // Load phones from Firestore first
-        loadPhonesFromFirestore();
+        // Load phones from Firebase first
+        loadPhonesFromFirebase();
 
         // Check if already logged in
         setTimeout(function(){
@@ -722,7 +723,7 @@ function doResetFilter() {
                 };
                 
                 phones.push(newPhone);
-                savePhonesToFirestore();
+                savePhonesToFirebase();
                 
                 phoneNameInput.value = '';
                 phonePriceInput.value = '';
@@ -743,7 +744,7 @@ function doResetFilter() {
         // Delete function
         window.deletePhone = function(id) {
             phones = phones.filter(p => p.id !== id);
-            savePhonesToFirestore();
+            savePhonesToFirebase();
             applyFilters();
             renderAdminPhoneList();
             showToast('Phone deleted!');
