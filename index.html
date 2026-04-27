@@ -272,13 +272,6 @@
             appId: "1:953972561417:web:2458d6790134a3b7878ad8"
         };
 
-        const DEFAULT_PHONES = [
-            { id:1, name:"iPhone 15 Pro Max", price:17999000, rating:4.8, image:"https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop" },
-            { id:2, name:"Samsung Galaxy S24 Ultra", price:19499000, rating:4.7, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop" },
-            { id:3, name:"Google Pixel 8 Pro", price:14999000, rating:4.6, image:"https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop" },
-            { id:4, name:"OnePlus 12", price:11999000, rating:4.4, image:"https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop" }
-        ];
-
         const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
         let phones = [];
         let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
@@ -329,25 +322,22 @@
         
         function loadPhonesFromFirebase() {
             if (database) {
-                database.ref('phones').once('value')
-                    .then(snapshot => {
-                        if (snapshot.exists()) {
-                            phones = snapshot.val() || [];
-                        } else {
-                            phones = [...DEFAULT_PHONES];
-                            savePhonesToFirebase();
-                        }
-                        applyFilters();
-                        renderPhones(phones);
-                    })
-                    .catch(e => {
-                        console.error('Error loading from Firebase:', e);
-                        phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
-                        applyFilters();
-                        renderPhones(phones);
-                    });
+                database.ref('phones').on('value', snapshot => {
+                    if (snapshot.exists()) {
+                        phones = snapshot.val() || [];
+                    } else {
+                        phones = [];
+                    }
+                    applyFilters();
+                    renderPhones(phones);
+                }, e => {
+                    console.error('Error loading from Firebase:', e);
+                    phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
+                    applyFilters();
+                    renderPhones(phones);
+                });
             } else {
-                phones = JSON.parse(localStorage.getItem('freinzPhones')) || [...DEFAULT_PHONES];
+                phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                 applyFilters();
                 renderPhones(phones);
             }
