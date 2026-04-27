@@ -257,11 +257,28 @@
         const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
         let activeFilters = { ratings:[], minPrice:null, maxPrice:null };
-        const $ = id => document.getElementById(id);
+        const $ = id => {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            return el;
+        };
 
-        function showPage(p) { $('landingPage').classList.toggle('hidden', p !== $('landingPage')); $('catalogPage').classList.toggle('hidden', p !== $('catalogPage')); }
+        function showPage(p) { 
+            if ($('landingPage') && $('catalogPage')) {
+                $('landingPage').classList.toggle('hidden', p !== $('landingPage')); 
+                $('catalogPage').classList.toggle('hidden', p !== $('catalogPage')); 
+            }
+        }
         
-        function showToast(msg) { $('toastMsg').textContent = msg; $('toast').classList.remove('hidden'); setTimeout(() => $('toast').classList.add('hidden'), 3000); }
+        function showToast(msg) { 
+            const toast = $('toast');
+            const toastMsg = $('toastMsg');
+            if (toast && toastMsg) {
+                toastMsg.textContent = msg; 
+                toast.classList.remove('hidden'); 
+                setTimeout(() => toast.classList.add('hidden'), 3000); 
+            }
+        }
         
         function savePhones() { localStorage.setItem('freinzPhones', JSON.stringify(phones)); }
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
@@ -277,18 +294,22 @@
         }
 
         function renderPhones(list = phones) {
-            $('phoneGrid').innerHTML = '';
+            const phoneGrid = $('phoneGrid');
+            const emptyState = $('emptyState');
+            const emptyMsg = $('emptyMsg');
+            if (!phoneGrid) return;
+            phoneGrid.innerHTML = '';
             if(list.length === 0) {
-                $('emptyState').classList.remove('hidden');
-                $('phoneGrid').classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
+                phoneGrid.classList.add('hidden');
                 let msg = 'No phones found';
                 if(activeFilters.maxPrice && activeFilters.maxPrice < 1000000) msg = 'Sayangnya Gaada Smartphone Yang Bagus Di Bawah 1 Jutaan';
                 else if(activeFilters.minPrice && activeFilters.minPrice > 13000000) msg = 'Semua Yang Diatas Harga Segini Udah Termasuk Bagus Kok. Pilih Aja Sesuai Seleramu';
-                $('emptyMsg').textContent = msg;
+                if (emptyMsg) emptyMsg.textContent = msg;
                 return;
             }
-            $('emptyState').classList.add('hidden');
-            $('phoneGrid').classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            phoneGrid.classList.remove('hidden');
             list.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-2xl overflow-hidden card-glow transition-all duration-300';
@@ -307,14 +328,17 @@
                             <span class="text-xl md:text-2xl font-bold gradient-text">Rp ${p.price.toLocaleString('id-ID')}</span>
                         </div>
                     </div>`;
-                $('phoneGrid').appendChild(card);
+                phoneGrid.appendChild(card);
             });
         }
 
         function applyFilters() {
             let f = [...phones];
-            const term = $('searchInput').value.toLowerCase();
-            if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            const searchInput = $('searchInput');
+            if (searchInput) {
+                const term = searchInput.value.toLowerCase();
+                if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            }
             if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
             if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
@@ -324,12 +348,20 @@
 
         function updateFilterBadge() {
             const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0);
-            $('filterBadge').classList.toggle('hidden', count === 0);
-            $('filterBadge').textContent = count;
+            const filterBadge = $('filterBadge');
+            if (filterBadge) {
+                filterBadge.classList.toggle('hidden', count === 0);
+                filterBadge.textContent = count;
+            }
         }
 
         function updateUserUI(user) {
             var myName = localStorage.getItem('myName');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userSection = document.getElementById('userSection');
+            const adminBtn = document.getElementById('adminBtn');
+            const homeBtn = document.getElementById('homeBtn');
             if(user) {
                 currentUser = user;
                 var email = '';
@@ -337,17 +369,17 @@
                 isAdmin = (email === 'zennzgaming9@gmail.com');
                 var name = myName || (user.displayName || 'User');
                 if(isAdmin && !myName) name = 'ZENNZ Gaming';
-                document.getElementById('userAvatar').src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
-                document.getElementById('userName').innerText = name;
-                document.getElementById('userSection').classList.remove('hidden');
-                document.getElementById('adminBtn').classList.remove('hidden');
-                document.getElementById('homeBtn').classList.add('hidden');
+                if (userAvatar) userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
+                if (userName) userName.innerText = name;
+                if (userSection) userSection.classList.remove('hidden');
+                if (adminBtn) adminBtn.classList.remove('hidden');
+                if (homeBtn) homeBtn.classList.add('hidden');
             } else {
                 currentUser = null;
                 isAdmin = false;
-                document.getElementById('userSection').classList.add('hidden');
-                document.getElementById('adminBtn').classList.add('hidden');
-                document.getElementById('homeBtn').classList.remove('hidden');
+                if (userSection) userSection.classList.add('hidden');
+                if (adminBtn) adminBtn.classList.add('hidden');
+                if (homeBtn) homeBtn.classList.remove('hidden');
             }
             applyFilters();
         }
@@ -383,35 +415,44 @@
         }
 
         // Event Listeners
-        $('guestBtn').onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
-        $('homeBtn').onclick = () => { $('userSection').classList.add('hidden'); showPage($('landingPage')); };
+        const guestBtn = $('guestBtn');
+        const homeBtn = $('homeBtn');
+        if (guestBtn) guestBtn.onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Guest view (4.5★+ only)'); applyFilters(); };
+        if (homeBtn) homeBtn.onclick = () => { const us = $('userSection'); if (us) us.classList.add('hidden'); showPage($('landingPage')); };
 
         // Login handlers - removed duplicates
 
         // Profile modal
-        $('profileBtn').onclick = () => { $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden'); };
-        $('closeProfileModal').onclick = () => $('profileModal').classList.add('hidden');
-        $('saveProfile').onclick = () => { userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!'); };
-        $('profileModal').onclick = e => { if(e.target === $('profileModal')) $('profileModal').classList.add('hidden'); };
+        const profileBtn = $('profileBtn');
+        const closeProfileModal = $('closeProfileModal');
+        const saveProfile = $('saveProfile');
+        const profileModal = $('profileModal');
+        if (profileBtn) profileBtn.onclick = () => { $('profileAvatar').src = $('userAvatar').src; $('profileEmail').textContent = currentUser?.email || ''; $('profileUsername').value = userProfile.username || currentUser?.displayName || ''; $('profileBio').value = userProfile.bio || ''; $('profileModal').classList.remove('hidden'); };
+        if (closeProfileModal) closeProfileModal.onclick = () => $('profileModal').classList.add('hidden');
+        if (saveProfile) saveProfile.onclick = () => { userProfile.username = $('profileUsername').value; userProfile.bio = $('profileBio').value; saveUserProfile(); updateUserUI(currentUser); $('profileModal').classList.add('hidden'); showToast('Profile saved!'); };
+        if (profileModal) profileModal.onclick = e => { if(e.target === profileModal) profileModal.classList.add('hidden'); };
 
         // Logout - direct sign out
-        $('logoutBtn').onclick = () => { if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+        const logoutBtn = $('logoutBtn');
+        if (logoutBtn) logoutBtn.onclick = () => { if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
         // Filter modal
         let activeSort = 'termurah';
         console.log('Filter setup starting...');
-        $('openFilterBtn').onclick = function() { 
-            console.log('Filter clicked'); 
-            $('filterModal').classList.remove('hidden'); 
-        };
-        $('closeFilterModal').onclick = function() { $('filterModal').classList.add('hidden'); };
+        const openFilterBtn = $('openFilterBtn');
+        const closeFilterModal = $('closeFilterModal');
+        const filterModal = $('filterModal');
+        if (openFilterBtn) openFilterBtn.onclick = function() { console.log('Filter clicked'); $('filterModal').classList.remove('hidden'); };
+        if (closeFilterModal) closeFilterModal.onclick = function() { $('filterModal').classList.add('hidden'); };
         
         // Close when clicking outside
-        $('filterModal').addEventListener('click', function(e) {
-            if (e.target === $('filterModal')) {
-                $('filterModal').classList.add('hidden');
-            }
-        });
+        if (filterModal) {
+            filterModal.addEventListener('click', function(e) {
+                if (e.target === filterModal) {
+                    filterModal.classList.add('hidden');
+                }
+            });
+        }
         
         function doFilterRating(r, el) {
     activeFilters.ratings = [r];
@@ -430,27 +471,34 @@ function doFilterSort(sort, el) {
     el.classList.add('selected');
 }
 function doApplyFilter() {
+    const filterModal = $('filterModal');
+    if (filterModal) filterModal.classList.add('hidden');
     activeFilters.minPrice = document.getElementById('filterMinPrice').value ? parseInt(document.getElementById('filterMinPrice').value) : null;
     activeFilters.maxPrice = document.getElementById('filterMaxPrice').value ? parseInt(document.getElementById('filterMaxPrice').value) : null;
-    document.getElementById('filterModal').classList.add('hidden');
     applyFilters();
     showToast('Filter applied');
 }
 function doResetFilter() {
     activeFilters = { ratings: [], minPrice: null, maxPrice: null };
     activeSort = 'termurah';
-    document.getElementById('filterMinPrice').value = '';
-    document.getElementById('filterMaxPrice').value = '';
+    const fmip = document.getElementById('filterMinPrice');
+    const fmaxp = document.getElementById('filterMaxPrice');
+    if (fmip) fmip.value = '';
+    if (fmaxp) fmaxp.value = '';
     document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { b.classList.remove('selected'); });
     document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
-    document.querySelector('.sort-btn[data-sort="termurah"]').classList.add('selected');
+    const termurahBtn = document.querySelector('.sort-btn[data-sort="termurah"]');
+    if (termurahBtn) termurahBtn.classList.add('selected');
 }
 
         // Override applyFilters to include sorting
         applyFilters = function() {
             let f = [...phones];
-            const term = $('searchInput').value.toLowerCase();
-            if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            const searchInput = $('searchInput');
+            if (searchInput) {
+                const term = searchInput.value.toLowerCase();
+                if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
+            }
             if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
             if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
@@ -464,15 +512,22 @@ function doResetFilter() {
         };
 
         // Add phone modal
-        $('adminBtn').onclick = () => { $('addForm').reset(); base64Image = ''; $('imagePreview').classList.add('hidden'); $('imageDropzone').classList.remove('hidden'); $('addModal').classList.remove('hidden'); };
-        $('closeAddModal').onclick = () => $('addModal').classList.add('hidden');
-        $('addModal').onclick = e => { if(e.target === $('addModal')) $('addModal').classList.add('hidden'); };
-        $('imageDropzone').onclick = () => $('phoneImage').click();
-        $('phoneImage').onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; $('imagePreview').src = base64Image; $('imagePreview').classList.remove('hidden'); $('imageDropzone').classList.add('hidden'); }; r.readAsDataURL(f); } };
-        $('addForm').onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: $('phoneName').value, price: parseFloat($('phonePrice').value), rating: parseFloat($('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); $('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
+        const adminBtn = $('adminBtn');
+        const closeAddModal = $('closeAddModal');
+        const addModal = $('addModal');
+        if (adminBtn) adminBtn.onclick = () => { const af = $('addForm'); if (af) af.reset(); base64Image = ''; const ip = $('imagePreview'); if (ip) ip.classList.add('hidden'); const idz = $('imageDropzone'); if (idz) idz.classList.remove('hidden'); const am = $('addModal'); if (am) am.classList.remove('hidden'); };
+        if (closeAddModal) closeAddModal.onclick = () => $('addModal').classList.add('hidden');
+        if (addModal) addModal.onclick = e => { if(e.target === addModal) addModal.classList.add('hidden'); };
+        const imageDropzone = $('imageDropzone');
+        if (imageDropzone) imageDropzone.onclick = () => { const pi = $('phoneImage'); if (pi) pi.click(); };
+        const phoneImage = $('phoneImage');
+        if (phoneImage) phoneImage.onchange = e => { const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { base64Image = ev.target.result; const ip2 = $('imagePreview'); if (ip2) ip2.src = base64Image; if (ip2) ip2.classList.remove('hidden'); const idz2 = $('imageDropzone'); if (idz2) idz2.classList.add('hidden'); }; r.readAsDataURL(f); } };
+        const addForm = $('addForm');
+        if (addForm) addForm.onsubmit = e => { e.preventDefault(); const id = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1; phones.push({ id, name: $('phoneName').value, price: parseFloat($('phonePrice').value), rating: parseFloat($('phoneRating').value), image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop' }); savePhones(); $('addModal').classList.add('hidden'); applyFilters(); showToast('Phone added!'); };
 
         // Search
-        $('searchInput').oninput = applyFilters;
+        const searchInput = $('searchInput');
+        if (searchInput) searchInput.oninput = applyFilters;
 
         // Delete function
         window.deletePhone = id => { phones = phones.filter(p => p.id !== id); savePhones(); applyFilters(); showToast('Phone deleted!'); };
