@@ -299,62 +299,6 @@
         
         function savePhonesToJSONBin() {
             localStorage.setItem('freinzPhones', JSON.stringify(phones));
-            if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
-                console.log('Saving to JSONBin:', phones);
-                fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
-                    },
-                    body: JSON.stringify(phones)
-                })
-                .then(response => {
-                    console.log('Save response:', response);
-                    return response.json();
-                })
-                .then(data => console.log('Save success:', data))
-                .catch(e => console.error('Error saving to JSONBin:', e));
-            }
-        }
-        
-        function loadPhonesFromJSONBin() {
-            if (JSONBIN_BIN_ID !== 'PHONE_BIN_ID') {
-                console.log('Loading from JSONBin...');
-                fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': JSONBIN_API_KEY
-                    }
-                })
-                .then(response => {
-                    console.log('Load response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Load data:', data);
-                    if (data && data.record && Array.isArray(data.record)) {
-                        phones = data.record.filter(p => p && p.name && typeof p.rating === 'number');
-                    } else if (data && Array.isArray(data)) {
-                        phones = data.filter(p => p && p.name && typeof p.rating === 'number');
-                    } else {
-                        phones = [];
-                    }
-                    applyFilters();
-                    renderPhones(phones);
-                })
-                .catch(e => {
-                    console.error('Error loading from JSONBin:', e);
-                    phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
-                    applyFilters();
-                    renderPhones(phones);
-                });
-            
-            } else {
-                phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
-                applyFilters();
-                renderPhones(phones);
-            }
         }
         
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
@@ -407,20 +351,6 @@
             });
         }
 
-        function applyFilters() {
-            let f = [...phones];
-            const searchInput = $('searchInput');
-            if (searchInput) {
-                const term = searchInput.value.toLowerCase();
-                if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
-            }
-            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
-            if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
-            renderPhones(f);
-            updateFilterBadge();
-        }
-
         function updateFilterBadge() {
             const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0);
             const filterBadge = $('filterBadge');
@@ -456,7 +386,7 @@
                 if (tabNav) tabNav.classList.add('hidden');
                 if (homeBtn) homeBtn.classList.remove('hidden');
             }
-            applyFilters();
+            renderPhones(phones);
         }
 
         // Initialize filter buttons
@@ -468,8 +398,20 @@
             if (fm) fm.classList.add('hidden');
         };
         
-        // Initial render
-        renderPhones();
+        // Always initialize with default phones
+        function initPhones() {
+            phones = [
+                {id:1, name:"iPhone 15 Pro Max", price:18500000, rating:4.8, image:"https://images.unsplash.com/photo-1696446702183-95d1f78f95ca?w=400&h=400&fit=crop"},
+                {id:2, name:"Samsung Galaxy S24 Ultra", price:19500000, rating:4.7, image:"https://images.unsplash.com/photo-1709689074981-6b5c6a1d1d3a?w=400&h=400&fit=crop"},
+                {id:3, name:"Xiaomi 14 Pro", price:12000000, rating:4.5, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop"},
+                {id:4, name:"Realme 12 Pro", price:4500000, rating:4.2, image:"https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=400&h=400&fit=crop"}
+            ];
+            localStorage.setItem('freinzPhones', JSON.stringify(phones));
+        }
+        
+        initPhones();
+        renderPhones(phones);
+        console.log('Init done, phones:', phones.length);
         
         // Auto-load saved username
         var savedName = localStorage.getItem('myName');
@@ -478,8 +420,8 @@
             if(nameEl) nameEl.innerText = savedName;
         }
 
-        // Load phones from JSONBin first
-        loadPhonesFromJSONBin();
+        // Load phones from JSONBin (optional)
+        // loadPhonesFromJSONBin(); // Disabled - using default phones
 
         // Check if already logged in
         setTimeout(function(){
@@ -497,6 +439,7 @@
                 if(user) {
                     updateUserUI(user);
                     showPage(document.getElementById('catalogPage'));
+                    renderPhones(phones);
                 }
             });
         }
@@ -504,7 +447,13 @@
         // Event Listeners
         const guestBtn = $('guestBtn');
         const homeBtn = $('homeBtn');
-        if (guestBtn) guestBtn.onclick = () => { currentUser = null; isAdmin = false; showPage($('catalogPage')); showToast('Viewing all phones'); applyFilters(); };
+        if (guestBtn) guestBtn.onclick = () => { 
+            currentUser = null; 
+            isAdmin = false; 
+            showPage($('catalogPage')); 
+            showToast('Viewing all phones'); 
+            renderPhones(phones);
+        };
         if (homeBtn) homeBtn.onclick = () => { const us = $('userSection'); if (us) us.classList.add('hidden'); showPage($('landingPage')); };
 
         // Login handlers - removed duplicates
@@ -587,7 +536,17 @@ function doApplyFilter() {
         activeFilters.maxPrice = maxInput ? parseInt(maxInput) : null;
         document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
     }
-    applyFilters();
+    // Apply filters manually
+    let f = [...phones];
+    const searchInput = $('searchInput');
+    if (searchInput && searchInput.value) {
+        const term = searchInput.value.toLowerCase();
+        f = f.filter(p => p.name.toLowerCase().includes(term));
+    }
+    if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
+    if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+    updateFilterBadge();
+    renderPhones(f);
     showToast('Filter applied');
 }
 function doResetFilter() {
@@ -598,10 +557,7 @@ function doResetFilter() {
     if (fmip) fmip.value = '';
     if (fmaxp) fmaxp.value = '';
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.dispatchEvent(new Event('input'));
-    }
+    if (searchInput) searchInput.value = '';
     document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { 
         b.classList.remove('selected'); 
         b.classList.remove('hidden'); 
@@ -609,29 +565,10 @@ function doResetFilter() {
     });
     var fm = document.getElementById('filterModal');
     if (fm) fm.classList.add('hidden');
-    applyFilters();
+    renderPhones(phones);
+    updateFilterBadge();
     showToast('Filter reset');
 }
-
-        // Override applyFilters to include sorting
-        applyFilters = function() {
-            let f = [...phones];
-            const searchInput = $('searchInput');
-            if (searchInput) {
-                const term = searchInput.value.toLowerCase();
-                if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
-            }
-            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
-            if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
-            
-            if(activeSort === 'termurah') f.sort((a,b) => a.price - b.price);
-            else if(activeSort === 'termahal') f.sort((a,b) => b.price - a.price);
-            else if(activeSort === 'rating') f.sort((a,b) => b.rating - a.rating);
-            
-            updateFilterBadge();
-            renderPhones(f);
-        };
 
         // Tabs
         let currentTab = 'catalog';
@@ -759,9 +696,9 @@ function doResetFilter() {
                 base64Image = '';
                 if (imagePreviewEl) imagePreviewEl.classList.add('hidden');
                 
-                applyFilters();
-                renderAdminPhoneList();
-                showToast('Phone added!');
+                 renderPhones(phones);
+                 renderAdminPhoneList();
+                 showToast('Phone added!');
             };
         }
 
@@ -771,10 +708,10 @@ function doResetFilter() {
 
         // Delete function
         window.deletePhone = function(id) {
-            phones = phones.filter(p => p.id !== id);
-            savePhonesToJSONBin();
-            applyFilters();
-            renderAdminPhoneList();
+             phones = phones.filter(p => p.id !== id);
+             savePhonesToJSONBin();
+             renderPhones(phones);
+             renderAdminPhoneList();
             showToast('Phone deleted!');
         };
     </script>
