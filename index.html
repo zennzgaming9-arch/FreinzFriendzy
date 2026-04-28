@@ -40,6 +40,7 @@
         .tab-active { background: linear-gradient(135deg, #f97316, #a855f7); color: white; }
         .tab-inactive { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
         .tab-inactive:hover { background: rgba(255,255,255,0.1); }
+        .input-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 1px #ef4444; }
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -184,7 +185,6 @@
             <div class="p-4 border-b border-gray-700">
                 <h3 class="font-semibold mb-3 text-sm">Harga</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="0" data-max="1000000" onclick="doFilterPrice(0, 1000000, this)">&lt; 1 JT</button>
                     <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="1000000" data-max="2000000" onclick="doFilterPrice(1000000, 2000000, this)">1-2 JT</button>
                     <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="2000000" data-max="3000000" onclick="doFilterPrice(2000000, 3000000, this)">2-3 JT</button>
                     <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="3000000" data-max="5000000" onclick="doFilterPrice(3000000, 5000000, this)">3-5 JT</button>
@@ -333,10 +333,7 @@
             if(list.length === 0) {
                 if (emptyState) emptyState.classList.remove('hidden');
                 phoneGrid.classList.add('hidden');
-                let msg = 'No phones found';
-                if(activeFilters.maxPrice && activeFilters.maxPrice < 1000000) msg = 'Sayangnya Gaada Smartphone Yang Bagus Di Bawah 1 Jutaan';
-                else if(activeFilters.minPrice && activeFilters.minPrice > 13000000) msg = 'Semua Yang Diatas Harga Segini Udah Termasuk Bagus Kok. Pilih Aja Sesuai Seleramu';
-                if (emptyMsg) emptyMsg.textContent = msg;
+                if (emptyMsg) emptyMsg.textContent = 'No phones found';
                 return;
             }
             if (emptyState) emptyState.classList.add('hidden');
@@ -513,6 +510,27 @@
         console.log('Filter setup starting...');
         const filterModal = $('filterModal');
         
+        // Validate Kisaran Harga inputs
+        function validatePriceInput(input) {
+            const val = parseInt(input.value);
+            if (input.value && (val < 1000000 || val > 13000000)) {
+                input.classList.add('input-invalid');
+                return false;
+            } else {
+                input.classList.remove('input-invalid');
+                return true;
+            }
+        }
+        
+        const filterMinPriceInput = document.getElementById('filterMinPrice');
+        const filterMaxPriceInput = document.getElementById('filterMaxPrice');
+        if (filterMinPriceInput) {
+            filterMinPriceInput.oninput = function() { validatePriceInput(this); };
+        }
+        if (filterMaxPriceInput) {
+            filterMaxPriceInput.oninput = function() { validatePriceInput(this); };
+        }
+        
         // Close when clicking outside
         if (filterModal) {
             filterModal.addEventListener('click', function(e) {
@@ -541,14 +559,29 @@ function doFilterSort(sort, el) {
     document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
 }
-function doApplyFilter() {
+ function doApplyFilter() {
+    const minInput = document.getElementById('filterMinPrice');
+    const maxInput = document.getElementById('filterMaxPrice');
+    
+    // Check if inputs are valid
+    if (minInput && minInput.classList.contains('input-invalid')) {
+        showToast('Min price must be between 1M and 13M');
+        return;
+    }
+    if (maxInput && maxInput.classList.contains('input-invalid')) {
+        showToast('Max price must be between 1M and 13M');
+        return;
+    }
+    
     const filterModal = $('filterModal');
     if (filterModal) filterModal.classList.add('hidden');
-    const minInput = document.getElementById('filterMinPrice').value;
-    const maxInput = document.getElementById('filterMaxPrice').value;
-    if (minInput || maxInput) {
-        activeFilters.minPrice = minInput ? parseInt(minInput) : null;
-        activeFilters.maxPrice = maxInput ? parseInt(maxInput) : null;
+    
+    const minVal = minInput ? minInput.value : '';
+    const maxVal = maxInput ? maxInput.value : '';
+    
+    if (minVal || maxVal) {
+        activeFilters.minPrice = minVal ? parseInt(minVal) : null;
+        activeFilters.maxPrice = maxVal ? parseInt(maxVal) : null;
         document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
     }
     // Apply filters manually
