@@ -427,7 +427,7 @@
                 const term = searchInput.value.toLowerCase();
                 if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
             }
-            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
+            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
             if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
             renderPhones(f);
@@ -611,7 +611,7 @@ function doResetFilter() {
                 const term = searchInput.value.toLowerCase();
                 if(term) f = f.filter(p => p.name.toLowerCase().includes(term));
             }
-            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.includes(Math.floor(p.rating)));
+            if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
             
             if(activeSort === 'termurah') f.sort((a,b) => a.price - b.price);
