@@ -406,8 +406,18 @@
             if (fm) fm.classList.add('hidden');
         };
         
-        // Load phones from JSONBin
+        // Load phones from JSONBin with localStorage cache
         function loadPhonesFromJSONBin() {
+            // Load from cache first for instant display
+            const cached = localStorage.getItem('freinzPhones');
+            if (cached) {
+                try {
+                    phones = JSON.parse(cached);
+                    renderPhones(phones);
+                } catch(e) {}
+            }
+            
+            // Then update from JSONBin in background
             fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
                 headers: { 'X-Master-Key': JSONBIN_API_KEY }
             })
@@ -415,6 +425,7 @@
             .then(data => {
                 if (data && data.record && Array.isArray(data.record)) {
                     phones = data.record;
+                    localStorage.setItem('freinzPhones', JSON.stringify(phones));
                     renderPhones(phones);
                     if (isAdmin) renderAdminPhoneList();
                 }
