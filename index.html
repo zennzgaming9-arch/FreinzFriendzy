@@ -597,14 +597,20 @@ function doResetFilter() {
     const fmaxp = document.getElementById('filterMaxPrice');
     if (fmip) fmip.value = '';
     if (fmaxp) fmaxp.value = '';
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+    }
     document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { 
         b.classList.remove('selected'); 
         b.classList.remove('hidden'); 
         b.style.display = ''; 
     });
-    document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
-    const termurahBtn = document.querySelector('.sort-btn[data-sort="termurah"]');
-    if (termurahBtn) termurahBtn.classList.add('selected');
+    var fm = document.getElementById('filterModal');
+    if (fm) fm.classList.add('hidden');
+    applyFilters();
+    showToast('Filter reset');
 }
 
         // Override applyFilters to include sorting
