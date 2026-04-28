@@ -299,6 +299,17 @@
         
         function savePhonesToJSONBin() {
             localStorage.setItem('freinzPhones', JSON.stringify(phones));
+            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_API_KEY
+                },
+                body: JSON.stringify(phones)
+            })
+            .then(res => res.json())
+            .then(data => console.log('Saved to JSONBin:', data))
+            .catch(err => console.error('Error saving to JSONBin:', err));
         }
         
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
@@ -398,30 +409,23 @@
             if (fm) fm.classList.add('hidden');
         };
         
-        // Always initialize with default phones
-        function initPhones() {
-            const saved = localStorage.getItem('freinzPhones');
-            if (saved) {
-                try {
-                    phones = JSON.parse(saved);
-                    if (!Array.isArray(phones)) phones = [];
-                } catch(e) {
-                    phones = [];
+        // Load phones from JSONBin
+        function loadPhonesFromJSONBin() {
+            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+                headers: { 'X-Master-Key': JSONBIN_API_KEY }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.record && Array.isArray(data.record)) {
+                    phones = data.record;
+                    renderPhones(phones);
+                    if (isAdmin) renderAdminPhoneList();
                 }
-            }
-            if (phones.length === 0) {
-                phones = [
-                    {id:1, name:"iPhone 15 Pro Max", price:18500000, rating:4.8, image:"https://images.unsplash.com/photo-1696446702183-95d1f78f95ca?w=400&h=400&fit=crop"},
-                    {id:2, name:"Samsung Galaxy S24 Ultra", price:19500000, rating:4.7, image:"https://images.unsplash.com/photo-1709689074981-6b5c6a1d1d3a?w=400&h=400&fit=crop"},
-                    {id:3, name:"Xiaomi 14 Pro", price:12000000, rating:4.5, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop"},
-                    {id:4, name:"Realme 12 Pro", price:4500000, rating:4.2, image:"https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=400&h=400&fit=crop"}
-                ];
-                localStorage.setItem('freinzPhones', JSON.stringify(phones));
-            }
+            })
+            .catch(err => console.error('Error loading from JSONBin:', err));
         }
         
-        initPhones();
-        renderPhones(phones);
+        loadPhonesFromJSONBin();
         console.log('Init done, phones:', phones.length);
         
         // Auto-load saved username
@@ -632,12 +636,32 @@ function doResetFilter() {
             phones.forEach(p => {
                 const item = document.createElement('div');
                 item.className = 'glass p-4 rounded-xl flex items-center gap-4';
-                item.innerHTML = '<img src="' + p.image + '" class="w-16 h-16 object-cover rounded">' +
-                    '<div class="flex-1">' +
-                    '<h4 class="font-bold">' + p.name + '</h4>' +
-                    '<p class="text-sm text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</p>' +
-                    '</div>' +
-                    '<button onclick="deletePhone(' + p.id + ')" class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600">Delete</button>';
+                
+                const img = document.createElement('img');
+                img.src = p.image;
+                img.className = 'w-16 h-16 object-cover rounded';
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'flex-1';
+                infoDiv.innerHTML = '<h4 class="font-bold">' + p.name + '</h4>' +
+                    '<p class="text-sm text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</p>';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white';
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = function() {
+                    if (confirm('Delete ' + p.name + '?')) {
+                        phones = phones.filter(phone => phone.id !== p.id);
+                        savePhonesToJSONBin();
+                        renderPhones(phones);
+                        renderAdminPhoneList();
+                        showToast('Phone deleted!');
+                    }
+                };
+                
+                item.appendChild(img);
+                item.appendChild(infoDiv);
+                item.appendChild(deleteBtn);
                 adminPhoneList.appendChild(item);
             });
         }
@@ -716,15 +740,6 @@ function doResetFilter() {
         // Search
         const searchInputEl = $('searchInput');
         if (searchInputEl) searchInputEl.oninput = applyFilters;
-
-        // Delete function
-        window.deletePhone = function(id) {
-             phones = phones.filter(p => p.id !== id);
-             savePhonesToJSONBin();
-             renderPhones(phones);
-             renderAdminPhoneList();
-            showToast('Phone deleted!');
-        };
     </script>
 </body>
 </html>
