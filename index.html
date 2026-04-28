@@ -356,20 +356,18 @@
                     }
                     applyFilters();
                     renderPhones(phones);
-                    updateVisibleFilters();
                 })
                 .catch(e => {
                     console.error('Error loading from JSONBin:', e);
                     phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                     applyFilters();
                     renderPhones(phones);
-                    updateVisibleFilters();
                 });
+            
             } else {
                 phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                 applyFilters();
                 renderPhones(phones);
-                updateVisibleFilters();
             }
         }
         
@@ -573,7 +571,6 @@
     activeFilters.ratings = [r];
     document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
-    updateVisibleFilters();
     applyFilters();
 }
 function doFilterPrice(min, max, el) {
@@ -581,17 +578,9 @@ function doFilterPrice(min, max, el) {
     activeFilters.maxPrice = max;
     document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
-    updateVisibleFilters();
     applyFilters();
 }
-function updateVisibleFilters() {
-    document.querySelectorAll('.filter-rating').forEach(function(btn) {
-        btn.classList.toggle('hidden', !btn.classList.contains('selected'));
-    });
-    document.querySelectorAll('.price-btn').forEach(function(btn) {
-        btn.classList.toggle('hidden', !btn.classList.contains('selected'));
-    });
-}
+
 function doFilterSort(sort, el) {
     activeSort = sort;
     document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
@@ -603,7 +592,6 @@ function doApplyFilter() {
     activeFilters.minPrice = document.getElementById('filterMinPrice').value ? parseInt(document.getElementById('filterMinPrice').value) : null;
     activeFilters.maxPrice = document.getElementById('filterMaxPrice').value ? parseInt(document.getElementById('filterMaxPrice').value) : null;
     applyFilters();
-    updateVisibleFilters();
     showToast('Filter applied');
 }
 function doResetFilter() {
@@ -617,7 +605,6 @@ function doResetFilter() {
     document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
     const termurahBtn = document.querySelector('.sort-btn[data-sort="termurah"]');
     if (termurahBtn) termurahBtn.classList.add('selected');
-    updateVisibleFilters();
 }
 
         // Override applyFilters to include sorting
