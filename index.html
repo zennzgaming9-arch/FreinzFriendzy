@@ -131,7 +131,7 @@
                     <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
                     <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 rounded-xl text-sm md:text-base">
                 </div>
-                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base">
+                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');fm.style.display='flex';fm.querySelectorAll('.filter-rating,.price-btn').forEach(function(b){b.classList.remove('hidden');b.style.display=''});}">
                     <i class="fas fa-sliders-h"></i><span>Filter</span>
                     <span id="filterBadge" class="hidden w-5 h-5 rounded-full bg-vivid text-white text-xs flex items-center justify-center">0</span>
                 </button>
@@ -167,29 +167,21 @@
     </div>
 
 <!-- Filter Modal -->
-    <div id="filterModal" class="hidden fixed inset-0 z-50 flex items-center justify-end modal-overlay p-0">
-        <div class="glass w-full max-w-md h-full overflow-y-auto">
-            <div class="sticky top-0 glass p-4 flex justify-between items-center z-10">
+    <div id="filterModal" class="hidden fixed inset-0 z-50 modal-overlay" style="background:rgba(0,0,0,0.85);">
+        <div class="glass" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;height:100%;overflow-y:auto;">
+            <div style="position:sticky;top:0;" class="glass p-4 flex justify-between items-center z-10">
                 <h2 class="text-lg font-bold">Filter</h2>
-                <button id="closeFilterModal" class="w-9 h-9 rounded-full glass hover:bg-white/10 flex items-center justify-center" onclick="document.getElementById('filterModal').classList.add('hidden')">×</button>
+                <button onclick="document.getElementById('filterModal').classList.add('hidden')" style="width:2.25rem;height:2.25rem;border-radius:9999px;" class="glass hover:bg-white/10 flex items-center justify-center">×</button>
             </div>
-            
-            <div class="p-4 border-b border-gray-700">
+            <div class="p-4" style="border-bottom:1px solid #374151;">
                 <h3 class="font-semibold mb-3 text-sm">Rating</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)">
-                        <span class="text-vivid">★</span> 5
-                    </button>
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)">
-                        <span class="text-vivid">★</span> 4+
-                    </button>
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)">
-                        <span class="text-vivid">★</span> 3+
-                    </button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)"><span class="text-vivid">★</span> 5</button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)"><span class="text-vivid">★</span> 4+</button>
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)"><span class="text-vivid">★</span> 3+</button>
                 </div>
             </div>
-            
-            <div class="p-4 border-b border-gray-700">
+            <div class="p-4" style="border-bottom:1px solid #374151;">
                 <h3 class="font-semibold mb-3 text-sm">Harga</h3>
                 <div class="flex flex-wrap gap-2">
                     <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="0" data-max="1000000" onclick="doFilterPrice(0, 1000000, this)">&lt; 1 JT</button>
@@ -200,25 +192,19 @@
                     <button class="price-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-min="10000000" data-max="999999999" onclick="doFilterPrice(10000000, 999999999, this)">&gt; 10 JT</button>
                 </div>
             </div>
-            
-            <div class="p-4 border-b border-gray-700">
+            <div class="p-4" style="border-bottom:1px solid #374151;">
                 <h3 class="font-semibold mb-3 text-sm">Kisaran Harga</h3>
                 <div class="flex items-center gap-3">
-                    <div class="flex-1">
-                        <input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric">
-                    </div>
+                    <div class="flex-1"><input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
                     <span class="text-gray-400">-</span>
-                    <div class="flex-1">
-                        <input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric">
-                    </div>
+                    <div class="flex-1"><input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
                 </div>
             </div>
-            
-            <div class="sticky bottom-0 glass p-4 flex gap-3 z-10">
+            <div style="position:sticky;bottom:0;" class="glass p-4 flex gap-3 z-10">
                 <button class="flex-1 py-3 rounded-xl glass font-semibold text-sm" onclick="doResetFilter()">Reset</button>
                 <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Terapkan</button>
             </div>
-</div>
+        </div>
     </div>
 
     <!-- Profile Modal -->
@@ -473,6 +459,9 @@
             applyFilters();
         }
 
+        // Initialize filter buttons
+        document.querySelectorAll('.filter-rating, .price-btn').forEach(btn => { btn.classList.remove('hidden'); btn.style.display = ''; });
+        
         // Initial render
         renderPhones();
         
@@ -552,11 +541,7 @@
         // Filter modal
         let activeSort = 'termurah';
         console.log('Filter setup starting...');
-        const openFilterBtn = $('openFilterBtn');
-        const closeFilterModal = $('closeFilterModal');
         const filterModal = $('filterModal');
-        if (openFilterBtn) openFilterBtn.onclick = function() { console.log('Filter clicked'); $('filterModal').classList.remove('hidden'); };
-        if (closeFilterModal) closeFilterModal.onclick = function() { $('filterModal').classList.add('hidden'); };
         
         // Close when clicking outside
         if (filterModal) {
@@ -601,7 +586,11 @@ function doResetFilter() {
     const fmaxp = document.getElementById('filterMaxPrice');
     if (fmip) fmip.value = '';
     if (fmaxp) fmaxp.value = '';
-    document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { b.classList.remove('selected'); });
+    document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { 
+        b.classList.remove('selected'); 
+        b.classList.remove('hidden'); 
+        b.style.display = ''; 
+    });
     document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
     const termurahBtn = document.querySelector('.sort-btn[data-sort="termurah"]');
     if (termurahBtn) termurahBtn.classList.add('selected');
@@ -617,6 +606,7 @@ function doResetFilter() {
             }
             if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
             if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+            if(!currentUser || !isAdmin) f = f.filter(p => p.rating >= 4.5);
             
             if(activeSort === 'termurah') f.sort((a,b) => a.price - b.price);
             else if(activeSort === 'termahal') f.sort((a,b) => b.price - a.price);
