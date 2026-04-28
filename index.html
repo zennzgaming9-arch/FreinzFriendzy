@@ -556,14 +556,14 @@
     activeFilters.ratings = [r];
     document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
-    applyFilters();
 }
 function doFilterPrice(min, max, el) {
     activeFilters.minPrice = min;
     activeFilters.maxPrice = max;
     document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
-    applyFilters();
+    document.getElementById('filterMinPrice').value = '';
+    document.getElementById('filterMaxPrice').value = '';
 }
 
 function doFilterSort(sort, el) {
@@ -574,8 +574,13 @@ function doFilterSort(sort, el) {
 function doApplyFilter() {
     const filterModal = $('filterModal');
     if (filterModal) filterModal.classList.add('hidden');
-    activeFilters.minPrice = document.getElementById('filterMinPrice').value ? parseInt(document.getElementById('filterMinPrice').value) : null;
-    activeFilters.maxPrice = document.getElementById('filterMaxPrice').value ? parseInt(document.getElementById('filterMaxPrice').value) : null;
+    const minInput = document.getElementById('filterMinPrice').value;
+    const maxInput = document.getElementById('filterMaxPrice').value;
+    if (minInput || maxInput) {
+        activeFilters.minPrice = minInput ? parseInt(minInput) : null;
+        activeFilters.maxPrice = maxInput ? parseInt(maxInput) : null;
+        document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
+    }
     applyFilters();
     showToast('Filter applied');
 }
