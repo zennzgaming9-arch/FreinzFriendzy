@@ -177,7 +177,7 @@
             <div class="p-4 border-b border-gray-700">
                 <h3 class="font-semibold mb-3 text-sm">Rating</h3>
                 <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10 selected" data-rating="5" onclick="doFilterRating(5, this)">
+                    <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)">
                         <span class="text-vivid">★</span> 5
                     </button>
                     <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)">
@@ -356,17 +356,20 @@
                     }
                     applyFilters();
                     renderPhones(phones);
+                    updateVisibleFilters();
                 })
                 .catch(e => {
                     console.error('Error loading from JSONBin:', e);
                     phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                     applyFilters();
                     renderPhones(phones);
+                    updateVisibleFilters();
                 });
             } else {
                 phones = JSON.parse(localStorage.getItem('freinzPhones')) || [];
                 applyFilters();
                 renderPhones(phones);
+                updateVisibleFilters();
             }
         }
         
@@ -570,12 +573,22 @@
     activeFilters.ratings = [r];
     document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
+    updateVisibleFilters();
 }
 function doFilterPrice(min, max, el) {
     activeFilters.minPrice = min;
     activeFilters.maxPrice = max;
     document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
+    updateVisibleFilters();
+}
+function updateVisibleFilters() {
+    document.querySelectorAll('.filter-rating').forEach(function(btn) {
+        btn.classList.toggle('hidden', !btn.classList.contains('selected'));
+    });
+    document.querySelectorAll('.price-btn').forEach(function(btn) {
+        btn.classList.toggle('hidden', !btn.classList.contains('selected'));
+    });
 }
 function doFilterSort(sort, el) {
     activeSort = sort;
@@ -588,6 +601,7 @@ function doApplyFilter() {
     activeFilters.minPrice = document.getElementById('filterMinPrice').value ? parseInt(document.getElementById('filterMinPrice').value) : null;
     activeFilters.maxPrice = document.getElementById('filterMaxPrice').value ? parseInt(document.getElementById('filterMaxPrice').value) : null;
     applyFilters();
+    updateVisibleFilters();
     showToast('Filter applied');
 }
 function doResetFilter() {
@@ -601,6 +615,7 @@ function doResetFilter() {
     document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('selected'); });
     const termurahBtn = document.querySelector('.sort-btn[data-sort="termurah"]');
     if (termurahBtn) termurahBtn.classList.add('selected');
+    updateVisibleFilters();
 }
 
         // Override applyFilters to include sorting
