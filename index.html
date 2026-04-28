@@ -400,13 +400,24 @@
         
         // Always initialize with default phones
         function initPhones() {
-            phones = [
-                {id:1, name:"iPhone 15 Pro Max", price:18500000, rating:4.8, image:"https://images.unsplash.com/photo-1696446702183-95d1f78f95ca?w=400&h=400&fit=crop"},
-                {id:2, name:"Samsung Galaxy S24 Ultra", price:19500000, rating:4.7, image:"https://images.unsplash.com/photo-1709689074981-6b5c6a1d1d3a?w=400&h=400&fit=crop"},
-                {id:3, name:"Xiaomi 14 Pro", price:12000000, rating:4.5, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop"},
-                {id:4, name:"Realme 12 Pro", price:4500000, rating:4.2, image:"https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=400&h=400&fit=crop"}
-            ];
-            localStorage.setItem('freinzPhones', JSON.stringify(phones));
+            const saved = localStorage.getItem('freinzPhones');
+            if (saved) {
+                try {
+                    phones = JSON.parse(saved);
+                    if (!Array.isArray(phones)) phones = [];
+                } catch(e) {
+                    phones = [];
+                }
+            }
+            if (phones.length === 0) {
+                phones = [
+                    {id:1, name:"iPhone 15 Pro Max", price:18500000, rating:4.8, image:"https://images.unsplash.com/photo-1696446702183-95d1f78f95ca?w=400&h=400&fit=crop"},
+                    {id:2, name:"Samsung Galaxy S24 Ultra", price:19500000, rating:4.7, image:"https://images.unsplash.com/photo-1709689074981-6b5c6a1d1d3a?w=400&h=400&fit=crop"},
+                    {id:3, name:"Xiaomi 14 Pro", price:12000000, rating:4.5, image:"https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop"},
+                    {id:4, name:"Realme 12 Pro", price:4500000, rating:4.2, image:"https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=400&h=400&fit=crop"}
+                ];
+                localStorage.setItem('freinzPhones', JSON.stringify(phones));
+            }
         }
         
         initPhones();
