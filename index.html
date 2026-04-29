@@ -242,6 +242,16 @@
         </div>
     </div>
 
+    <!-- Delete Confirm Modal -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
+            <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
+            <p class="text-gray-400 text-sm text-center mb-4" id="deleteConfirmText"></p>
+            <button id="confirmDeleteBtn" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Delete</button>
+            <button id="cancelDeleteBtn" class="w-full py-2 text-gray-400">Cancel</button>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div id="toast" class="hidden fixed bottom-4 md:bottom-6 right-4 md:right-6 z-50 glass px-5 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base">
         <span id="toastMsg"></span>
@@ -673,6 +683,8 @@ function doResetFilter() {
         if (tabCatalog) tabCatalog.onclick = () => switchTab('catalog');
         if (tabAdmin) tabAdmin.onclick = () => switchTab('admin');
         
+        let phoneToDelete = null;
+        
         function renderAdminPhoneList() {
             const adminPhoneList = $('adminPhoneList');
             if (!adminPhoneList) return;
@@ -694,13 +706,11 @@ function doResetFilter() {
                 deleteBtn.className = 'px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white';
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.onclick = function() {
-                    if (confirm('Delete ' + p.name + '?')) {
-                        phones = phones.filter(phone => phone.id !== p.id);
-                        savePhonesToJSONBin();
-                        renderPhones(phones);
-                        renderAdminPhoneList();
-                        showToast('Phone deleted!');
-                    }
+                    phoneToDelete = p.id;
+                    const deleteConfirmText = $('deleteConfirmText');
+                    const deleteConfirmModal = $('deleteConfirmModal');
+                    if (deleteConfirmText) deleteConfirmText.textContent = 'Delete ' + p.name + '?';
+                    if (deleteConfirmModal) deleteConfirmModal.classList.remove('hidden');
                 };
                 
                 item.appendChild(img);
@@ -709,6 +719,25 @@ function doResetFilter() {
                 adminPhoneList.appendChild(item);
             });
         }
+        
+        const deleteConfirmModal = $('deleteConfirmModal');
+        const confirmDeleteBtn = $('confirmDeleteBtn');
+        const cancelDeleteBtn = $('cancelDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.onclick = function() {
+                if (phoneToDelete !== null) {
+                    phones = phones.filter(phone => phone.id !== phoneToDelete);
+                    savePhonesToJSONBin();
+                    renderPhones(phones);
+                    renderAdminPhoneList();
+                    showToast('Phone deleted!');
+                    phoneToDelete = null;
+                }
+                if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden');
+            };
+        }
+        if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
+        if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
         
         // Admin panel functions
         base64Image = '';
