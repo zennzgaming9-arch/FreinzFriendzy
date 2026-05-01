@@ -184,6 +184,14 @@
                     <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl glass mb-2 text-white">
+                    <select id="phoneType" class="w-full p-3 rounded-xl glass mb-2 text-white">
+                        <option value="" disabled selected>Select Phone Type</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Camera">Camera</option>
+                        <option value="Daily">Daily</option>
+                        <option value="All-Rounder">All-Rounder</option>
+                    </select>
+                    <textarea id="phoneDescription" placeholder="Phone Description..." class="w-full p-3 rounded-xl glass mb-2 text-white h-24 resize-none"></textarea>
                     <input type="file" id="phoneImage" accept="image/*" class="hidden">
                     <button type="button" id="uploadImageBtn" class="w-full py-3 rounded-xl glass mb-2">Upload Image</button>
                     <img id="imagePreview" class="hidden w-full h-32 object-cover rounded mb-2">
@@ -213,6 +221,15 @@
                     <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)"><span class="text-vivid">★</span> 5</button>
                     <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)"><span class="text-vivid">★</span> 4+</button>
                     <button class="filter-rating px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)"><span class="text-vivid">★</span> 3+</button>
+                </div>
+            </div>
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="font-semibold mb-3 text-sm">Phone Type</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="type-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Gaming" onclick="doFilterType('Gaming', this)">Gaming</button>
+                    <button class="type-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Camera" onclick="doFilterType('Camera', this)">Camera</button>
+                    <button class="type-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Daily" onclick="doFilterType('Daily', this)">Daily</button>
+                    <button class="type-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="All-Rounder" onclick="doFilterType('All-Rounder', this)">All-Rounder</button>
                 </div>
             </div>
             <div class="p-4 border-b border-gray-700">
@@ -324,7 +341,7 @@
         const facebookProvider = new firebase.auth.FacebookAuthProvider();
         const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-        let activeFilters = { ratings:[], minPrice:null, maxPrice:null };
+        let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
         const $ = id => {
             const el = document.getElementById(id);
             if (!el) return null;
@@ -395,26 +412,36 @@
             list.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-2xl overflow-hidden card-glow transition-all duration-300';
-                card.innerHTML = `
-                    <div class="relative h-40 md:h-48 overflow-hidden">
-                        <img src="${p.image}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-4 md:p-5">
-                        <h3 class="text-base md:text-lg font-bold mb-2 truncate">${p.name}</h3>
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="flex text-xs md:text-sm">${renderStars(p.rating)}</div>
-                            <span class="text-gray-400 text-xs md:text-sm">${p.rating.toFixed(1)}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl md:text-2xl font-bold gradient-text">Rp ${p.price.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>`;
+                const typeColors = { 'Gaming': 'bg-purple-500/80', 'Camera': 'bg-pink-500/80', 'Daily': 'bg-blue-500/80', 'All-Rounder': 'bg-green-500/80' };
+                var typeHtml = '';
+                if (p.type) {
+                    typeHtml = '<div class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ' + (typeColors[p.type] || 'bg-gray-500/80') + '">' + p.type + '</div>';
+                }
+                var descHtml = '';
+                if (p.description) {
+                    descHtml = '<p class="text-xs text-gray-400 mb-2 line-clamp-2">' + p.description + '</p>';
+                }
+                card.innerHTML = '<div class="relative h-40 md:h-48 overflow-hidden">' +
+                    '<img src="' + p.image + '" class="w-full h-full object-cover">' +
+                    typeHtml +
+                    '</div>' +
+                    '<div class="p-4 md:p-5">' +
+                    '<h3 class="text-base md:text-lg font-bold mb-2 truncate">' + p.name + '</h3>' +
+                    descHtml +
+                    '<div class="flex items-center gap-2 mb-3">' +
+                    '<div class="flex text-xs md:text-sm">' + renderStars(p.rating) + '</div>' +
+                    '<span class="text-gray-400 text-xs md:text-sm">' + p.rating.toFixed(1) + '</span>' +
+                    '</div>' +
+                    '<div class="flex justify-between items-center">' +
+                    '<span class="text-xl md:text-2xl font-bold gradient-text">Rp ' + p.price.toLocaleString('id-ID') + '</span>' +
+                    '</div>' +
+                    '</div>';
                 phoneGrid.appendChild(card);
             });
         }
 
         function updateFilterBadge() {
-            const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0);
+            const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0) + (activeFilters.type?1:0);
             const filterBadge = $('filterBadge');
             if (filterBadge) {
                 filterBadge.classList.toggle('hidden', count === 0);
@@ -665,8 +692,20 @@ function doFilterSort(sort, el) {
     }
     if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
     if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+    if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
     updateFilterBadge();
     renderPhones(f);
+}
+
+function doFilterType(type, el) {
+    if (activeFilters.type === type) {
+        activeFilters.type = null;
+        el.classList.remove('selected');
+    } else {
+        activeFilters.type = type;
+        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); });
+        el.classList.add('selected');
+    }
 }
 
 function showSearchRecommendations(term) {
@@ -739,7 +778,7 @@ function showSearchRecommendations(term) {
     showToast('Filter applied');
 }
 function doResetFilter() {
-    activeFilters = { ratings: [], minPrice: null, maxPrice: null };
+    activeFilters = { ratings: [], minPrice: null, maxPrice: null, type: null };
     activeSort = 'termurah';
     const fmip = document.getElementById('filterMinPrice');
     const fmaxp = document.getElementById('filterMaxPrice');
@@ -831,9 +870,13 @@ function doResetFilter() {
                     const phoneNameInput = $('phoneName');
                     const phonePriceInput = $('phonePrice');
                     const phoneRatingInput = $('phoneRating');
+                    const phoneTypeInput = $('phoneType');
+                    const phoneDescInput = $('phoneDescription');
                     if (phoneNameInput) phoneNameInput.value = p.name;
                     if (phonePriceInput) phonePriceInput.value = p.price;
                     if (phoneRatingInput) phoneRatingInput.value = p.rating;
+                    if (phoneTypeInput) phoneTypeInput.value = p.type || '';
+                    if (phoneDescInput) phoneDescInput.value = p.description || '';
                     const addPhoneBtn = $('addPhoneBtn');
                     if (addPhoneBtn) addPhoneBtn.textContent = 'Update Phone';
                     showToast('Editing ' + p.name);
@@ -910,6 +953,8 @@ function doResetFilter() {
                 const phoneNameInput = $('phoneName');
                 const phonePriceInput = $('phonePrice');
                 const phoneRatingInput = $('phoneRating');
+                const phoneTypeInput = $('phoneType');
+                const phoneDescInput = $('phoneDescription');
                 
                 if (!phoneNameInput || !phoneNameInput.value) {
                     showToast('Please enter phone name');
@@ -930,6 +975,8 @@ function doResetFilter() {
                         phones[idx].name = phoneNameInput.value;
                         phones[idx].price = parseFloat(phonePriceInput.value);
                         phones[idx].rating = parseFloat(phoneRatingInput.value);
+                        phones[idx].type = phoneTypeInput ? phoneTypeInput.value : '';
+                        phones[idx].description = phoneDescInput ? phoneDescInput.value : '';
                         if (base64Image) phones[idx].image = base64Image;
                         savePhonesToJSONBin();
                         showToast('Phone updated!');
@@ -943,6 +990,8 @@ function doResetFilter() {
                         name: phoneNameInput.value,
                         price: parseFloat(phonePriceInput.value),
                         rating: parseFloat(phoneRatingInput.value),
+                        type: phoneTypeInput ? phoneTypeInput.value : '',
+                        description: phoneDescInput ? phoneDescInput.value : '',
                         image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'
                     };
                     phones.push(newPhone);
@@ -953,6 +1002,8 @@ function doResetFilter() {
                 phoneNameInput.value = '';
                 phonePriceInput.value = '';
                 phoneRatingInput.value = '';
+                if (phoneTypeInput) phoneTypeInput.selectedIndex = 0;
+                if (phoneDescInput) phoneDescInput.value = '';
                 base64Image = '';
                 if (imagePreviewEl) imagePreviewEl.classList.add('hidden');
                 
