@@ -160,10 +160,10 @@
             <div class="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
                 <div class="flex-1 relative flex items-center">
                     <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
-                    <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-12 md:pr-14 py-2 md:py-3 rounded-xl text-sm md:text-base">
-                    <button id="searchBtn" class="absolute right-2 md:right-3 text-gray-400 hover:text-white transition-colors text-sm md:text-base font-medium">
+                    <input type="text" id="searchInput" placeholder="Search phones..." class="w-full pl-10 md:pl-12 pr-20 md:pr-24 py-2 md:py-3 rounded-xl text-sm md:text-base">
+                    <div class="absolute right-2 md:right-3 glass rounded-lg px-3 py-1 text-gray-400 hover:text-white transition-colors text-sm md:text-base font-medium cursor-pointer" id="searchBtn">
                         Enter
-                    </button>
+                    </div>
                 </div>
                 <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');fm.querySelectorAll('.filter-rating,.price-btn').forEach(function(b){b.classList.remove('hidden');b.style.display=''});}">
                     <i class="fas fa-sliders-h"></i><span>Filter</span>
