@@ -653,6 +653,50 @@ function doFilterSort(sort, el) {
     document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
 }
+ function applyFilters() {
+    let f = [...phones];
+    const searchInput = $('searchInput');
+    if (searchInput && searchInput.value) {
+        const term = searchInput.value.toLowerCase();
+        f = f.filter(p => p.name.toLowerCase().includes(term));
+    }
+    if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
+    if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+    updateFilterBadge();
+    renderPhones(f);
+}
+
+function showSearchRecommendations(term) {
+    var rec = $('searchRecommendations');
+    if(rec) rec.remove();
+    if(!term || term.length < 2) return;
+    
+    const matches = phones.filter(p => p.name.toLowerCase().includes(term.toLowerCase())).slice(0, 5);
+    if(matches.length === 0) return;
+    
+    var div = document.createElement('div');
+    div.id = 'searchRecommendations';
+    div.className = 'absolute top-full left-0 right-0 mt-2 glass rounded-xl overflow-hidden z-50';
+    div.style.cssText = 'max-height: 300px; overflow-y: auto;';
+    
+    matches.forEach(function(p) {
+        var item = document.createElement('div');
+        item.className = 'px-4 py-3 hover:bg-white/10 cursor-pointer flex items-center gap-3 border-b border-white/5';
+        item.onmousedown = function() {
+            var si = $('searchInput');
+            if(si) si.value = p.name;
+            applyFilters();
+            var r = $('searchRecommendations');
+            if(r) r.remove();
+        };
+        item.innerHTML = '<img src="' + p.image + '" class="w-10 h-10 object-cover rounded"><div><div class="font-medium text-sm">' + p.name + '</div><div class="text-xs text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</div></div>';
+        div.appendChild(item);
+    });
+    
+    var searchContainer = $('searchInput').parentElement;
+    if(searchContainer) searchContainer.appendChild(div);
+}
+
  function doApplyFilter() {
     const minInput = document.getElementById('filterMinPrice');
     const maxInput = document.getElementById('filterMaxPrice');
@@ -916,7 +960,11 @@ function doResetFilter() {
 
         // Search
         const searchInputEl = $('searchInput');
-        if (searchInputEl) searchInputEl.oninput = applyFilters;
+        if (searchInputEl) searchInputEl.oninput = function() { 
+            applyFilters(); 
+            showSearchRecommendations(this.value); 
+        };
+        searchInputEl.onblur = function() { setTimeout(() => { var rec = $('searchRecommendations'); if(rec) rec.remove(); }, 200); };
     </script>
 </body>
 </html>
