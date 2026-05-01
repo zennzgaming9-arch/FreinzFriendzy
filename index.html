@@ -184,13 +184,13 @@
                     <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl glass mb-2 text-white">
-                    <select id="phoneType" class="w-full p-3 rounded-xl glass mb-2 text-white" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%239ca3af\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"></polyline></svg>'); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1em;">
-                        <option value="" disabled selected>Select Phone Type</option>
-                        <option value="Gaming">Gaming</option>
-                        <option value="Camera">Camera</option>
-                        <option value="Daily">Daily</option>
-                        <option value="All-Rounder">All-Rounder</option>
-                    </select>
+                    <input type="hidden" id="phoneType" value="">
+                    <div class="flex flex-wrap gap-2 mb-2" id="phoneTypeBtns">
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Gaming" onclick="selectPhoneType('Gaming', this)">Gaming</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Camera" onclick="selectPhoneType('Camera', this)">Camera</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Daily" onclick="selectPhoneType('Daily', this)">Daily</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="All-Rounder" onclick="selectPhoneType('All-Rounder', this)">All-Rounder</button>
+                    </div>
                     <textarea id="phoneDescription" placeholder="Phone Description..." class="w-full p-3 rounded-xl glass mb-2 text-white h-24 resize-none"></textarea>
                     <input type="file" id="phoneImage" accept="image/*" class="hidden">
                     <button type="button" id="uploadImageBtn" class="w-full py-3 rounded-xl glass mb-2">Upload Image</button>
@@ -875,8 +875,15 @@ function doResetFilter() {
                     if (phoneNameInput) phoneNameInput.value = p.name;
                     if (phonePriceInput) phonePriceInput.value = p.price;
                     if (phoneRatingInput) phoneRatingInput.value = p.rating;
-                    if (phoneTypeInput) phoneTypeInput.value = p.type || '';
-                    if (phoneDescInput) phoneDescInput.value = p.description || '';
+                if (phoneTypeInput) phoneTypeInput.value = p.type || '';
+                if (phoneDescInput) phoneDescInput.value = p.description || '';
+                // Highlight selected type button
+                document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
+                    b.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid');
+                    if (b.dataset.type === p.type) {
+                        b.classList.add('selected', 'bg-vivid/30', 'border', 'border-vivid');
+                    }
+                });
                     const addPhoneBtn = $('addPhoneBtn');
                     if (addPhoneBtn) addPhoneBtn.textContent = 'Update Phone';
                     showToast('Editing ' + p.name);
@@ -920,6 +927,18 @@ function doResetFilter() {
         if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
         if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
         
+        // Phone type selector
+        function selectPhoneType(type, el) {
+            const phoneTypeInput = $('phoneType');
+            if (phoneTypeInput) phoneTypeInput.value = type;
+            document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
+                b.classList.remove('selected');
+                b.classList.remove('bg-vivid/30', 'border-vivid');
+            });
+            el.classList.add('selected');
+            el.classList.add('bg-vivid/30', 'border', 'border-vivid');
+        }
+
         // Admin panel functions
         base64Image = '';
         const uploadImageBtn = $('uploadImageBtn');
