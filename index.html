@@ -41,6 +41,8 @@
         .filter-rating.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         .price-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         .sort-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
+        .type-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
+        .type-select-btn.selected { background: linear-gradient(135deg, #f97316, #a855f7) !important; }
         .tab-active { background: linear-gradient(135deg, #f97316, #a855f7); color: white; }
         .tab-inactive { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
         .tab-inactive:hover { background: rgba(255,255,255,0.1); }
@@ -699,11 +701,11 @@ function doFilterSort(sort, el) {
 function doFilterType(type, el) {
     if (activeFilters.type === type) {
         activeFilters.type = null;
-        el.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid');
+        el.classList.remove('selected');
     } else {
         activeFilters.type = type;
-        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid'); });
-        el.classList.add('selected', 'bg-vivid/30', 'border', 'border-vivid');
+        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); });
+        el.classList.add('selected');
     }
 }
 
@@ -933,10 +935,8 @@ function doResetFilter() {
             if (phoneTypeInput) phoneTypeInput.value = type;
             document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
                 b.classList.remove('selected');
-                b.classList.remove('bg-vivid/30', 'border-vivid');
             });
             el.classList.add('selected');
-            el.classList.add('bg-vivid/30', 'border', 'border-vivid');
         }
 
         // Admin panel functions
