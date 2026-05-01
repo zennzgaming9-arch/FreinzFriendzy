@@ -53,8 +53,7 @@
         .float-delay-1 { animation-delay: -2s; }
         .float-delay-2 { animation-delay: -4s; }
         .glass-nav { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; } /* This line was already present, no change needed here */
-        .nav-icon-container { position: relative; width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .nav-icon-container::before { content: ''; position: absolute; inset: 0; border-radius: 16px; padding: 1px; background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: destination-out; mask-composite: exclude; pointer-events: none; }
+        .nav-icon-container { position: relative; width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2); }
         .nav-icon-container:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
         .nav-icon-container:active { transform: translateY(-2px) scale(0.98); }
         .icon-search { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(102,126,234,0.4); }
@@ -185,11 +184,11 @@
                     <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl glass mb-2 text-white">
                     <input type="hidden" id="phoneType" value="">
-                    <div class="flex flex-wrap gap-2 mb-2" id="phoneTypeBtns">
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Gaming" onclick="selectPhoneType('Gaming', this)">Gaming</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Camera" onclick="selectPhoneType('Camera', this)">Camera</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="Daily" onclick="selectPhoneType('Daily', this)">Daily</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-full glass text-sm hover:bg-white/10" data-type="All-Rounder" onclick="selectPhoneType('All-Rounder', this)">All-Rounder</button>
+                    <div class="grid grid-cols-2 gap-2 mb-2" id="phoneTypeBtns">
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl glass text-sm hover:bg-white/10" data-type="Gaming" onclick="selectPhoneType('Gaming', this)">Gaming</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl glass text-sm hover:bg-white/10" data-type="Camera" onclick="selectPhoneType('Camera', this)">Camera</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl glass text-sm hover:bg-white/10" data-type="Daily" onclick="selectPhoneType('Daily', this)">Daily</button>
+                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl glass text-sm hover:bg-white/10" data-type="All-Rounder" onclick="selectPhoneType('All-Rounder', this)">All-Rounder</button>
                     </div>
                     <textarea id="phoneDescription" placeholder="Phone Description..." class="w-full p-3 rounded-xl glass mb-2 text-white h-24 resize-none"></textarea>
                     <input type="file" id="phoneImage" accept="image/*" class="hidden">
@@ -700,11 +699,11 @@ function doFilterSort(sort, el) {
 function doFilterType(type, el) {
     if (activeFilters.type === type) {
         activeFilters.type = null;
-        el.classList.remove('selected');
+        el.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid');
     } else {
         activeFilters.type = type;
-        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); });
-        el.classList.add('selected');
+        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid'); });
+        el.classList.add('selected', 'bg-vivid/30', 'border', 'border-vivid');
     }
 }
 
@@ -773,6 +772,7 @@ function showSearchRecommendations(term) {
     }
     if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
     if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+    if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
     updateFilterBadge();
     renderPhones(f);
     showToast('Filter applied');
