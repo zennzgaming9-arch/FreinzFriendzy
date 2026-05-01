@@ -710,10 +710,10 @@ function doFilterType(type, el) {
     }
 }
 
-function showSearchRecommendations(term) {
-    var rec = $('searchRecommendations');
-    if(rec) rec.remove();
-    if(!term || term.length < 2) return;
+        function showSearchRecommendations(term) {
+            var rec = $('searchRecommendations');
+            if(rec) rec.remove();
+            if(!term || term.length < 1) return;
     
     const matches = phones.filter(p => p.name.toLowerCase().includes(term.toLowerCase())).slice(0, 5);
     if(matches.length === 0) return;
