@@ -333,7 +333,7 @@
                 $('landingPage').classList.toggle('hidden', p !== $('landingPage')); 
                 $('catalogPage').classList.toggle('hidden', p !== $('catalogPage'));
                 if ($('homeBtn')) {
-                    $('homeBtn').classList.toggle('hidden', p === $('landingPage'));
+                    $('homeBtn').classList.toggle('hidden', p === $('landingPage') || currentUser !== null);
                 }
             }
         }
