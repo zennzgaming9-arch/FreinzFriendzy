@@ -520,12 +520,34 @@
             return stars;
         }
 
+        // Debounce helper
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+        
+        // Debounced search
+        const debouncedSearch = debounce(function() {
+            applyFilters();
+        }, 300);
+        
+        // Debounced recommendations
+        const debouncedRecommendations = debounce(function(term) {
+            showSearchRecommendations(term);
+        }, 300);
+        
         function renderPhones(list = phones) {
             const phoneGrid = $('phoneGrid');
             const emptyState = $('emptyState');
             const emptyMsg = $('emptyMsg');
             if (!phoneGrid) return;
-            phoneGrid.innerHTML = '';
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
             if(list.length === 0) {
                 if (emptyState) emptyState.classList.remove('hidden');
                 phoneGrid.classList.add('hidden');
@@ -534,20 +556,18 @@
             }
             if (emptyState) emptyState.classList.add('hidden');
             phoneGrid.classList.remove('hidden');
+            
+            const typeColors = { 'Gaming': 'bg-purple-500/80', 'Camera': 'bg-pink-500/80', 'Daily': 'bg-blue-500/80', 'All-Rounder': 'bg-green-500/80' };
+            
             list.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-2xl overflow-hidden card-glow transition-all duration-300';
-                const typeColors = { 'Gaming': 'bg-purple-500/80', 'Camera': 'bg-pink-500/80', 'Daily': 'bg-blue-500/80', 'All-Rounder': 'bg-green-500/80' };
-                var typeHtml = '';
-                if (p.type) {
-                    typeHtml = '<div class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ' + (typeColors[p.type] || 'bg-gray-500/80') + '">' + p.type + '</div>';
-                }
-                var descHtml = '';
-                if (p.description) {
-                    descHtml = '<p class="text-xs text-gray-400 mb-2 line-clamp-2">' + p.description + '</p>';
-                }
+                
+                let typeHtml = p.type ? '<div class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold ' + (typeColors[p.type] || 'bg-gray-500/80') + '">' + p.type + '</div>' : '';
+                let descHtml = p.description ? '<p class="text-xs text-gray-400 mb-2 line-clamp-2">' + p.description + '</p>' : '';
+                
                 card.innerHTML = '<div class="relative h-40 md:h-48 overflow-hidden">' +
-                    '<img src="' + p.image + '" class="w-full h-full object-cover">' +
+                    '<img src="' + p.image + '" class="w-full h-full object-cover" loading="lazy">' +
                     typeHtml +
                     '</div>' +
                     '<div class="p-4 md:p-5">' +
@@ -561,8 +581,11 @@
                     '<span class="text-xl md:text-2xl font-bold gradient-text">Rp ' + p.price.toLocaleString('id-ID') + '</span>' +
                     '</div>' +
                     '</div>';
-                phoneGrid.appendChild(card);
+                fragment.appendChild(card);
             });
+            
+            phoneGrid.innerHTML = '';
+            phoneGrid.appendChild(fragment);
         }
 
         function updateFilterBadge() {
@@ -613,8 +636,11 @@
             if (fm) fm.classList.add('hidden');
         };
         
-        // Load phones from JSONBin with localStorage cache
+        // Load phones from JSONBin with localStorage cache (optimized)
         function loadPhonesFromJSONBin() {
+            const phoneGrid = $('phoneGrid');
+            if (phoneGrid) phoneGrid.style.opacity = '0.5';
+            
             // Load from cache first for instant display
             const cached = localStorage.getItem('freinzPhones');
             if (cached) {
@@ -624,7 +650,14 @@
                 } catch(e) {}
             }
             
-            // Then update from JSONBin in background
+            // Then update from JSONBin in background (only if cache is old)
+            const lastUpdate = localStorage.getItem('freinzPhonesLastUpdate');
+            const now = Date.now();
+            if (lastUpdate && (now - parseInt(lastUpdate)) < 30000) { // 30s cache
+                if (phoneGrid) phoneGrid.style.opacity = '1';
+                return;
+            }
+            
             fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
                 headers: { 'X-Master-Key': JSONBIN_API_KEY }
             })
@@ -633,11 +666,15 @@
                 if (data && data.record && Array.isArray(data.record)) {
                     phones = data.record;
                     localStorage.setItem('freinzPhones', JSON.stringify(phones));
+                    localStorage.setItem('freinzPhonesLastUpdate', now.toString());
                     renderPhones(phones);
                     if (isAdmin) renderAdminPhoneList();
                 }
             })
-            .catch(err => console.error('Error loading from JSONBin:', err));
+            .catch(err => console.error('Error loading from JSONBin:', err))
+            .finally(() => {
+                if (phoneGrid) phoneGrid.style.opacity = '1';
+            });
         }
         
         loadPhonesFromJSONBin();
@@ -806,19 +843,27 @@ function doFilterSort(sort, el) {
     document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
 }
- function applyFilters() {
-    let f = [...phones];
-    const searchInput = $('searchInput');
-    if (searchInput && searchInput.value) {
-        const term = searchInput.value.toLowerCase();
-        f = f.filter(p => p.name.toLowerCase().includes(term));
-    }
-    if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
-    if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-    if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
-    updateFilterBadge();
-    renderPhones(f);
-}
+        function applyFilters() {
+            // Show loading state
+            const phoneGrid = $('phoneGrid');
+            if (phoneGrid) phoneGrid.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                let f = [...phones];
+                const searchInput = $('searchInput');
+                if (searchInput && searchInput.value) {
+                    const term = searchInput.value.toLowerCase();
+                    f = f.filter(p => p.name.toLowerCase().includes(term));
+                }
+                if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
+                if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+                if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
+                updateFilterBadge();
+                renderPhones(f);
+                
+                if (phoneGrid) phoneGrid.style.opacity = '1';
+            }, 50);
+        }
 
 function doFilterType(type, el) {
     if (activeFilters.type === type) {
@@ -887,18 +932,7 @@ function doFilterType(type, el) {
         activeFilters.maxPrice = maxVal ? parseInt(maxVal) : null;
         document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
     }
-    // Apply filters manually
-    let f = [...phones];
-    const searchInput = $('searchInput');
-    if (searchInput && searchInput.value) {
-        const term = searchInput.value.toLowerCase();
-        f = f.filter(p => p.name.toLowerCase().includes(term));
-    }
-    if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
-    if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-    if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
-    updateFilterBadge();
-    renderPhones(f);
+    applyFilters();
     showToast('Filter applied');
 }
 function doResetFilter() {
@@ -1167,8 +1201,11 @@ function doResetFilter() {
                 if (e.key === 'Enter') {
                     doSearch();
                 } else if (this.value.length >= 2) {
-                    showSearchRecommendations(this.value);
+                    debouncedRecommendations(this.value);
                 }
+            };
+            searchInputEl.oninput = function() {
+                debouncedSearch();
             };
             searchInputEl.onblur = function() { setTimeout(() => { var rec = $('searchRecommendations'); if(rec) rec.remove(); }, 200); };
         }
