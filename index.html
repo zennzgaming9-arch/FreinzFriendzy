@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -420,6 +421,27 @@
         }
         
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
+        function saveProfileToDB(user) {
+            if (!user) return;
+            const db = firebase.database();
+            db.ref('users/' + user.uid).set({
+                name: localStorage.getItem('myName') || user.displayName || 'User',
+                photoURL: localStorage.getItem('myProfilePic') || '',
+                updatedAt: Date.now()
+            });
+        }
+        function loadProfileFromDB(user, callback) {
+            if (!user) return;
+            const db = firebase.database();
+            db.ref('users/' + user.uid).once('value').then(function(snapshot) {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.name) { localStorage.setItem('myName', data.name); }
+                    if (data.photoURL) { localStorage.setItem('myProfilePic', data.photoURL); }
+                    if (callback) callback(data);
+                }
+            });
+        }
 
         function renderStars(r) { 
             let stars = ''; 
@@ -578,7 +600,9 @@
         if(auth) {
             auth.onAuthStateChanged(function(user) {
                 if(user) {
-                    updateUserUI(user);
+                    loadProfileFromDB(user, function() {
+                        updateUserUI(user);
+                    });
                     showPage(document.getElementById('catalogPage'));
                     renderPhones(phones);
                 }
@@ -650,6 +674,7 @@
                     if (ua) ua.src = profilePicBase64;
                 }
                 if (profileModal) profileModal.classList.add('hidden');
+                saveProfileToDB(auth.currentUser);
                 showToast('Profile saved!');
             };
         }
