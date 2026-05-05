@@ -511,15 +511,18 @@
         }
         
         function renderStars(r) { 
+            // Single SVG with gradient fill - no overlapping layers
             const fillPercent = (r / 5) * 100;
-            return '<span class="inline-block" style="position:relative;width:3.5rem;height:1rem;font-size:0.8rem;color:#4b5563;">' +
-                   '<span style="position:absolute;top:0;left:0;white-space:nowrap;">' +
-                   '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>' +
-                   '</span>' +
-                   '<span style="position:absolute;top:0;left:0;color:#f97316;overflow:hidden;width:' + fillPercent + '%;white-space:nowrap;">' +
-                   '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>' +
-                   '</span>' +
-                   '<span class="text-gray-400 text-xs ml-4">' + r.toFixed(1) + '</span></span>';
+            const uid = 'sg' + Math.random().toString(36).substr(2, 5);
+            return '<span class="inline-flex items-center gap-1">' +
+                   '<svg width="65" height="14" viewBox="0 0 65 14" style="display:inline-block;">' +
+                   '<defs><linearGradient id="' + uid + '" x1="0%" y1="0%" x2="100%" y2="0%">' +
+                   '<stop offset="' + fillPercent + '%" stop-color="#f97316"/>' +
+                   '<stop offset="' + fillPercent + '%" stop-color="#4b5563"/>' +
+                   '</linearGradient></defs>' +
+                   '<text x="0" y="11" fill="url(#' + uid + ')" style="font-size:12px;font-family:FontAwesome;">★★★★★</text>' +
+                   '</svg>' +
+                   '<span class="text-gray-400 text-xs ml-0.5">' + r.toFixed(1) + '</span></span>';
         }
         
         // Debounce helper
@@ -571,8 +574,7 @@
                     '<div class="p-4">' +
                     '<h3 class="text-base font-bold mb-1 truncate">' + p.name + '</h3>' +
                     descHtml +
-                    '<div class="flex items-center gap-1 mb-2 text-sm">' + stars +
-                    '<span class="text-gray-400 ml-1">' + p.rating.toFixed(1) + '</span></div>' +
+'<div class="flex items-center gap-1 mb-2 text-sm">' + stars + '</div>' +
                     '<div class="text-lg font-bold" style="background:linear-gradient(135deg,#f97316,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Rp ' + p.price.toLocaleString('id-ID') + '</div>' +
                     '</div></div>';
             }).join('');
