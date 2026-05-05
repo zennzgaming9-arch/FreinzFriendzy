@@ -511,18 +511,15 @@
         }
         
         function renderStars(r) { 
-            let html = '<span class="inline-flex items-center gap-0.5 text-xs">';
-            for(let i=0;i<5;i++) {
-                if (i < Math.floor(r)) {
-                    html += '<span class="text-orange-400">★</span>';
-                } else if (i === Math.floor(r) && r%1 >= 0.5) {
-                    html += '<span class="text-orange-400" style="opacity:0.5;">★</span>';
-                } else {
-                    html += '<span class="text-gray-600">★</span>';
-                }
-            }
-            html += '</span>';
-            return html;
+            const fillPercent = (r / 5) * 100;
+            return '<span class="inline-block" style="position:relative;width:3.5rem;height:1rem;font-size:0.8rem;color:#4b5563;">' +
+                   '<span style="position:absolute;top:0;left:0;white-space:nowrap;">' +
+                   '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>' +
+                   '</span>' +
+                   '<span style="position:absolute;top:0;left:0;color:#f97316;overflow:hidden;width:' + fillPercent + '%;white-space:nowrap;">' +
+                   '<i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>' +
+                   '</span>' +
+                   '<span class="text-gray-400 text-xs ml-4">' + r.toFixed(1) + '</span></span>';
         }
         
         // Debounce helper
