@@ -25,8 +25,8 @@
     <style>
         * { box-sizing: border-box; }
         body { background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #000000 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .card-glow:hover { box-shadow: 0 0 30px rgba(249,115,22,0.3); }
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); will-change: transform; }
+        .card-glow:hover { box-shadow: 0 0 30px rgba(249,115,22,0.3); will-change: transform; }
         .gradient-text { background: linear-gradient(135deg, #f97316, #a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .gradient-bg { background: linear-gradient(135deg, #f97316, #a855f7); }
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
@@ -843,14 +843,27 @@ function doFilterSort(sort, el) {
     document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
     el.classList.add('selected');
 }
+        let lastFilterKey = '';
         function applyFilters() {
+            // Build a key to check if filters actually changed
+            const searchInput = $('searchInput');
+            const key = JSON.stringify({
+                term: searchInput ? searchInput.value : '',
+                ratings: activeFilters.ratings,
+                min: activeFilters.minPrice,
+                max: activeFilters.maxPrice,
+                type: activeFilters.type
+            });
+            
+            if (key === lastFilterKey) return; // Skip if nothing changed
+            lastFilterKey = key;
+            
             // Show loading state
             const phoneGrid = $('phoneGrid');
             if (phoneGrid) phoneGrid.style.opacity = '0.5';
             
             setTimeout(() => {
                 let f = [...phones];
-                const searchInput = $('searchInput');
                 if (searchInput && searchInput.value) {
                     const term = searchInput.value.toLowerCase();
                     f = f.filter(p => p.name.toLowerCase().includes(term));
