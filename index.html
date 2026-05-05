@@ -510,16 +510,21 @@
             });
         }
         
-        function renderStars(r) {
-            let stars = ''; 
+        function renderStars(r) { 
+            let html = '<span class="inline-flex items-center gap-0.5 text-xs">';
             for(let i=0;i<5;i++) {
-                stars += i<Math.floor(r) ? '<i class="fas fa-star star-filled"></i>' : 
-                       (i===Math.floor(r)&&r%1>=0.5 ? '<i class="fas fa-star-half-alt star-filled"></i>' : 
-                       '<i class="fas fa-star text-gray-600"></i>');
+                if (i < Math.floor(r)) {
+                    html += '<span class="text-orange-400">★</span>';
+                } else if (i === Math.floor(r) && r%1 >= 0.5) {
+                    html += '<span class="text-orange-400" style="opacity:0.5;">★</span>';
+                } else {
+                    html += '<span class="text-gray-600">★</span>';
+                }
             }
-            return stars;
+            html += '</span>';
+            return html;
         }
-
+        
         // Debounce helper
         function debounce(fn, delay) {
             let timer;
@@ -560,10 +565,7 @@
             const html = list.map(p => {
                 let typeHtml = p.type ? '<span class="absolute top-3 left-3 px-2 py-0.5 rounded text-xs font-semibold" style="background:' + (typeColors[p.type] || '#6b7280') + '">' + p.type + '</span>' : '';
                 let descHtml = p.description ? '<p class="text-xs text-gray-400 mb-2" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + p.description + '</p>' : '';
-                let stars = '';
-                for(let i=0;i<5;i++) {
-                    stars += i<Math.floor(p.rating) ? '★' : (i===Math.floor(p.rating)&&p.rating%1>=0.5 ? '⯨' : '☆');
-                }
+                let stars = renderStars(p.rating);
                 return '<div class="glass rounded-xl overflow-hidden" style="transition:box-shadow 0.2s">' +
                     '<div class="relative h-40 md:h-48 overflow-hidden">' +
                     '<img src="' + p.image + '" class="w-full h-full object-cover" loading="lazy">' +
@@ -572,7 +574,7 @@
                     '<div class="p-4">' +
                     '<h3 class="text-base font-bold mb-1 truncate">' + p.name + '</h3>' +
                     descHtml +
-                    '<div class="flex items-center gap-1 mb-2 text-sm text-orange-400">' + stars +
+                    '<div class="flex items-center gap-1 mb-2 text-sm">' + stars +
                     '<span class="text-gray-400 ml-1">' + p.rating.toFixed(1) + '</span></div>' +
                     '<div class="text-lg font-bold" style="background:linear-gradient(135deg,#f97316,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Rp ' + p.price.toLocaleString('id-ID') + '</div>' +
                     '</div></div>';
