@@ -422,37 +422,95 @@
         
         function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
         function saveProfileToDB(user) {
-            if (!user) return;
-            const db = firebase.database();
-            db.ref('users/' + user.uid).set({
+            if (!user) {
+                console.error('No user for saveProfileToDB');
+                return;
+            }
+            const profileData = {
+                uid: user.uid,
                 name: localStorage.getItem('myName') || user.displayName || 'User',
                 photoURL: localStorage.getItem('myProfilePic') || '',
                 updatedAt: Date.now()
-            }).catch(function(error) {
-                console.error('Error saving profile to DB:', error);
-            });
-        }
-        function loadProfileFromDB(user, callback) {
-            if (!user) { if(callback) callback(null); return; }
-            const db = firebase.database();
-            console.log('Loading profile from DB for user:', user.uid);
-            db.ref('users/' + user.uid).once('value').then(function(snapshot) {
-                const data = snapshot.val();
-                console.log('Profile loaded from DB:', data);
-                if (data) {
-                    if (data.name) { localStorage.setItem('myName', data.name); }
-                    if (data.photoURL) { localStorage.setItem('myProfilePic', data.photoURL); }
-                } else {
-                    console.log('No profile found in DB, will create on save');
+            };
+            
+            console.log('Saving profile to cloud:', profileData);
+            // Get current data
+            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+                headers: { 'X-Master-Key': JSONBIN_API_KEY }
+            })
+            .then(res => res.json())
+            .then(data => {
+                let allData = data.record || {};
+                // If it's an array (old phone-only format), convert to object
+                if (Array.isArray(allData)) {
+                    allData = { phones: allData, profiles: {} };
                 }
-                if (callback) callback(data);
-            }).catch(function(error) {
-                console.error('Error loading profile from DB:', error);
-                if (callback) callback(null);
+                if (!allData.profiles) allData.profiles = {};
+                allData.profiles[user.uid] = profileData;
+                
+                // Save back
+                return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_API_KEY
+                    },
+                    body: JSON.stringify(allData)
+                });
+            })
+            .then(() => {
+                console.log('Profile saved to cloud successfully');
+                showToast('Profile synced!');
+            })
+            .catch(err => {
+                console.error('Error saving profile to cloud:', err);
+                showToast('Error syncing profile');
             });
         }
-
-        function renderStars(r) { 
+        
+        function loadProfileFromDB(user) {
+            if (!user) {
+                console.error('No user for loadProfileFromDB');
+                return;
+            }
+            
+            console.log('Loading profile from cloud for user:', user.uid);
+            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+                headers: { 'X-Master-Key': JSONBIN_API_KEY }
+            })
+            .then(res => res.json())
+            .then(data => {
+                let allData = data.record || {};
+                // Handle old array format (phones only)
+                if (Array.isArray(allData)) {
+                    console.log('Old format detected, no profiles yet');
+                    return;
+                }
+                if (!allData.profiles) {
+                    console.log('No profiles in cloud yet');
+                    return;
+                }
+                const profileData = allData.profiles[user.uid];
+                console.log('Profile from cloud:', profileData);
+                if (profileData) {
+                    if (profileData.name) { 
+                        localStorage.setItem('myName', profileData.name); 
+                    }
+                    if (profileData.photoURL) { 
+                        localStorage.setItem('myProfilePic', profileData.photoURL); 
+                    }
+                    updateUserUI(user);
+                    console.log('Profile loaded and applied from cloud');
+                } else {
+                    console.log('No profile found for this user in cloud');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading profile from cloud:', err);
+            });
+        }
+        
+        function renderStars(r) {
             let stars = ''; 
             for(let i=0;i<5;i++) {
                 stars += i<Math.floor(r) ? '<i class="fas fa-star star-filled"></i>' : 
