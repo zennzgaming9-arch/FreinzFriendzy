@@ -26,7 +26,7 @@
         * { box-sizing: border-box; }
         body { background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #000000 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         .glass { background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(0,0,0,0.12); }
-        .panel { background: #14141e; border: 1px solid rgba(255,255,255,0.06); }
+        .panel { background: #14141e; border: 1px solid rgba(255,255,255,0.25); }
         .card-glow:hover { box-shadow: 0 0 20px rgba(249,115,22,0.2); }
         .gradient-text { background: linear-gradient(135deg, #f97316, #a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .gradient-bg { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
@@ -245,9 +245,9 @@
     </div>
 
 <!-- Filter Modal -->
-    <div id="filterModal" class="hidden fixed inset-0 z-50" style="background:rgba(0,0,0,0.85);">
-        <div class="panel h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;">
-            <div style="position:sticky;top:0;" class="panel p-4 flex justify-between items-center">
+    <div id="filterModal" class="hidden fixed inset-0 z-50" style="background:rgba(0,0,0,0.7);">
+        <div class="h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;background:rgba(20,20,30,0.7);border-left:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);">
+            <div style="position:sticky;top:0;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex justify-between items-center">
                 <h2 class="text-lg font-bold">Filter</h2>
                 <button type="button" onclick="document.getElementById('filterModal').classList.add('hidden')" style="width:36px;height:36px;border-radius:9999px;cursor:pointer;">×</button>
             </div>
@@ -286,8 +286,8 @@
                     <div class="flex-1"><input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
                 </div>
             </div>
-            <div style="position:sticky;bottom:0;" class="panel p-4 flex gap-3">
-                <button class="flex-1 py-3 rounded-xl panel font-semibold text-sm" onclick="doResetFilter()">Reset</button>
+            <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
+                <button class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;" onclick="doResetFilter()">Reset</button>
                 <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Terapkan</button>
             </div>
         </div>
