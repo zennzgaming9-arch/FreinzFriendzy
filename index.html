@@ -193,19 +193,6 @@
         </nav>
         <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
             <h1 class="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">Phone Catalog</h1>
-            <div class="flex flex-col md:flex-row gap-3 md:gap-4 mb-6 md:mb-8">
-                <div class="flex-1 relative flex items-center">
-                    <i class="fas fa-search absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm md:text-base"></i>
-                    <input type="text" id="searchInput" placeholder="Search phones..." autocomplete="off" class="w-full pl-10 md:pl-12 pr-20 md:pr-24 py-2 md:py-3 rounded-xl text-sm md:text-base">
-                    <div id="searchBtn" class="absolute right-2 md:right-3 rounded-lg px-3 py-1 text-sm md:text-base font-semibold cursor-pointer search-btn" onclick="doSearch()">
-                        Enter
-                    </div>
-                </div>
-                <button id="openFilterBtn" class="px-4 md:px-6 py-2 md:py-3 rounded-xl glass flex items-center justify-center gap-2 text-sm md:text-base" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');fm.querySelectorAll('.filter-rating,.price-btn').forEach(function(b){b.classList.remove('hidden');b.style.display=''});}">
-                    <i class="fas fa-sliders-h"></i><span>Filter</span>
-                    <span id="filterBadge" class="hidden w-5 h-5 rounded-full bg-vivid text-white text-xs flex items-center justify-center">0</span>
-                </button>
-            </div>
             
             <div id="tabNav" class="hidden flex justify-center gap-4 mb-6 md:mb-8">
                 <button id="tabCatalog" class="px-6 py-2 rounded-xl font-semibold tab-active">Catalog</button>
@@ -241,7 +228,22 @@
                 <p id="emptyMsg" class="text-gray-400 text-lg md:text-xl">No phones found</p>
             </div>
         </main>
-        <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm md:text-base">&copy;2026 NNA COPYRIGHT REVERSED</p></footer>
+        <div id="searchSticky" class="sticky z-40" style="bottom:0;padding:8px 12px;">
+            <div class="max-w-7xl mx-auto flex items-center gap-2" style="backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);border-radius:9999px;padding:4px 4px 4px 16px;">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Search phones..." autocomplete="off" class="w-full pl-9 pr-16 py-2 text-sm rounded-full" style="background:transparent;border:none;outline:none;">
+                    <div id="searchBtn" class="absolute right-1 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-xs font-semibold cursor-pointer search-btn" onclick="doSearch()">
+                        Enter
+                    </div>
+                </div>
+                <button id="openFilterBtn" class="w-9 h-9 rounded-full glass flex items-center justify-center shrink-0 relative" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');fm.querySelectorAll('.filter-rating,.price-btn').forEach(function(b){b.classList.remove('hidden');b.style.display=''});}" title="Filter">
+                    <i class="fas fa-sliders-h text-xs"></i>
+                    <span id="filterBadge" class="hidden w-3 h-3 rounded-full bg-vivid text-white flex items-center justify-center absolute" style="top:-3px;right:-3px;font-size:8px;">0</span>
+                </button>
+            </div>
+        </div>
+        <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm text-base">&copy;2026 NNA COPYRIGHT REVERSED</p></footer>
     </div>
 
 <!-- Filter Modal -->
