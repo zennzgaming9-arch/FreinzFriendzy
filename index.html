@@ -1053,7 +1053,12 @@
       }
 
       if (mode === 'signin') {
-        auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
+        var persist = $('rememberMe') && $('rememberMe').checked
+          ? firebase.auth.Auth.Persistence.LOCAL
+          : firebase.auth.Auth.Persistence.SESSION;
+        auth.setPersistence(persist).then(function() {
+          auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
+        }).catch(onError);
       } else {
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
