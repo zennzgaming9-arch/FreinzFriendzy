@@ -10,6 +10,7 @@
     console.warn = function(m) { if (m && m.includes && m.includes('tailwindcss.com')) return; _twOrig.apply(console, arguments); };
   </script>
   <script>
+    window.tailwind = {};
     tailwind.config = {
       theme: {
         extend: {
