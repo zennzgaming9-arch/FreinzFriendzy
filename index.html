@@ -972,6 +972,7 @@
       const homeBtn = document.getElementById('homeBtn');
       if (user) {
         currentUser = user;
+        profilePicBase64 = getProfilePic() || '';
         var email = user.email ? user.email.toLowerCase() : '';
         isAdmin = (email === 'zennzgaming9@gmail.com');
         var savedName = getProfileName();
@@ -986,6 +987,7 @@
       } else {
         currentUser = null;
         isAdmin = false;
+        profilePicBase64 = '';
         if (userSection) userSection.classList.add('hidden');
         if (tabNav) tabNav.classList.add('hidden');
         if (homeBtn) homeBtn.classList.remove('hidden');
