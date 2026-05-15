@@ -37,11 +37,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <style>
     html { background: #0a0a1a; }
     * { box-sizing: border-box; }
@@ -781,7 +783,19 @@
     </div>
   </div>
 
-
+  <!-- Crop Modal -->
+  <div id="cropModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center modal-overlay">
+    <div class="glass p-4 rounded-xl max-w-lg w-full mx-4" style="max-height:90vh;">
+      <h3 class="text-lg font-bold mb-3">Crop Profile Picture</h3>
+      <div style="max-height:50vh;overflow:hidden;">
+        <img id="cropImage" src="" alt="Crop" style="max-width:100%;">
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button id="cropCancelBtn" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;">Cancel</button>
+        <button id="cropConfirmBtn" class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm">Crop & Save</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -827,6 +841,9 @@
     const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
     let _pendingSetup = false;
+    let _lastForgotEmail = '';
+    let cropper = null;
+    let _cropCallback = null;
     let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
     const $ = id => {
       const el = document.getElementById(id);
@@ -1156,16 +1173,17 @@
     // Forgot password modal
     $('forgotBtn').addEventListener('click', function() {
       $('forgotModal').classList.add('open');
-      $('resetEmail').value = $('email').value || '';
+      $('resetEmail').value = _lastForgotEmail || $('email').value || '';
       $('resetEmail').focus();
     });
 
-    $('cancelResetBtn').addEventListener('click', function() { $('forgotModal').classList.remove('open'); });
-    $('forgotModal').addEventListener('click', function(e) { if (e.target === this) $('forgotModal').classList.remove('open'); });
+    $('cancelResetBtn').addEventListener('click', function() { _lastForgotEmail = $('resetEmail').value; $('forgotModal').classList.remove('open'); });
+    $('forgotModal').addEventListener('click', function(e) { if (e.target === this) { _lastForgotEmail = $('resetEmail').value; $('forgotModal').classList.remove('open'); } });
 
     $('sendResetBtn').addEventListener('click', function() {
       var email = $('resetEmail').value.trim();
       if (!email) { showToast('Please enter your email.', 'error'); shakeInput($('resetEmail')); return; }
+      _lastForgotEmail = email;
       setLoading($('sendResetBtn'), true);
       auth.sendPasswordResetEmail(email)
         .then(function() {
@@ -1250,9 +1268,15 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(event) { profilePicBase64 = event.target.result; if (profilePicPreview) profilePicPreview.src = profilePicBase64; };
+          reader.onload = function(event) {
+            openCropModal(event.target.result, function(cropped) {
+              profilePicBase64 = cropped;
+              if (profilePicPreview) profilePicPreview.src = cropped;
+            });
+          };
           reader.readAsDataURL(file);
         }
+        e.target.value = '';
       };
     }
     if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
@@ -1288,9 +1312,15 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(event) { setupPicBase64 = event.target.result; if (setupProfilePreview) setupProfilePreview.src = setupPicBase64; };
+          reader.onload = function(event) {
+            openCropModal(event.target.result, function(cropped) {
+              setupPicBase64 = cropped;
+              if (setupProfilePreview) setupProfilePreview.src = cropped;
+            });
+          };
           reader.readAsDataURL(file);
         }
+        e.target.value = '';
       };
     }
 
@@ -1612,6 +1642,45 @@
       searchInputEl.onblur = function() { setTimeout(function() { var rec = $('searchRecommendations'); if (rec) rec.remove(); }, 200); };
     }
     if (searchBtn) searchBtn.onclick = doSearch;
+
+    // Crop modal handlers
+    function openCropModal(imageSrc, callback) {
+      _cropCallback = callback;
+      var cropImg = $('cropImage');
+      var cm = $('cropModal');
+      if (!cropImg || !cm) return;
+      cropImg.src = imageSrc;
+      cm.classList.remove('hidden');
+      cm.classList.add('open');
+      if (cropper) cropper.destroy();
+      setTimeout(function() {
+        cropper = new Cropper(cropImg, {
+          aspectRatio: 1,
+          viewMode: 1,
+          autoCropArea: 0.8,
+          responsive: true,
+          background: false
+        });
+      }, 300);
+    }
+
+    function destroyCropModal() {
+      if (cropper) { cropper.destroy(); cropper = null; }
+      var cm = $('cropModal');
+      if (cm) { cm.classList.add('hidden'); cm.classList.remove('open'); }
+      _cropCallback = null;
+    }
+
+    $('cropCancelBtn').onclick = destroyCropModal;
+    $('cropModal').onclick = function(e) { if (e.target === this) destroyCropModal(); };
+
+    $('cropConfirmBtn').onclick = function() {
+      if (!cropper || !_cropCallback) return;
+      var canvas = cropper.getCroppedCanvas({ width: 256, height: 256 });
+      var croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      _cropCallback(croppedDataUrl);
+      destroyCropModal();
+    };
   </script>
 </body>
 </html>
