@@ -26,13 +26,12 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    document.addEventListener('click', function(e) { alert('clicked: ' + (e.target.id || e.target.tagName)); });
     document.addEventListener('click', function(e) {
       var t = e.target.closest('#profileBtn,#logoutBtn,#homeBtn');
       if (!t) return;
-      if (t.id === 'logoutBtn') { var m = document.getElementById('logoutModal'); if (m) m.classList.remove('hidden'); }
+      if (t.id === 'logoutBtn') { var m = document.getElementById('logoutModal'); if (m) { m.classList.remove('hidden'); m.classList.add('open'); } }
       else if (t.id === 'homeBtn') { var lp = document.getElementById('landingPage'), cp = document.getElementById('catalogPage'); if (lp) lp.classList.remove('hidden'); if (cp) cp.classList.add('hidden'); t.classList.add('hidden'); }
-      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = localStorage.getItem('myName') || ''; if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : ''); if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) pm.classList.remove('hidden'); }
+      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = localStorage.getItem('myName') || ''; if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : ''); if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); } }
     });
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -561,12 +560,12 @@
             <i class="fas fa-home"></i>
             <span class="text-sm font-medium">Home</span>
           </button>
-          <div id="userSection" class="flex items-center gap-2">
-            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="alert('profile clicked');var pm=document.getElementById('profileModal');if(pm)pm.classList.remove('hidden');">
+          <div id="userSection" class="hidden flex items-center gap-2">
+            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="var pm=document.getElementById('profileModal');if(pm){pm.classList.remove('hidden');pm.classList.add('open');}">
               <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
               <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
             </button>
-            <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout" onclick="var lm=document.getElementById('logoutModal');if(lm)lm.classList.remove('hidden');"><i class="fas fa-sign-out-alt"></i></button>
+            <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout" onclick="var lm=document.getElementById('logoutModal');if(lm){lm.classList.remove('hidden');lm.classList.add('open');}"><i class="fas fa-sign-out-alt"></i></button>
           </div>
         </div>
       </div>
@@ -584,10 +583,10 @@
           if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : '');
           if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture';
           var pm = document.getElementById('profileModal');
-          if (pm) pm.classList.remove('hidden');
+          if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); }
         } else if (t.id === 'logoutBtn') {
           var lm = document.getElementById('logoutModal');
-          if (lm) lm.classList.remove('hidden');
+          if (lm) { lm.classList.remove('hidden'); lm.classList.add('open'); }
         } else if (t.id === 'homeBtn') {
           var lp = document.getElementById('landingPage');
           var cp = document.getElementById('catalogPage');
@@ -1142,7 +1141,7 @@
         if (pu) pu.value = localStorage.getItem('myName') || '';
         if (profilePicPreview) profilePicPreview.src = profilePicBase64 || ($('userAvatar') ? $('userAvatar').src : '');
         if (addProfilePicBtn) addProfilePicBtn.textContent = profilePicBase64 ? 'Change Profile Picture' : 'Add Profile Picture';
-        if (profileModal) profileModal.classList.remove('hidden');
+        if (profileModal) { profileModal.classList.remove('hidden'); profileModal.classList.add('open'); }
       };
     }
     if (changeProfilePicBtn && profilePicInput) {
@@ -1157,7 +1156,7 @@
         }
       };
     }
-    if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) profileModal.classList.add('hidden'); };
+    if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
     if (saveProfile) {
       saveProfile.onclick = function() {
         const pu = $('profileUsername');
@@ -1166,22 +1165,22 @@
         if (pu) localStorage.setItem('myName', pu.value);
         if (un) un.innerText = pu ? pu.value : '';
         if (profilePicBase64) { localStorage.setItem('myProfilePic', profilePicBase64); if (ua) ua.src = profilePicBase64; }
-        if (profileModal) profileModal.classList.add('hidden');
+        if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); }
         saveProfileToDB(auth.currentUser);
         showToast('Profile saved!');
       };
     }
-    if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) profileModal.classList.add('hidden'); };
+    if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
 
     // Logout modal
     const logoutBtn = $('logoutBtn');
     const logoutModal = $('logoutModal');
     const confirmLogout = $('confirmLogout');
     const cancelLogout = $('cancelLogout');
-    if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) logoutModal.classList.remove('hidden'); };
-    if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); };
-    if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) logoutModal.classList.add('hidden'); };
-    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); if (auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+    if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) { logoutModal.classList.remove('hidden'); logoutModal.classList.add('open'); } };
+    if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
+    if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
+    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } if (auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
     // Filter modal
     let activeSort = 'termurah';
