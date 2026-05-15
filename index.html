@@ -1082,7 +1082,7 @@
       setLoading($('sendResetBtn'), true);
       auth.sendPasswordResetEmail(email)
         .then(function() {
-          showToast('Reset link sent to ' + email + '. Please check your Spam folder if missing.', 'success');
+          showToast('Reset link sent to ' + email + '. Check your Spam folder if missing.', 'success');
           $('forgotModal').classList.remove('open');
         })
         .catch(function(err) { showToast(friendlyError(err.code), 'error'); })
