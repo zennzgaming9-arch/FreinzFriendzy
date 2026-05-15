@@ -1366,7 +1366,7 @@
           const deleteConfirmText = $('deleteConfirmText');
           const deleteConfirmModal = $('deleteConfirmModal');
           if (deleteConfirmText) deleteConfirmText.textContent = 'Delete ' + p.name + '?';
-          if (deleteConfirmModal) deleteConfirmModal.classList.remove('hidden');
+          if (deleteConfirmModal) { deleteConfirmModal.classList.remove('hidden'); deleteConfirmModal.classList.add('open'); }
         };
         item.appendChild(img); item.appendChild(infoDiv); item.appendChild(editBtn); item.appendChild(deleteBtn);
         adminPhoneList.appendChild(item);
@@ -1379,10 +1379,10 @@
 
     if (confirmDeleteBtn) confirmDeleteBtn.onclick = function() {
       if (phoneToDelete !== null) { phones = phones.filter(phone => phone.id !== phoneToDelete); savePhonesToJSONBin(); renderPhones(phones); renderAdminPhoneList(); showToast('Phone deleted!'); phoneToDelete = null; }
-      if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden');
+      if (deleteConfirmModal) { deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); }
     };
-    if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
-    if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
+    if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) { deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); } };
+    if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); } };
 
     function selectPhoneType(type, el) {
       const phoneTypeInput = $('phoneType');
