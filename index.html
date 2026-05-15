@@ -20,6 +20,15 @@
     }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    document.addEventListener('click', function(e) {
+      var t = e.target.closest('#profileBtn,#logoutBtn,#homeBtn');
+      if (!t) return;
+      if (t.id === 'logoutBtn') { var m = document.getElementById('logoutModal'); if (m) m.classList.remove('hidden'); }
+      else if (t.id === 'homeBtn') { var lp = document.getElementById('landingPage'), cp = document.getElementById('catalogPage'); if (lp) lp.classList.remove('hidden'); if (cp) cp.classList.add('hidden'); t.classList.add('hidden'); }
+      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = localStorage.getItem('myName') || ''; if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : ''); if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) pm.classList.remove('hidden'); }
+    });
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
