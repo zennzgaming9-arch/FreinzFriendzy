@@ -31,7 +31,7 @@
       if (!t) return;
       if (t.id === 'logoutBtn') { var m = document.getElementById('logoutModal'); if (m) { m.classList.remove('hidden'); m.classList.add('open'); } }
       else if (t.id === 'homeBtn') { var lp = document.getElementById('landingPage'), cp = document.getElementById('catalogPage'); if (lp) lp.classList.remove('hidden'); if (cp) cp.classList.add('hidden'); t.classList.add('hidden'); }
-      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = localStorage.getItem('myName') || ''; if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : ''); if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); } }
+      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = getProfileName() || ''; if (pp) pp.src = getProfilePic() || (ua ? ua.src : ''); if (ap) ap.textContent = getProfilePic() ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); } }
     });
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -579,9 +579,9 @@
           var pp = document.getElementById('profilePicPreview');
           var ua = document.getElementById('userAvatar');
           var ap = document.getElementById('addProfilePicBtn');
-          if (pu) pu.value = localStorage.getItem('myName') || '';
-          if (pp) pp.src = localStorage.getItem('myProfilePic') || (ua ? ua.src : '');
-          if (ap) ap.textContent = localStorage.getItem('myProfilePic') ? 'Change Profile Picture' : 'Add Profile Picture';
+          if (pu) pu.value = getProfileName() || '';
+          if (pp) pp.src = getProfilePic() || (ua ? ua.src : '');
+          if (ap) ap.textContent = getProfilePic() ? 'Change Profile Picture' : 'Add Profile Picture';
           var pm = document.getElementById('profileModal');
           if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); }
         } else if (t.id === 'logoutBtn') {
@@ -754,6 +754,24 @@
     let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
     let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
+    function getProfileKey() { return currentUser ? 'freinzProfile_' + currentUser.uid : null; }
+    function getProfileName() {
+      const k = getProfileKey(); if (!k) return '';
+      const d = JSON.parse(localStorage.getItem(k) || '{}'); return d.name || '';
+    }
+    function getProfilePic() {
+      const k = getProfileKey(); if (!k) return '';
+      const d = JSON.parse(localStorage.getItem(k) || '{}'); return d.photoURL || '';
+    }
+    function setProfileData(name, photoURL) {
+      const k = getProfileKey(); if (!k) return;
+      localStorage.setItem(k, JSON.stringify({ name: name || '', photoURL: photoURL || '' }));
+    }
+    function clearProfileData() {
+      if (!currentUser) return;
+      localStorage.removeItem('freinzProfile_' + currentUser.uid);
+    }
+
     const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
     const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
 
@@ -809,8 +827,8 @@
     function saveProfileToDB(user) {
       if (!user) return;
       const profileData = {
-        uid: user.uid, name: localStorage.getItem('myName') || user.displayName || 'User',
-        photoURL: localStorage.getItem('myProfilePic') || '', updatedAt: Date.now()
+        uid: user.uid, name: getProfileName() || user.displayName || 'User',
+        photoURL: getProfilePic() || '', updatedAt: Date.now()
       };
       fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
@@ -828,6 +846,7 @@
 
     function loadProfileFromDB(user) {
       if (!user) return;
+      currentUser = user;
       fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
@@ -835,8 +854,7 @@
         if (Array.isArray(allData) || !allData.profiles) return;
         const profileData = allData.profiles[user.uid];
         if (profileData) {
-          if (profileData.name) localStorage.setItem('myName', profileData.name);
-          if (profileData.photoURL) localStorage.setItem('myProfilePic', profileData.photoURL);
+          setProfileData(profileData.name, profileData.photoURL);
           updateUserUI(user);
         }
       }).catch(err => console.error('Error loading profile:', err));
@@ -899,8 +917,6 @@
     }
 
     function updateUserUI(user) {
-      var myName = localStorage.getItem('myName');
-      var myProfilePic = localStorage.getItem('myProfilePic');
       const userAvatar = document.getElementById('userAvatar');
       const userName = document.getElementById('userName');
       const userSection = document.getElementById('userSection');
@@ -910,9 +926,11 @@
         currentUser = user;
         var email = user.email ? user.email.toLowerCase() : '';
         isAdmin = (email === 'zennzgaming9@gmail.com');
-        var name = myName || (user.displayName || 'User');
-        if (isAdmin && !myName) name = 'ZENNZ Gaming';
-        if (userAvatar) userAvatar.src = myProfilePic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
+        var savedName = getProfileName();
+        var savedPic = getProfilePic();
+        var name = savedName || (user.displayName || 'User');
+        if (isAdmin && !savedName) name = 'ZENNZ Gaming';
+        if (userAvatar) userAvatar.src = savedPic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
         if (userName) userName.innerText = name;
         if (userSection) userSection.classList.remove('hidden');
         if (isAdmin && tabNav) tabNav.classList.remove('hidden');
@@ -953,7 +971,7 @@
     }
 
     loadPhonesFromJSONBin();
-    var savedName = localStorage.getItem('myName');
+    var savedName = getProfileName();
     if (savedName) { var nameEl = document.getElementById('userName'); if (nameEl) nameEl.innerText = savedName; }
 
     if (auth) {
@@ -1137,13 +1155,13 @@
     const profilePicPreview = $('profilePicPreview');
     const changeProfilePicBtn = $('changeProfilePicBtn');
     const profilePicInput = $('profilePicInput');
-    let profilePicBase64 = localStorage.getItem('myProfilePic') || '';
+    let profilePicBase64 = getProfilePic() || '';
     const addProfilePicBtn = $('addProfilePicBtn');
 
     if (profileBtn) {
       profileBtn.onclick = function() {
         const pu = $('profileUsername');
-        if (pu) pu.value = localStorage.getItem('myName') || '';
+        if (pu) pu.value = getProfileName() || '';
         if (profilePicPreview) profilePicPreview.src = profilePicBase64 || ($('userAvatar') ? $('userAvatar').src : '');
         if (addProfilePicBtn) addProfilePicBtn.textContent = profilePicBase64 ? 'Change Profile Picture' : 'Add Profile Picture';
         if (profileModal) { profileModal.classList.remove('hidden'); profileModal.classList.add('open'); }
@@ -1167,9 +1185,10 @@
         const pu = $('profileUsername');
         const un = $('userName');
         const ua = $('userAvatar');
-        if (pu) localStorage.setItem('myName', pu.value);
-        if (un) un.innerText = pu ? pu.value : '';
-        if (profilePicBase64) { localStorage.setItem('myProfilePic', profilePicBase64); if (ua) ua.src = profilePicBase64; }
+        const newName = pu ? pu.value : '';
+        if (un) un.innerText = newName;
+        setProfileData(newName, profilePicBase64);
+        if (ua) ua.src = profilePicBase64 || ua.src;
         if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); }
         saveProfileToDB(auth.currentUser);
         showToast('Profile saved!');
@@ -1185,7 +1204,7 @@
     if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) { logoutModal.classList.remove('hidden'); logoutModal.classList.add('open'); } };
     if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
     if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
-    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } if (auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } if (auth.currentUser) auth.signOut(); clearProfileData(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
     // Filter modal
     let activeSort = 'termurah';
