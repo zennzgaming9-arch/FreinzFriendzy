@@ -547,6 +547,51 @@
     </div>
   </div>
 
+  <!-- Setup Profile Page (shown after sign-up) -->
+  <div id="setupPage" class="hidden">
+    <nav class="py-3 px-4 md:py-4 md:px-6 relative z-50" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
+          <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
+        </div>
+      </div>
+    </nav>
+    <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
+      <div class="login-card-gm" style="max-width:440px;">
+        <div class="flex justify-center mb-4">
+          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(249,115,22,0.15),rgba(168,85,247,0.15));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;">
+            <i class="fas fa-user-plus"></i>
+          </div>
+        </div>
+        <h2 style="text-align:center;">Welcome!</h2>
+        <p class="subtitle" id="setupSubtitle">Set up your profile to get started.</p>
+
+        <div class="flex flex-col items-center gap-2 mb-5 mt-2">
+          <div class="relative" style="cursor:pointer;">
+            <img id="setupProfilePreview" class="w-24 h-24 rounded-full object-cover border-2" style="border-color:rgba(249,115,22,0.3);" src="https://ui-avatars.com/api/?name=U&background=a855f7&color=fff&bold=true" alt="Profile">
+            <button id="setupChangePicBtn" type="button" class="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center text-xs" style="background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.5);color:#f97316;"><i class="fas fa-camera"></i></button>
+          </div>
+          <button id="setupAddPicBtn" type="button" class="text-sm" style="background:none;border:none;color:#f97316;cursor:pointer;font-family:inherit;">Add Profile Picture</button>
+        </div>
+        <input type="file" id="setupPicInput" accept="image/*" class="hidden">
+
+        <div class="input-group">
+          <label for="setupUsername">Display name</label>
+          <div class="input-icon-wrap">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="setupUsername" placeholder="Choose a display name" autocomplete="name" class="with-icon" />
+          </div>
+        </div>
+
+        <button id="setupContinueBtn" class="sign-btn" type="button">
+          <span class="btn-text">Continue</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+    </main>
+  </div>
+
   <!-- Catalog Page -->
   <div id="catalogPage" class="hidden">
     <nav class="sticky top-0 z-50 py-3 px-4 md:py-4 md:px-6" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
@@ -781,6 +826,7 @@
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
     const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
+    let _pendingSetup = false;
     let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
     const $ = id => {
       const el = document.getElementById(id);
@@ -792,6 +838,8 @@
       if ($('landingPage') && $('catalogPage')) {
         $('landingPage').classList.toggle('hidden', p !== $('landingPage'));
         $('catalogPage').classList.toggle('hidden', p !== $('catalogPage'));
+        var sp = $('setupPage');
+        if (sp) sp.classList.toggle('hidden', p !== sp);
         if ($('homeBtn')) {
           $('homeBtn').classList.toggle('hidden', p === $('landingPage') || currentUser !== null);
         }
@@ -976,8 +1024,19 @@
 
     if (auth) {
       auth.onAuthStateChanged(function(user) {
-        if (user) { updateUserUI(user); showPage(document.getElementById('catalogPage')); renderPhones(phones); loadProfileFromDB(user); }
-        else { showPage(document.getElementById('landingPage')); }
+        if (user) {
+          updateUserUI(user);
+          renderPhones(phones);
+          loadProfileFromDB(user);
+          if (_pendingSetup) {
+            showPage(document.getElementById('setupPage'));
+            _pendingSetup = false;
+          } else {
+            showPage(document.getElementById('catalogPage'));
+          }
+        } else {
+          showPage(document.getElementById('landingPage'));
+        }
       });
     }
 
@@ -1055,7 +1114,9 @@
 
       function onSuccess(user) {
         updateUserUI(user);
-        showPage($('catalogPage'));
+        if (mode === 'signin') {
+          showPage($('catalogPage'));
+        }
         showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
         $('authForm').reset();
         setLoading($('submitBtn'), false);
@@ -1078,10 +1139,11 @@
           auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
         }).catch(onError);
       } else {
+        _pendingSetup = true;
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
           onSuccess(cred.user);
-        }).catch(onError);
+        }).catch(function(err) { _pendingSetup = false; onError(err); });
       }
     });
 
@@ -1122,28 +1184,40 @@
     const loginFacebook = $('loginFacebook');
     const loginApple = $('loginApple');
 
+    function afterSocialLogin(user) {
+      updateUserUI(user);
+      var stored = getProfileName();
+      if (stored) {
+        _pendingSetup = false;
+        showPage($('catalogPage'));
+      }
+    }
+
     if (loginGoogle) {
       loginGoogle.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
+        _pendingSetup = true;
         auth.signInWithPopup(googleProvider)
-          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
-          .catch(function(e) { showToast('Error: ' + e.message); });
+          .then(function(result) { afterSocialLogin(result.user); })
+          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
       };
     }
     if (loginFacebook) {
       loginFacebook.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
+        _pendingSetup = true;
         auth.signInWithPopup(facebookProvider)
-          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
-          .catch(function(e) { showToast('Error: ' + e.message); });
+          .then(function(result) { afterSocialLogin(result.user); })
+          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
       };
     }
     if (loginApple) {
       loginApple.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
+        _pendingSetup = true;
         auth.signInWithPopup(appleProvider)
-          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
-          .catch(function(e) { showToast('Error: ' + e.message); });
+          .then(function(result) { afterSocialLogin(result.user); })
+          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
       };
     }
 
@@ -1195,6 +1269,52 @@
       };
     }
     if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
+
+    // Setup profile page handlers
+    let setupPicBase64 = '';
+    const setupUsername = $('setupUsername');
+    const setupContinueBtn = $('setupContinueBtn');
+    const setupProfilePreview = $('setupProfilePreview');
+    const setupChangePicBtn = $('setupChangePicBtn');
+    const setupAddPicBtn = $('setupAddPicBtn');
+    const setupPicInput = $('setupPicInput');
+
+    if (setupChangePicBtn && setupPicInput) {
+      setupChangePicBtn.onclick = function() { setupPicInput.click(); };
+      if (setupAddPicBtn) setupAddPicBtn.onclick = function() { setupPicInput.click(); };
+      setupPicInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) { setupPicBase64 = event.target.result; if (setupProfilePreview) setupProfilePreview.src = setupPicBase64; };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+
+    if (setupContinueBtn) {
+      setupContinueBtn.onclick = function() {
+        const name = setupUsername ? setupUsername.value.trim() : '';
+        if (!name) {
+          showToast('Please enter a display name', 'error');
+          if (setupUsername) shakeInput(setupUsername);
+          return;
+        }
+        setLoading(setupContinueBtn, true);
+        setProfileData(name, setupPicBase64);
+        var un = $('userName');
+        var ua = $('userAvatar');
+        if (un) un.innerText = name;
+        if (ua) ua.src = setupPicBase64 || ua.src;
+        if (auth.currentUser && name) {
+          auth.currentUser.updateProfile({ displayName: name }).catch(function() {});
+        }
+        saveProfileToDB(auth.currentUser);
+        showPage($('catalogPage'));
+        showToast('Profile set up!', 'success');
+        setLoading(setupContinueBtn, false);
+      };
+    }
 
     // Logout modal
     const logoutBtn = $('logoutBtn');
