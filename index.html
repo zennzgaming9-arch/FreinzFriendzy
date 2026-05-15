@@ -977,6 +977,7 @@
     // Form submit
     $('authForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      if (!auth) { showToast('Auth not available', 'error'); return; }
       var email = $('email').value.trim();
       var password = $('password').value;
       var name = $('displayName').value.trim();
@@ -1006,7 +1007,7 @@
       }
 
       if (mode === 'signin') {
-        auth.signInWithEmailAndPassword(email, password).then(onSuccess).catch(onError);
+        auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
       } else {
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
@@ -1045,7 +1046,7 @@
     $('resetEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('sendResetBtn').click(); });
 
     // Init mode
-    setMode('signin');
+    try { setMode('signin'); } catch(e) { console.error('setMode error:', e); }
 
     // Social login handlers
     const loginGoogle = $('loginGoogle');
