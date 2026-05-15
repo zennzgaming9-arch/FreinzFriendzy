@@ -1,1279 +1,1333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freinz Friendzy - Phone Ratings</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { vivid: '#f97316', deep: '#a855f7', obsidian: '#050505' }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freinz Friendzy - Phone Ratings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { vivid: '#f97316', deep: '#a855f7', obsidian: '#050505' }
         }
-    </script>
-    <style>
-        html { background: #0a0a1a; }
-        * { box-sizing: border-box; }
-        body { background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #000000 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; min-height: 100vh; }
-        .glass { background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(0,0,0,0.12); }
-        .panel { background: #14141e; border: 1px solid rgba(255,255,255,0.25); }
-        .card-glow:hover { box-shadow: 0 0 20px rgba(249,115,22,0.2); }
-        .gradient-text { background: linear-gradient(135deg, #f97316, #a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .gradient-bg { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
-        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-        input, textarea, select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
-        input:focus, textarea:focus { outline: none; border-color: #f97316; }
-        .star-filled { color: #f97316; }
-        .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.25; pointer-events: none; }
-        .login-btn { overflow: hidden; position: relative; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .login-btn:active { transform: scale(0.95); }
-        .login-btn:hover { transform: scale(1.12); }
-        .login-google:hover { animation: googleFlash 0.8s ease forwards; }
-        .login-facebook:hover { animation: fbFlash 0.8s ease forwards; }
-        .login-apple:hover { animation: appleFlash 0.8s ease forwards; }
-        @keyframes googleFlash {
-            0% { box-shadow: none; }
-            15% { box-shadow: 0 0 30px rgba(234,67,53,0.5); }
-            35% { box-shadow: 0 0 30px rgba(251,188,5,0.5); }
-            55% { box-shadow: 0 0 30px rgba(52,168,83,0.5); }
-            75% { box-shadow: 0 0 30px rgba(66,133,244,0.5); }
-            100% { box-shadow: none; }
-        }
-        @keyframes fbFlash {
-            0% { box-shadow: none; }
-            15% { box-shadow: 0 0 30px rgba(24,119,242,0.5); }
-            40% { box-shadow: 0 0 30px rgba(24,119,242,0.3); }
-            100% { box-shadow: none; }
-        }
-        @keyframes appleFlash {
-            0% { box-shadow: none; }
-            15% { box-shadow: 0 0 30px rgba(255,255,255,0.3); }
-            40% { box-shadow: 0 0 30px rgba(255,255,255,0.15); }
-            100% { box-shadow: none; }
-        }
-        .login-btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -50%;
-            width: 40%; height: 100%;
-            transform: skewX(-25deg);
-            pointer-events: none;
-        }
-        .login-google::after { background: linear-gradient(90deg, transparent 0%, rgba(234,67,53,0.25) 20%, rgba(251,188,5,0.25) 40%, rgba(52,168,83,0.25) 60%, rgba(66,133,244,0.25) 80%, transparent 100%); }
-        .login-facebook::after { background: linear-gradient(90deg, transparent, rgba(24,119,242,0.2), transparent); }
-        .login-apple::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); }
-        .login-btn:hover::after { animation: glint 0.7s ease forwards; }
-        @keyframes glint {
-            0% { left: -50%; }
-            100% { left: 150%; }
-        }
-        #guestBtn { cursor: pointer; overflow: hidden; position: relative; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        #guestBtn:hover { transform: scale(1.05); animation: purpleFlash 0.8s ease forwards; }
-        @keyframes purpleFlash {
-            0% { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.5); color: #f97316; box-shadow: none; }
-            15% { background: rgba(168,85,247,0.25); border-color: rgba(168,85,247,0.6); color: #c084fc; box-shadow: 0 0 35px rgba(168,85,247,0.4); }
-            40% { background: rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.5); color: #c084fc; box-shadow: 0 0 25px rgba(168,85,247,0.3); }
-            100% { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.5); color: #f97316; box-shadow: none; }
-        }
-        #guestBtn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -50%;
-            width: 40%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-            transform: skewX(-25deg);
-            pointer-events: none;
-        }
-        #guestBtn:hover::after { animation: glint 0.6s ease forwards; }
-        .filter-rating.selected, .price-btn.selected, .sort-btn.selected, .type-btn.selected, .type-select-btn.selected { background: rgba(249,115,22,0.15) !important; border-color: rgba(249,115,22,0.5) !important; color: #f97316 !important; }
-        .filter-rating.selected .text-vivid { color: #f97316 !important; }
-        .tab-active { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
-        .tab-inactive { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
-        .tab-inactive:hover { background: rgba(255,255,255,0.1); }
-        .search-btn { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
-        .search-btn:hover { background: rgba(249,115,22,0.25); }
-        .input-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 1px #ef4444; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        .float { animation: float 6s ease-in-out infinite; }
-        .float-delay-1 { animation-delay: -2s; }
-        .float-delay-2 { animation-delay: -4s; }
-        .glass-nav { background: linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 100%); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.1); }
-        .nav-icon-container { position: relative; width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2); }
-        .nav-icon-container:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .nav-icon-container:active { transform: translateY(-2px) scale(0.98); }
-        .icon-search { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(102,126,234,0.4); }
-        .icon-filter { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(240,147,251,0.4); }
-        .icon-rate { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(79,172,254,0.4); }
-        .icon-inner-glow { position: absolute; inset: 4px; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%); pointer-events: none; }
-        .nav-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.025em; }
-        @media (max-width: 640px) {
-            .nav-icon-container {
-                width: 56px;
-                height: 56px;
-                border-radius: 14px;
-            }
-            .nav-icon-container i.fa-search,
-            .nav-icon-container i.fa-filter,
-            .nav-icon-container i.fa-star {
-                font-size: 1rem;
-            }
-            .bg-glow {
-                width: 300px;
-                height: 300px;
-                filter: blur(100px);
-            }
-            .filter-rating, .price-btn, .type-btn, .type-select-btn {
-                padding: 0.625rem 1rem;
-                min-height: 44px;
-            }
-            #searchBtn {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-            }
-            .glass-nav .gap-8 {
-                gap: 1.5rem !important;
-            }
-            .nav-label {
-                font-size: 0.7rem;
-            }
-            input[type="text"], textarea, select {
-                min-height: 44px;
-            }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    html { background: #0a0a1a; }
+    * { box-sizing: border-box; }
+    body { background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #000000 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; min-height: 100vh; position: relative; }
+    .glass { background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid rgba(255,255,255,0.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(0,0,0,0.12); }
+    .panel { background: #14141e; border: 1px solid rgba(255,255,255,0.25); }
+    .card-glow:hover { box-shadow: 0 0 20px rgba(249,115,22,0.2); }
+    .gradient-text { background: linear-gradient(135deg, #f97316, #a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .gradient-bg { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
+    .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+    input, textarea, select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
+    input:focus, textarea:focus { outline: none; border-color: #f97316; }
+    .star-filled { color: #f97316; }
+    .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); opacity: 0.25; pointer-events: none; }
+    .login-btn { overflow: hidden; position: relative; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .login-btn:active { transform: scale(0.95); }
+    .login-btn:hover { transform: scale(1.12); }
+    .login-google:hover { animation: googleFlash 0.8s ease forwards; }
+    .login-facebook:hover { animation: fbFlash 0.8s ease forwards; }
+    .login-apple:hover { animation: appleFlash 0.8s ease forwards; }
+    @keyframes googleFlash {
+      0% { box-shadow: none; }
+      15% { box-shadow: 0 0 30px rgba(234,67,53,0.5); }
+      35% { box-shadow: 0 0 30px rgba(251,188,5,0.5); }
+      55% { box-shadow: 0 0 30px rgba(52,168,83,0.5); }
+      75% { box-shadow: 0 0 30px rgba(66,133,244,0.5); }
+      100% { box-shadow: none; }
+    }
+    @keyframes fbFlash {
+      0% { box-shadow: none; }
+      15% { box-shadow: 0 0 30px rgba(24,119,242,0.5); }
+      40% { box-shadow: 0 0 30px rgba(24,119,242,0.3); }
+      100% { box-shadow: none; }
+    }
+    @keyframes appleFlash {
+      0% { box-shadow: none; }
+      15% { box-shadow: 0 0 30px rgba(255,255,255,0.3); }
+      40% { box-shadow: 0 0 30px rgba(255,255,255,0.15); }
+      100% { box-shadow: none; }
+    }
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -50%;
+      width: 40%; height: 100%;
+      transform: skewX(-25deg);
+      pointer-events: none;
+    }
+    .login-google::after { background: linear-gradient(90deg, transparent 0%, rgba(234,67,53,0.25) 20%, rgba(251,188,5,0.25) 40%, rgba(52,168,83,0.25) 60%, rgba(66,133,244,0.25) 80%, transparent 100%); }
+    .login-facebook::after { background: linear-gradient(90deg, transparent, rgba(24,119,242,0.2), transparent); }
+    .login-apple::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); }
+    .login-btn:hover::after { animation: glint 0.7s ease forwards; }
+    @keyframes glint {
+      0% { left: -50%; }
+      100% { left: 150%; }
+    }
+
+    .filter-rating.selected, .price-btn.selected, .sort-btn.selected, .type-btn.selected, .type-select-btn.selected { background: rgba(249,115,22,0.15) !important; border-color: rgba(249,115,22,0.5) !important; color: #f97316 !important; }
+    .filter-rating.selected .text-vivid { color: #f97316 !important; }
+    .tab-active { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
+    .tab-inactive { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
+    .tab-inactive:hover { background: rgba(255,255,255,0.1); }
+    .search-btn { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.5); color: #f97316; }
+    .search-btn:hover { background: rgba(249,115,22,0.25); }
+    .input-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 1px #ef4444; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .float { animation: float 6s ease-in-out infinite; }
+    .float-delay-1 { animation-delay: -2s; }
+    .float-delay-2 { animation-delay: -4s; }
+    .glass-nav { background: linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 100%); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.1); }
+    .nav-icon-container { position: relative; width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.2); }
+    .nav-icon-container:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
+    .nav-icon-container:active { transform: translateY(-2px) scale(0.98); }
+    .icon-search { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(102,126,234,0.4); }
+    .icon-filter { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(240,147,251,0.4); }
+    .icon-rate { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(79,172,254,0.4); }
+    .icon-inner-glow { position: absolute; inset: 4px; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%); pointer-events: none; }
+    .nav-label { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.025em; }
+
+    /* ---------- PREMIUM LOGIN CARD ---------- */
+    .login-card-gm {
+      width: 100%; max-width: 420px;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-radius: 28px;
+      padding: 2.75rem 2.25rem 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      position: relative;
+    }
+    .login-card-gm::before {
+      content: '';
+      position: absolute; top: -1px; left: -1px; right: -1px; bottom: -1px;
+      border-radius: 29px;
+      background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(168,85,247,0.25), transparent 70%);
+      z-index: -1;
+    }
+    .login-card-gm h2 {
+      font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #f97316, #a855f7, #fff);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem; text-align: center;
+    }
+    .login-card-gm .subtitle {
+      text-align: center; color: rgba(255,255,255,0.4);
+      font-size: 0.875rem; margin-bottom: 2.25rem;
+    }
+
+    /* Toggle tabs */
+    .toggle-tabs {
+      display: flex; background: rgba(255,255,255,0.04);
+      border-radius: 16px; padding: 4px; margin-bottom: 2rem; gap: 4px;
+    }
+    .toggle-tabs button {
+      flex: 1; padding: 0.6rem 0; border: none; border-radius: 13px;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      background: transparent; color: rgba(255,255,255,0.35);
+      transition: all 0.3s ease;
+    }
+    .toggle-tabs button.active {
+      background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(168,85,247,0.2));
+      color: #fff;
+      box-shadow: 0 0 16px rgba(249,115,22,0.08), 0 0 16px rgba(168,85,247,0.08);
+    }
+    .toggle-tabs button:not(.active):hover { color: rgba(255,255,255,0.6); }
+
+    .login-card-gm .input-group { margin-bottom: 1.2rem; }
+    .login-card-gm .input-group label {
+      display: block; font-size: 0.8rem; font-weight: 500;
+      color: rgba(255,255,255,0.5); margin-bottom: 0.4rem;
+    }
+    .login-card-gm .input-group input {
+      width: 100%; padding: 0.85rem 1.1rem; font-size: 0.9375rem; font-family: inherit;
+      border: 1.5px solid rgba(255,255,255,0.06); border-radius: 16px;
+      background: rgba(255,255,255,0.04); color: #fff; outline: none;
+      transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-card-gm .input-group input::placeholder { color: rgba(255,255,255,0.18); }
+    .login-card-gm .input-group input:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); }
+    .login-card-gm .input-group input:focus {
+      background: rgba(255,255,255,0.06); border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
+    }
+    .login-card-gm .input-group input.shake { animation: shake 0.45s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}
+      60%{transform:translateX(-4px)}80%{transform:translateX(4px)}
+    }
+
+    .login-card-gm .form-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 1.25rem 0 1.5rem;
+    }
+    .login-card-gm .form-actions label {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.45);
+      cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .login-card-gm .form-actions input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: #f97316; cursor: pointer;
+    }
+    .login-card-gm .forgot-link {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.4); text-decoration: none;
+      font-weight: 500; cursor: pointer; background: none; border: none; font-family: inherit;
+      transition: color 0.2s ease;
+    }
+    .login-card-gm .forgot-link:hover { color: #f97316; }
+
+    .login-card-gm .sign-btn {
+      width: 100%; padding: 0.9rem; font-size: 0.9375rem; font-weight: 600;
+      font-family: inherit; border: none; border-radius: 16px; cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, #f97316, #a855f7);
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      transition: opacity 0.25s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .login-card-gm .sign-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(249,115,22,0.25), 0 10px 32px rgba(168,85,247,0.25);
+    }
+    .login-card-gm .sign-btn:active:not(:disabled) { transform: translateY(0); }
+    .login-card-gm .sign-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.2); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.65s linear infinite; display: none;
+    }
+    .sign-btn.loading .spinner { display: inline-block; }
+    .sign-btn.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .login-card-gm .toggle-text {
+      text-align: center; margin-top: 1.5rem; font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .login-card-gm .toggle-text button {
+      background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #a855f7);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    .login-card-gm .toggle-text button:hover { opacity: 0.8; }
+
+    .login-card-gm .divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+    .login-card-gm .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .login-card-gm .divider-text {
+      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .login-card-gm .social-row { display: flex; justify-content: center; gap: 0.75rem; }
+    .login-card-gm .social-btn {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .login-card-gm .social-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    /* ---------- TOAST ---------- */
+    .toast-container {
+      position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+      display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto; padding: 0.85rem 1.25rem; border-radius: 16px;
+      font-size: 0.85rem; font-weight: 500;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      transform: translateX(120%); opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+      max-width: 380px;
+    }
+    .toast.visible { transform: translateX(0); opacity: 1; }
+    .toast.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.2); }
+    .toast.success { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.18); }
+    .toast.info {
+      background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(168,85,247,0.12));
+      border: 1px solid rgba(168,85,247,0.18);
+    }
+
+    /* ---------- FORGOT MODAL ---------- */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9998; opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease; padding: 1.5rem;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      width: 100%; max-width: 380px;
+      background: rgba(30,30,50,0.85);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-radius: 24px; padding: 2rem 1.75rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      transform: scale(0.92);
+      transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+    .modal-overlay.open .modal-box { transform: scale(1); }
+    .modal-box h3 {
+      font-size: 1.15rem; font-weight: 600;
+      background: linear-gradient(135deg, #f97316, #a855f7);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.35rem;
+    }
+    .modal-box p { font-size: 0.85rem; color: rgba(255,255,255,0.45); margin-bottom: 1.5rem; }
+    .modal-box .btn-secondary {
+      width: 100%; padding: 0.75rem; font-size: 0.875rem; font-weight: 600;
+      font-family: inherit; border: none; border-radius: 14px; cursor: pointer;
+      color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06);
+      margin-top: 0.75rem; transition: background 0.2s ease;
+    }
+    .modal-box .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 640px) {
+      .nav-icon-container { width: 56px; height: 56px; border-radius: 14px; }
+      .nav-icon-container i.fa-search, .nav-icon-container i.fa-filter, .nav-icon-container i.fa-star { font-size: 1rem; }
+      .bg-glow { width: 300px; height: 300px; filter: blur(100px); }
+      .filter-rating, .price-btn, .type-btn, .type-select-btn { padding: 0.625rem 1rem; min-height: 44px; }
+      #searchBtn { padding: 0.5rem 1rem; font-size: 0.875rem; }
+      .glass-nav .gap-8 { gap: 1.5rem !important; }
+      .nav-label { font-size: 0.7rem; }
+      input[type="text"], textarea, select { min-height: 44px; }
+      .login-card-gm { padding: 2rem 1.5rem 2rem; }
+      .login-card-gm .form-actions { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+      .toast-container { right: 1rem; left: 1rem; }
+      .toast { max-width: 100%; }
+    }
+  </style>
 </head>
 <body class="min-h-screen text-white">
-    <div class="bg-glow top-0 left-0 -translate-x-1/2 -translate-y-1/2" style="background:#f97316;"></div>
-    <div class="bg-glow bottom-0 right-0 translate-x-1/2 translate-y-1/2" style="background:#a855f7;"></div>
+  <div class="bg-glow top-0 left-0 -translate-x-1/2 -translate-y-1/2" style="background:#f97316;"></div>
+  <div class="bg-glow bottom-0 right-0 translate-x-1/2 translate-y-1/2" style="background:#a855f7;"></div>
 
-    <!-- Landing Page -->
-    <div id="landingPage">
-        <nav class="py-3 px-4 md:py-4 md:px-6 relative z-50" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
-                    <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
-                </div>
-            </div>
-        </nav>
-        <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
-            <div class="text-center max-w-2xl">
-                <div class="mb-6 md:mb-8">
-                    <img src="https://i.ibb.co.com/BVkZPxRh/super-resolution-20260501070309059.png" alt="Freinz Friendzy" class="h-32 md:h-48 lg:h-64 mx-auto object-contain">
-                </div>
-<div class="flex flex-col gap-3 max-w-md mx-auto items-center">
-                    <button id="guestBtn" class="py-3 px-6 rounded-xl gradient-bg font-semibold text-base flex items-center justify-center gap-2">Continue As Guest <i class="fas fa-arrow-right"></i></button>
-                    
-                    <p class="text-xs font-medium gradient-text">Sign In To Get All Feature</p>
-                    
-                    <div class="flex gap-2 items-center">
-<button id="loginGoogle" class="login-btn login-google w-12 h-12 rounded-xl glass flex items-center justify-center border border-transparent" onclick="try{auth.signInWithPopup(googleProvider).then(function(r){updateUserUI(r.user);showPage(document.getElementById('catalogPage'));}).catch(function(e){alert('Error: '+e.message)})}catch(e){alert('Error: '+e.message)}">
-                             <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                         </button>
-                         <button id="loginFacebook" class="login-btn login-facebook w-12 h-12 rounded-xl flex items-center justify-center border border-transparent" style="background:rgba(24,119,242,0.15);" onclick="try{auth.signInWithPopup(facebookProvider).then(function(r){updateUserUI(r.user);showPage(document.getElementById('catalogPage'));}).catch(function(e){alert('Error: '+e.message)})}catch(e){alert('Error: '+e.message)}">
-                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                         </button>
-                         <button id="loginApple" class="login-btn login-apple w-12 h-12 rounded-xl glass flex items-center justify-center border border-transparent" onclick="try{auth.signInWithPopup(appleProvider).then(function(r){updateUserUI(r.user);showPage(document.getElementById('catalogPage'));}).catch(function(e){alert('Error: '+e.message)})}catch(e){alert('Error: '+e.message)}">
-                             <i class="fab fa-apple text-xl"></i>
-                         </button>
-                    </div>
-                </div>
-                </div>
-        </main>
-        <div class="glass-nav py-8 px-6 md:px-8 relative z-50 mx-4 md:mx-auto max-w-2xl mt-8">
-            <div class="flex justify-center gap-8 md:gap-12">
-                <div class="flex flex-col items-center gap-3">
-                    <div class="nav-icon-container icon-search">
-                        <div class="icon-inner-glow"></div>
-                        <i class="fas fa-search text-white text-xl relative z-10"></i>
-                    </div>
-                    <span class="nav-label text-gray-300">Search</span>
-                    <span class="text-gray-500 text-xs">Find phones</span>
-                </div>
-                <div class="flex flex-col items-center gap-3">
-                    <div class="nav-icon-container icon-filter">
-                        <div class="icon-inner-glow"></div>
-                        <i class="fas fa-filter text-white text-xl relative z-10"></i>
-                    </div>
-                    <span class="nav-label text-gray-300">Filter</span>
-                    <span class="text-gray-500 text-xs">By rating/price</span>
-                </div>
-                <div class="flex flex-col items-center gap-3">
-                    <div class="nav-icon-container icon-rate">
-                        <div class="icon-inner-glow"></div>
-                        <i class="fas fa-star text-white text-xl relative z-10"></i>
-                    </div>
-                    <span class="nav-label text-gray-300">Rate</span>
-                    <span class="text-gray-500 text-xs">Community</span>
-                </div>
-            </div>
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+      <h3>Reset password</h3>
+      <p>Enter your email and we'll send you a reset link.</p>
+      <div class="input-group" style="margin-bottom:0;">
+        <label for="resetEmail">Email</label>
+        <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <button class="sign-btn" id="sendResetBtn" style="padding:0.75rem;font-size:0.875rem;">
+        <span class="btn-text">Send reset email</span>
+        <div class="spinner"></div>
+      </button>
+      <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Landing Page -->
+  <div id="landingPage">
+    <nav class="py-3 px-4 md:py-4 md:px-6 relative z-50" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
+          <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
         </div>
-    </div>
+      </div>
+    </nav>
+    <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
+      <div class="login-card-gm">
+        <h2 id="formTitle">Welcome back</h2>
+        <p class="subtitle" id="formSubtitle">Sign in to your account.</p>
 
-    <!-- Catalog Page -->
-    <div id="catalogPage" class="hidden">
-        <nav class="sticky top-0 z-50 py-3 px-4 md:py-4 md:px-6" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
-                    <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
-                </div>
-                <div class="flex items-center gap-2 md:gap-3">
-                    <button id="homeBtn" class="hidden flex items-center gap-2 px-3 py-2 rounded-lg glass hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-home"></i>
-                        <span class="text-sm font-medium">Home</span>
-                    </button>
-                    <div id="userSection" class="hidden flex items-center gap-2">
-                        <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
-                            <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
-                            <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
-                        </button>
-                        <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-        <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
-            <h1 class="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">Phone Catalog</h1>
-            
-            <div id="tabNav" class="hidden flex justify-center gap-4 mb-6 md:mb-8">
-                <button id="tabCatalog" class="px-6 py-2 rounded-xl font-semibold tab-active">Catalog</button>
-                <button id="tabAdmin" class="px-6 py-2 rounded-xl font-semibold tab-inactive">Admin Panel</button>
-            </div>
-            
-            <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
-            <div id="adminPanel" class="hidden">
-                <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
-                <div class="panel p-6 rounded-xl mb-6">
-                    <h3 class="text-lg font-bold mb-4">Add New Phone</h3>
-                    <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl panel mb-2 text-white">
-                    <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl panel mb-2 text-white">
-                    <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl panel mb-2 text-white">
-                    <input type="hidden" id="phoneType" value="">
-                    <div class="grid grid-cols-2 gap-2 mb-2" id="phoneTypeBtns">
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Gaming" onclick="selectPhoneType('Gaming', this)">Gaming</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Camera" onclick="selectPhoneType('Camera', this)">Camera</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Daily" onclick="selectPhoneType('Daily', this)">Daily</button>
-                        <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="All-Rounder" onclick="selectPhoneType('All-Rounder', this)">All-Rounder</button>
-                    </div>
-                    <textarea id="phoneDescription" placeholder="Phone Description..." class="w-full p-3 rounded-xl panel mb-2 text-white h-24 resize-none"></textarea>
-                    <input type="file" id="phoneImage" accept="image/*" class="hidden">
-                    <button type="button" id="uploadImageBtn" class="w-full py-3 rounded-xl panel mb-2">Upload Image</button>
-                    <img id="imagePreview" class="hidden w-full h-32 object-cover rounded mb-2">
-                    <button id="addPhoneBtn" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
-                </div>
-                <h3 class="text-lg font-bold mb-4">Manage Phones</h3>
-                <div id="adminPhoneList" class="space-y-4"></div>
-            </div>
-            <div id="emptyState" class="hidden text-center py-12 md:py-20">
-                <i class="fas fa-mobile-alt text-5xl md:text-7xl text-gray-600 mb-4"></i>
-                <p id="emptyMsg" class="text-gray-400 text-lg md:text-xl">No phones found</p>
-            </div>
-        </main>
-        <div id="searchSticky" class="sticky z-40" style="bottom:0;padding:8px 12px;">
-            <div class="max-w-7xl mx-auto flex items-center gap-2" style="backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);border-radius:9999px;padding:4px 4px 4px 16px;">
-                <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                    <input type="text" id="searchInput" placeholder="Search phones..." autocomplete="off" class="w-full pl-9 pr-16 py-2 text-sm rounded-full" style="background:transparent;border:none;outline:none;">
-                    <div id="searchBtn" class="absolute right-1 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-xs font-semibold cursor-pointer search-btn" onclick="doSearch()">
-                        Enter
-                    </div>
-                </div>
-                <button id="openFilterBtn" class="w-9 h-9 rounded-full glass flex items-center justify-center shrink-0 relative" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');fm.querySelectorAll('.filter-rating,.price-btn').forEach(function(b){b.classList.remove('hidden');b.style.display=''});}" title="Filter">
-                    <i class="fas fa-sliders-h text-xs"></i>
-                    <span id="filterBadge" class="hidden w-3 h-3 rounded-full bg-vivid text-white flex items-center justify-center absolute" style="top:-3px;right:-3px;font-size:8px;">0</span>
-                </button>
-            </div>
+        <div class="toggle-tabs">
+          <button class="active" data-mode="signin" id="tabSignIn">Sign In</button>
+          <button data-mode="signup" id="tabSignUp">Sign Up</button>
         </div>
-        <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm text-base">&copy;2026 NNA COPYRIGHT REVERSED</p></footer>
-    </div>
 
-<!-- Filter Modal -->
-    <div id="filterModal" class="hidden fixed inset-0 z-50" style="background:rgba(0,0,0,0.7);">
-        <div class="h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;background:rgba(20,20,30,0.7);border-left:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);">
-            <div style="position:sticky;top:0;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex justify-between items-center">
-                <h2 class="text-lg font-bold">Filter</h2>
-                <button type="button" onclick="document.getElementById('filterModal').classList.add('hidden')" style="width:36px;height:36px;border-radius:9999px;cursor:pointer;">×</button>
-            </div>
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="font-semibold mb-3 text-sm">Rating</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)"><span class="text-vivid">★</span> 5</button>
-                    <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)"><span class="text-vivid">★</span> 4+</button>
-                    <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)"><span class="text-vivid">★</span> 3+</button>
-                </div>
-            </div>
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="font-semibold mb-3 text-sm">Phone Type</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Gaming" onclick="doFilterType('Gaming', this)">Gaming</button>
-                    <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Camera" onclick="doFilterType('Camera', this)">Camera</button>
-                    <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Daily" onclick="doFilterType('Daily', this)">Daily</button>
-                    <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="All-Rounder" onclick="doFilterType('All-Rounder', this)">All-Rounder</button>
-                </div>
-            </div>
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="font-semibold mb-3 text-sm">Harga</h3>
-                <div class="flex flex-wrap gap-2">
-                    <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="1000000" data-max="2000000" onclick="doFilterPrice(1000000, 2000000, this)">1-2 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="2000000" data-max="3000000" onclick="doFilterPrice(2000000, 3000000, this)">2-3 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="3000000" data-max="5000000" onclick="doFilterPrice(3000000, 5000000, this)">3-5 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="5000000" data-max="10000000" onclick="doFilterPrice(5000000, 10000000, this)">5-10 JT</button>
-                    <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="10000000" data-max="999999999" onclick="doFilterPrice(10000000, 999999999, this)">&gt; 10 JT</button>
-                </div>
-            </div>
-            <div class="p-4 border-b border-gray-700">
-                <h3 class="font-semibold mb-3 text-sm">Kisaran Harga</h3>
-                <div class="flex items-center gap-3">
-                    <div class="flex-1"><input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
-                    <span class="text-gray-400">-</span>
-                    <div class="flex-1"><input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
-                </div>
-            </div>
-            <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
-                <button class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;" onclick="doResetFilter()">Reset</button>
-                <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Terapkan</button>
-            </div>
+        <form id="authForm">
+          <div class="input-group" id="nameGroup" style="display:none;">
+            <label for="displayName">Full name</label>
+            <input type="text" id="displayName" placeholder="Your name" autocomplete="name" />
+          </div>
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+          </div>
+          <div class="form-actions" id="signInExtras">
+            <label><input type="checkbox" id="rememberMe" /> Remember me</label>
+            <button type="button" class="forgot-link" id="forgotBtn">Forgot password?</button>
+          </div>
+          <button type="submit" class="sign-btn" id="submitBtn">
+            <span class="btn-text">Sign In</span>
+            <div class="spinner"></div>
+          </button>
+        </form>
+
+        <p class="toggle-text" id="toggleText">
+          Don't have an account? <button type="button" id="switchToSignUp">Sign up</button>
+        </p>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or continue with</span>
+          <div class="divider-line"></div>
         </div>
-    </div>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
-        <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="text-lg font-bold mb-4">Edit Profile</h3>
-            <div class="flex flex-col items-center gap-3 mb-4">
-                <div class="relative">
-                    <img id="profilePicPreview" class="w-20 h-20 rounded-full object-cover" src="" alt="Profile">
-                    <button id="changeProfilePicBtn" class="absolute bottom-0 right-0 w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-xs"><i class="fas fa-camera"></i></button>
-                </div>
-                <button id="addProfilePicBtn" class="text-sm text-vivid hover:underline">Add Profile Picture</button>
-            </div>
-            <input type="file" id="profilePicInput" accept="image/*" class="hidden">
-            <input type="text" id="profileUsername" placeholder="Your name" class="w-full p-3 rounded-xl glass mb-4 text-white">
-            <button id="saveProfile" class="w-full py-3 rounded-xl gradient-bg font-semibold">Save</button>
-            <button id="closeProfileModal" class="w-full py-2 text-gray-400 mt-2">Cancel</button>
+        <div class="social-row">
+          <button id="loginGoogle" class="social-btn" title="Sign in with Google">
+            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </button>
+          <button id="loginFacebook" class="social-btn" title="Sign in with Facebook">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </button>
+          <button id="loginApple" class="social-btn" title="Sign in with Apple">
+            <i class="fab fa-apple text-xl" style="color:#fff;"></i>
+          </button>
         </div>
-    </div>
-
-    <!-- Add Modal -->
-    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
-        <div class="panel p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="text-lg font-bold mb-4">Add Phone</h3>
-            <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl panel mb-2 text-white">
-            <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl panel mb-2 text-white">
-            <input type="text" id="phoneRating" placeholder="Rating" class="w-full p-3 rounded-xl panel mb-2 text-white">
-            <input type="file" id="phoneImage" accept="image/*" class="hidden">
-            <button type="button" class="w-full py-3 rounded-xl panel mb-2" onclick="document.getElementById('phoneImage').click()">Upload Image</button>
-            <img id="imagePreview" class="hidden w-full h-32 object-cover rounded mb-2">
-            <button type="submit" class="w-full py-3 rounded-xl gradient-bg font-semibold" onclick="var p=phones.length?Math.max(...phones.map(function(x){return x.id}))+1:1;phones.push({id:p,name:document.getElementById('phoneName').value,price:parseFloat(document.getElementById('phonePrice').value),rating:parseFloat(document.getElementById('phoneRating').value),image:base64Image||'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'});localStorage.setItem('freinzPhones',JSON.stringify(phones));document.getElementById('addModal').classList.add('hidden');renderPhones(phones);">Add</button>
-            <button class="w-full py-2 text-gray-400 mt-2" onclick="document.getElementById('addModal').classList.add('hidden')">Cancel</button>
+      </div>
+    </main>
+    <div class="glass-nav py-8 px-6 md:px-8 relative z-50 mx-4 md:mx-auto max-w-2xl mt-20">
+      <div class="flex justify-center gap-8 md:gap-12">
+        <div class="flex flex-col items-center gap-3">
+          <div class="nav-icon-container icon-search">
+            <div class="icon-inner-glow"></div>
+            <i class="fas fa-search text-white text-xl relative z-10"></i>
+          </div>
+          <span class="nav-label text-gray-300">Search</span>
+          <span class="text-gray-500 text-xs">Find phones</span>
         </div>
-    </div>
-
-    <!-- Logout Confirm Modal -->
-    <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
-        <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
-            <p class="text-gray-400 text-sm text-center mb-4">You will be signed out</p>
-            <button id="confirmLogout" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Sign Out</button>
-            <button id="cancelLogout" class="w-full py-2 text-gray-400">Cancel</button>
+        <div class="flex flex-col items-center gap-3">
+          <div class="nav-icon-container icon-filter">
+            <div class="icon-inner-glow"></div>
+            <i class="fas fa-filter text-white text-xl relative z-10"></i>
+          </div>
+          <span class="nav-label text-gray-300">Filter</span>
+          <span class="text-gray-500 text-xs">By rating/price</span>
         </div>
-    </div>
-
-    <!-- Delete Confirm Modal -->
-    <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
-        <div class="panel p-6 rounded-xl max-w-sm w-full mx-4">
-            <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
-            <p class="text-gray-400 text-sm text-center mb-4" id="deleteConfirmText"></p>
-            <button id="confirmDeleteBtn" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Delete</button>
-            <button id="cancelDeleteBtn" class="w-full py-2 text-gray-400">Cancel</button>
+        <div class="flex flex-col items-center gap-3">
+          <div class="nav-icon-container icon-rate">
+            <div class="icon-inner-glow"></div>
+            <i class="fas fa-star text-white text-xl relative z-10"></i>
+          </div>
+          <span class="nav-label text-gray-300">Rate</span>
+          <span class="text-gray-500 text-xs">Community</span>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Toast -->
-    <div id="toast" class="hidden fixed bottom-4 md:bottom-6 right-4 md:right-6 z-50 glass px-5 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base">
-        <span id="toastMsg"></span>
+  <!-- Catalog Page -->
+  <div id="catalogPage" class="hidden">
+    <nav class="sticky top-0 z-50 py-3 px-4 md:py-4 md:px-6" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
+          <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
+        </div>
+        <div class="flex items-center gap-2 md:gap-3">
+          <button id="homeBtn" class="hidden flex items-center gap-2 px-3 py-2 rounded-lg glass hover:bg-white/10 text-gray-300 hover:text-white transition-colors">
+            <i class="fas fa-home"></i>
+            <span class="text-sm font-medium">Home</span>
+          </button>
+          <div id="userSection" class="hidden flex items-center gap-2">
+            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
+              <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
+              <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
+            </button>
+            <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+      <h1 class="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">Phone Catalog</h1>
+
+      <div id="tabNav" class="hidden flex justify-center gap-4 mb-6 md:mb-8">
+        <button id="tabCatalog" class="px-6 py-2 rounded-xl font-semibold tab-active">Catalog</button>
+        <button id="tabAdmin" class="px-6 py-2 rounded-xl font-semibold tab-inactive">Admin Panel</button>
+      </div>
+
+      <div id="phoneGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"></div>
+      <div id="adminPanel" class="hidden">
+        <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+        <div class="panel p-6 rounded-xl mb-6">
+          <h3 class="text-lg font-bold mb-4">Add New Phone</h3>
+          <input type="text" id="phoneName" placeholder="Phone Name" class="w-full p-3 rounded-xl panel mb-2 text-white">
+          <input type="text" id="phonePrice" placeholder="Price" class="w-full p-3 rounded-xl panel mb-2 text-white">
+          <input type="text" id="phoneRating" placeholder="Rating (1-5)" class="w-full p-3 rounded-xl panel mb-2 text-white">
+          <input type="hidden" id="phoneType" value="">
+          <div class="grid grid-cols-2 gap-2 mb-2" id="phoneTypeBtns">
+            <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Gaming" onclick="selectPhoneType('Gaming', this)">Gaming</button>
+            <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Camera" onclick="selectPhoneType('Camera', this)">Camera</button>
+            <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Daily" onclick="selectPhoneType('Daily', this)">Daily</button>
+            <button type="button" class="type-select-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="All-Rounder" onclick="selectPhoneType('All-Rounder', this)">All-Rounder</button>
+          </div>
+          <textarea id="phoneDescription" placeholder="Phone Description..." class="w-full p-3 rounded-xl panel mb-2 text-white h-24 resize-none"></textarea>
+          <input type="file" id="phoneImage" accept="image/*" class="hidden">
+          <button type="button" id="uploadImageBtn" class="w-full py-3 rounded-xl panel mb-2">Upload Image</button>
+          <img id="imagePreview" class="hidden w-full h-32 object-cover rounded mb-2">
+          <button id="addPhoneBtn" class="w-full py-3 rounded-xl gradient-bg font-semibold">Add Phone</button>
+        </div>
+        <h3 class="text-lg font-bold mb-4">Manage Phones</h3>
+        <div id="adminPhoneList" class="space-y-4"></div>
+      </div>
+      <div id="emptyState" class="hidden text-center py-12 md:py-20">
+        <i class="fas fa-mobile-alt text-5xl md:text-7xl text-gray-600 mb-4"></i>
+        <p id="emptyMsg" class="text-gray-400 text-lg md:text-xl">No phones found</p>
+      </div>
+    </main>
+    <div id="searchSticky" class="sticky z-40" style="bottom:0;padding:8px 12px;">
+      <div class="max-w-7xl mx-auto flex items-center gap-2" style="backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);border-radius:9999px;padding:4px 4px 4px 16px;">
+        <div class="flex-1 relative">
+          <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input type="text" id="searchInput" placeholder="Search phones..." autocomplete="off" class="w-full pl-9 pr-16 py-2 text-sm rounded-full" style="background:transparent;border:none;outline:none;">
+          <div id="searchBtn" class="absolute right-1 top-1/2 -translate-y-1/2 rounded-full px-3 py-1 text-xs font-semibold cursor-pointer search-btn" onclick="doSearch()">Enter</div>
+        </div>
+        <button id="openFilterBtn" class="w-9 h-9 rounded-full glass flex items-center justify-center shrink-0 relative" onclick="var fm=document.getElementById('filterModal');if(fm){fm.classList.remove('hidden');}" title="Filter">
+          <i class="fas fa-sliders-h text-xs"></i>
+          <span id="filterBadge" class="hidden w-3 h-3 rounded-full bg-vivid text-white flex items-center justify-center absolute" style="top:-3px;right:-3px;font-size:8px;">0</span>
+        </button>
+      </div>
     </div>
+    <footer class="glass py-6 mt-8 md:mt-12 text-center"><p class="text-gray-400 text-sm text-base">&copy;2026 NNA COPYRIGHT REVERSED</p></footer>
+  </div>
 
-<script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAk6RZ_epQdkl213qy-Dqdcim-ZDRe3Xbs",
-            authDomain: "freinzfriendzyprojectadv.firebaseapp.com",
-            databaseURL: "https://freinzfriendzyprojectadv-default-rtdb.firebaseio.com",
-            projectId: "freinzfriendzyprojectadv",
-            storageBucket: "freinzfriendzyprojectadv.firebasestorage.app",
-            messagingSenderId: "953972561417",
-            appId: "1:953972561417:web:2458d6790134a3b7878ad8"
-        };
+  <!-- Filter Modal -->
+  <div id="filterModal" class="hidden fixed inset-0 z-50" style="background:rgba(0,0,0,0.7);">
+    <div class="h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;background:rgba(20,20,30,0.7);border-left:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);">
+      <div style="position:sticky;top:0;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex justify-between items-center">
+        <h2 class="text-lg font-bold">Filter</h2>
+        <button type="button" onclick="document.getElementById('filterModal').classList.add('hidden')" style="width:36px;height:36px;border-radius:9999px;cursor:pointer;">×</button>
+      </div>
+      <div class="p-4 border-b border-gray-700">
+        <h3 class="font-semibold mb-3 text-sm">Rating</h3>
+        <div class="flex flex-wrap gap-2">
+          <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)"><span class="text-vivid">★</span> 5</button>
+          <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="4" onclick="doFilterRating(4, this)"><span class="text-vivid">★</span> 4+</button>
+          <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)"><span class="text-vivid">★</span> 3+</button>
+        </div>
+      </div>
+      <div class="p-4 border-b border-gray-700">
+        <h3 class="font-semibold mb-3 text-sm">Phone Type</h3>
+        <div class="flex flex-wrap gap-2">
+          <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Gaming" onclick="doFilterType('Gaming', this)">Gaming</button>
+          <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Camera" onclick="doFilterType('Camera', this)">Camera</button>
+          <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Daily" onclick="doFilterType('Daily', this)">Daily</button>
+          <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="All-Rounder" onclick="doFilterType('All-Rounder', this)">All-Rounder</button>
+        </div>
+      </div>
+      <div class="p-4 border-b border-gray-700">
+        <h3 class="font-semibold mb-3 text-sm">Harga</h3>
+        <div class="flex flex-wrap gap-2">
+          <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="1000000" data-max="2000000" onclick="doFilterPrice(1000000, 2000000, this)">1-2 JT</button>
+          <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="2000000" data-max="3000000" onclick="doFilterPrice(2000000, 3000000, this)">2-3 JT</button>
+          <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="3000000" data-max="5000000" onclick="doFilterPrice(3000000, 5000000, this)">3-5 JT</button>
+          <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="5000000" data-max="10000000" onclick="doFilterPrice(5000000, 10000000, this)">5-10 JT</button>
+          <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="10000000" data-max="999999999" onclick="doFilterPrice(10000000, 999999999, this)">&gt; 10 JT</button>
+        </div>
+      </div>
+      <div class="p-4 border-b border-gray-700">
+        <h3 class="font-semibold mb-3 text-sm">Kisaran Harga</h3>
+        <div class="flex items-center gap-3">
+          <div class="flex-1"><input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
+          <span class="text-gray-400">-</span>
+          <div class="flex-1"><input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
+        </div>
+      </div>
+      <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
+        <button class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;" onclick="doResetFilter()">Reset</button>
+        <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Terapkan</button>
+      </div>
+    </div>
+  </div>
 
-        const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
-        let phones = [];
-        let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-        let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
+  <!-- Profile Modal -->
+  <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+    <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
+      <h3 class="text-lg font-bold mb-4">Edit Profile</h3>
+      <div class="flex flex-col items-center gap-3 mb-4">
+        <div class="relative">
+          <img id="profilePicPreview" class="w-20 h-20 rounded-full object-cover" src="" alt="Profile">
+          <button id="changeProfilePicBtn" class="absolute bottom-0 right-0 w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-xs"><i class="fas fa-camera"></i></button>
+        </div>
+        <button id="addProfilePicBtn" class="text-sm text-vivid hover:underline">Add Profile Picture</button>
+      </div>
+      <input type="file" id="profilePicInput" accept="image/*" class="hidden">
+      <input type="text" id="profileUsername" placeholder="Your name" class="w-full p-3 rounded-xl glass mb-4 text-white">
+      <button id="saveProfile" class="w-full py-3 rounded-xl gradient-bg font-semibold">Save</button>
+      <button id="closeProfileModal" class="w-full py-2 text-gray-400 mt-2">Cancel</button>
+    </div>
+  </div>
 
-        // JSONBin setup
-        const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
-        const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
+  <!-- Logout Confirm Modal -->
+  <div id="logoutModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+    <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
+      <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
+      <p class="text-gray-400 text-sm text-center mb-4">You will be signed out</p>
+      <button id="confirmLogout" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Sign Out</button>
+      <button id="cancelLogout" class="w-full py-2 text-gray-400">Cancel</button>
+    </div>
+  </div>
 
-        try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
+  <!-- Delete Confirm Modal -->
+  <div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+    <div class="panel p-6 rounded-xl max-w-sm w-full mx-4">
+      <h3 class="text-lg font-bold mb-2 text-center">Are you sure?</h3>
+      <p class="text-gray-400 text-sm text-center mb-4" id="deleteConfirmText"></p>
+      <button id="confirmDeleteBtn" class="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 font-semibold mb-2">Delete</button>
+      <button id="cancelDeleteBtn" class="w-full py-2 text-gray-400">Cancel</button>
+    </div>
+  </div>
 
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        const facebookProvider = new firebase.auth.FacebookAuthProvider();
-        const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-        let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
-        const $ = id => {
-            const el = document.getElementById(id);
-            if (!el) return null;
-            return el;
-        };
 
-        function showPage(p) { 
-            if ($('landingPage') && $('catalogPage')) {
-                $('landingPage').classList.toggle('hidden', p !== $('landingPage')); 
-                $('catalogPage').classList.toggle('hidden', p !== $('catalogPage'));
-                if ($('homeBtn')) {
-                    $('homeBtn').classList.toggle('hidden', p === $('landingPage') || currentUser !== null);
-                }
-            }
-        }
-        
-        function showToast(msg) { 
-            const toast = $('toast');
-            const toastMsg = $('toastMsg');
-            if (toast && toastMsg) {
-                toastMsg.textContent = msg; 
-                toast.classList.remove('hidden'); 
-                setTimeout(() => toast.classList.add('hidden'), 3000); 
-            }
-        }
-        
-        function savePhonesToJSONBin() {
-            localStorage.setItem('freinzPhones', JSON.stringify(phones));
-            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': JSONBIN_API_KEY
-                },
-                body: JSON.stringify(phones)
-            })
-            .then(res => res.json())
-            .then(data => console.log('Saved to JSONBin:', data))
-            .catch(err => console.error('Error saving to JSONBin:', err));
-        }
-        
-        function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
-        function saveProfileToDB(user) {
-            if (!user) {
-                console.error('No user for saveProfileToDB');
-                return;
-            }
-            const profileData = {
-                uid: user.uid,
-                name: localStorage.getItem('myName') || user.displayName || 'User',
-                photoURL: localStorage.getItem('myProfilePic') || '',
-                updatedAt: Date.now()
-            };
-            
-            console.log('Saving profile to cloud:', profileData);
-            // Get current data
-            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
-            })
-            .then(res => res.json())
-            .then(data => {
-                let allData = data.record || {};
-                // If it's an array (old phone-only format), convert to object
-                if (Array.isArray(allData)) {
-                    allData = { phones: allData, profiles: {} };
-                }
-                if (!allData.profiles) allData.profiles = {};
-                allData.profiles[user.uid] = profileData;
-                
-                // Save back
-                return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_API_KEY
-                    },
-                    body: JSON.stringify(allData)
-                });
-            })
-            .then(() => {
-                console.log('Profile saved to cloud successfully');
-                showToast('Profile synced!');
-            })
-            .catch(err => {
-                console.error('Error saving profile to cloud:', err);
-                showToast('Error syncing profile');
-            });
-        }
-        
-        function loadProfileFromDB(user) {
-            if (!user) {
-                console.error('No user for loadProfileFromDB');
-                return;
-            }
-            
-            console.log('Loading profile from cloud for user:', user.uid);
-            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
-            })
-            .then(res => res.json())
-            .then(data => {
-                let allData = data.record || {};
-                // Handle old array format (phones only)
-                if (Array.isArray(allData)) {
-                    console.log('Old format detected, no profiles yet');
-                    return;
-                }
-                if (!allData.profiles) {
-                    console.log('No profiles in cloud yet');
-                    return;
-                }
-                const profileData = allData.profiles[user.uid];
-                console.log('Profile from cloud:', profileData);
-                if (profileData) {
-                    if (profileData.name) { 
-                        localStorage.setItem('myName', profileData.name); 
-                    }
-                    if (profileData.photoURL) { 
-                        localStorage.setItem('myProfilePic', profileData.photoURL); 
-                    }
-                    updateUserUI(user);
-                    console.log('Profile loaded and applied from cloud');
-                } else {
-                    console.log('No profile found for this user in cloud');
-                }
-            })
-            .catch(err => {
-                console.error('Error loading profile from cloud:', err);
-            });
-        }
-        
-        function renderStars(r) { 
-            // Single SVG with gradient fill - no overlapping layers
-            const fillPercent = (r / 5) * 100;
-            const uid = 'sg' + Math.random().toString(36).substr(2, 5);
-            return '<span class="inline-flex items-center gap-1">' +
-                   '<svg width="65" height="14" viewBox="0 0 65 14" style="display:inline-block;">' +
-                   '<defs><linearGradient id="' + uid + '" x1="0%" y1="0%" x2="100%" y2="0%">' +
-                   '<stop offset="' + fillPercent + '%" stop-color="#f97316"/>' +
-                   '<stop offset="' + fillPercent + '%" stop-color="#4b5563"/>' +
-                   '</linearGradient></defs>' +
-                   '<text x="0" y="11" fill="url(#' + uid + ')" style="font-size:12px;font-family:FontAwesome;">★★★★★</text>' +
-                   '</svg>' +
-                   '<span class="text-gray-400 text-xs ml-0.5">' + r.toFixed(1) + '</span></span>';
-        } 
-        
-        // Debounce helper
-        function debounce(fn, delay) {
-            let timer;
-            return function(...args) {
-                clearTimeout(timer);
-                timer = setTimeout(() => fn.apply(this, args), delay);
-            };
-        }
-        
-        // Debounced search
-        const debouncedSearch = debounce(function() {
-            applyFilters();
-        }, 300);
-        
-        // Debounced recommendations
-        const debouncedRecommendations = debounce(function(term) {
-            showSearchRecommendations(term);
-        }, 300);
-        
-        function renderPhones(list = phones) {
-            const phoneGrid = $('phoneGrid');
-            const emptyState = $('emptyState');
-            const emptyMsg = $('emptyMsg');
-            if (!phoneGrid) return;
-            
-            if(list.length === 0) {
-                if (emptyState) emptyState.classList.remove('hidden');
-                phoneGrid.classList.add('hidden');
-                if (emptyMsg) emptyMsg.textContent = 'No phones found';
-                return;
-            }
-            if (emptyState) emptyState.classList.add('hidden');
-            phoneGrid.classList.remove('hidden');
-            
-            // Use innerHTML once instead of createElement loop
-            const typeColors = { 'Gaming': '#8b5cf6', 'Camera': '#ec4899', 'Daily': '#3b82f6', 'All-Rounder': '#10b981' };
-            
-            const html = list.map(p => {
-                let typeHtml = p.type ? '<span class="absolute top-3 left-3 px-2 py-0.5 rounded text-xs font-semibold" style="background:' + (typeColors[p.type] || '#6b7280') + '">' + p.type + '</span>' : '';
-                let descHtml = p.description ? '<p class="text-xs text-gray-400 mb-2" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + p.description + '</p>' : '';
-                let stars = renderStars(p.rating);
-                return '<div class="panel rounded-xl overflow-hidden" style="transition:box-shadow 0.2s">' +
-                    '<div class="relative h-40 md:h-48 overflow-hidden">' +
-                    '<img src="' + p.image + '" class="w-full h-full object-cover" loading="lazy">' +
-                    typeHtml +
-                    '</div>' +
-                    '<div class="p-4">' +
-                    '<h3 class="text-base font-bold mb-1 truncate">' + p.name + '</h3>' +
-                    descHtml +
-'<div class="flex items-center gap-1 mb-2 text-sm">' + stars + '</div>' +
-                    '<div class="text-lg font-bold" style="background:linear-gradient(135deg,#f97316,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Rp ' + p.price.toLocaleString('id-ID') + '</div>' +
-                    '</div></div>';
-            }).join('');
-            
-            phoneGrid.innerHTML = html;
-        }
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAk6RZ_epQdkl213qy-Dqdcim-ZDRe3Xbs",
+      authDomain: "freinzfriendzyprojectadv.firebaseapp.com",
+      databaseURL: "https://freinzfriendzyprojectadv-default-rtdb.firebaseio.com",
+      projectId: "freinzfriendzyprojectadv",
+      storageBucket: "freinzfriendzyprojectadv.firebasestorage.app",
+      messagingSenderId: "953972561417",
+      appId: "1:953972561417:web:2458d6790134a3b7878ad8"
+    };
 
-        function updateFilterBadge() {
-            const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0) + (activeFilters.type?1:0);
-            const filterBadge = $('filterBadge');
-            if (filterBadge) {
-                filterBadge.classList.toggle('hidden', count === 0);
-                filterBadge.textContent = count;
-            }
-        }
+    const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
+    let phones = [];
+    let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
+    let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
-        function updateUserUI(user) {
-            var myName = localStorage.getItem('myName');
-            var myProfilePic = localStorage.getItem('myProfilePic');
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userSection = document.getElementById('userSection');
-            const tabNav = document.getElementById('tabNav');
-            const homeBtn = document.getElementById('homeBtn');
-            if(user) {
-                currentUser = user;
-                var email = '';
-                if(user.email) { email = user.email.toLowerCase(); }
-                isAdmin = (email === 'zennzgaming9@gmail.com');
-                var name = myName || (user.displayName || 'User');
-                if(isAdmin && !myName) name = 'ZENNZ Gaming';
-                if (userAvatar) userAvatar.src = myProfilePic || user.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name)+'&background=f97316&color=fff&bold=true';
-                if (userName) userName.innerText = name;
-                if (userSection) userSection.classList.remove('hidden');
-                if (isAdmin && tabNav) tabNav.classList.remove('hidden');
-                if (homeBtn) homeBtn.classList.add('hidden');
-            } else {
-                currentUser = null;
-                isAdmin = false;
-                if (userSection) userSection.classList.add('hidden');
-                if (tabNav) tabNav.classList.add('hidden');
-                if (homeBtn) homeBtn.classList.remove('hidden');
-            }
-            renderPhones(phones);
-        }
+    const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
+    const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
 
-        // Initialize filter buttons
-        document.querySelectorAll('.filter-rating, .price-btn').forEach(btn => { btn.classList.remove('hidden'); btn.style.display = ''; });
-        
-        // Global close filter function
-        window.closeFiltMod = function() {
-            var fm = document.getElementById('filterModal');
-            if (fm) fm.classList.add('hidden');
-        };
-        
-        // Load phones from JSONBin with localStorage cache (optimized)
-        function loadPhonesFromJSONBin() {
-            const phoneGrid = $('phoneGrid');
-            if (phoneGrid) phoneGrid.style.opacity = '0.5';
-            
-            // Load from cache first for instant display
-            const cached = localStorage.getItem('freinzPhones');
-            if (cached) {
-                try {
-                    phones = JSON.parse(cached);
-                    renderPhones(phones);
-                } catch(e) {}
-            }
-            
-            // Then update from JSONBin in background (only if cache is old)
-            const lastUpdate = localStorage.getItem('freinzPhonesLastUpdate');
-            const now = Date.now();
-            if (lastUpdate && (now - parseInt(lastUpdate)) < 30000) { // 30s cache
-                if (phoneGrid) phoneGrid.style.opacity = '1';
-                return;
-            }
-            
-            fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
-                headers: { 'X-Master-Key': JSONBIN_API_KEY }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.record && Array.isArray(data.record)) {
-                    phones = data.record;
-                    localStorage.setItem('freinzPhones', JSON.stringify(phones));
-                    localStorage.setItem('freinzPhonesLastUpdate', now.toString());
-                    renderPhones(phones);
-                    if (isAdmin) renderAdminPhoneList();
-                }
-            })
-            .catch(err => console.error('Error loading from JSONBin:', err))
-            .finally(() => {
-                if (phoneGrid) phoneGrid.style.opacity = '1';
-            });
-        }
-        
-        loadPhonesFromJSONBin();
-        console.log('Init done, phones:', phones.length);
-        
-        // Auto-load saved username
-        var savedName = localStorage.getItem('myName');
-        if(savedName) {
-            var nameEl = document.getElementById('userName');
-            if(nameEl) nameEl.innerText = savedName;
-        }
+    try { firebase.initializeApp(firebaseConfig); auth = firebase.auth(); authAvailable = true; } catch(e) { console.error('Firebase init error:', e); }
 
-        // Load phones from JSONBin (optional)
-        // loadPhonesFromJSONBin(); // Disabled - using default phones
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    const facebookProvider = new firebase.auth.FacebookAuthProvider();
+    const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-        // Check if already logged in - handled by onAuthStateChanged
-        // (removed setTimeout race condition)
+    let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
+    const $ = id => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      return el;
+    };
 
-        // Auth state listener - handles page refresh for already logged-in users
-        if(auth) {
-            auth.onAuthStateChanged(function(user) {
-                if(user) {
-                    updateUserUI(user);
-                    showPage(document.getElementById('catalogPage'));
-                    renderPhones(phones);
-                    // Load profile from DB in background (non-blocking)
-                    loadProfileFromDB(user);
-                } else {
-                    showPage(document.getElementById('landingPage'));
-                }
-            });
+    function showPage(p) {
+      if ($('landingPage') && $('catalogPage')) {
+        $('landingPage').classList.toggle('hidden', p !== $('landingPage'));
+        $('catalogPage').classList.toggle('hidden', p !== $('catalogPage'));
+        if ($('homeBtn')) {
+          $('homeBtn').classList.toggle('hidden', p === $('landingPage') || currentUser !== null);
         }
-
-        // Event Listeners
-        const guestBtn = $('guestBtn');
-        const homeBtn = $('homeBtn');
-        if (guestBtn) guestBtn.onclick = () => { 
-            currentUser = null; 
-            isAdmin = false; 
-            showPage($('catalogPage')); 
-            if ($('homeBtn')) $('homeBtn').classList.remove('hidden');
-            showToast('Viewing all phones'); 
-            renderPhones(phones);
-        };
-        if (homeBtn) homeBtn.onclick = () => { 
-            showPage($('landingPage')); 
-        };
-
-        // Login handlers - removed duplicates
-
-        // Profile modal
-        const profileBtn = $('profileBtn');
-        const closeProfileModal = $('closeProfileModal');
-        const saveProfile = $('saveProfile');
-        const profileModal = $('profileModal');
-        const profilePicPreview = $('profilePicPreview');
-        const changeProfilePicBtn = $('changeProfilePicBtn');
-        const profilePicInput = $('profilePicInput');
-        let profilePicBase64 = localStorage.getItem('myProfilePic') || '';
-        
-        if (profileBtn) {
-            profileBtn.onclick = () => {
-                const pu = $('profileUsername');
-                if (pu) pu.value = localStorage.getItem('myName') || '';
-                if (profilePicPreview) profilePicPreview.src = profilePicBase64 || ($('userAvatar') ? $('userAvatar').src : '');
-                if (addProfilePicBtn) addProfilePicBtn.textContent = profilePicBase64 ? 'Change Profile Picture' : 'Add Profile Picture';
-                if (profileModal) profileModal.classList.remove('hidden');
-            };
-        }
-        const addProfilePicBtn = $('addProfilePicBtn');
-        if (changeProfilePicBtn && profilePicInput) {
-            changeProfilePicBtn.onclick = () => profilePicInput.click();
-            if (addProfilePicBtn) addProfilePicBtn.onclick = () => profilePicInput.click();
-            profilePicInput.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        profilePicBase64 = event.target.result;
-                        if (profilePicPreview) profilePicPreview.src = profilePicBase64;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-        }
-        if (closeProfileModal) closeProfileModal.onclick = () => { if (profileModal) profileModal.classList.add('hidden'); };
-        if (saveProfile) {
-            saveProfile.onclick = () => {
-                const pu = $('profileUsername');
-                const un = $('userName');
-                const ua = $('userAvatar');
-                if (pu) localStorage.setItem('myName', pu.value);
-                if (un) un.innerText = pu ? pu.value : '';
-                if (profilePicBase64) {
-                    localStorage.setItem('myProfilePic', profilePicBase64);
-                    if (ua) ua.src = profilePicBase64;
-                }
-                if (profileModal) profileModal.classList.add('hidden');
-                saveProfileToDB(auth.currentUser);
-                showToast('Profile saved!');
-            };
-        }
-        if (profileModal) profileModal.onclick = e => { if(e.target === profileModal) profileModal.classList.add('hidden'); };
-
-        // Logout modal
-        const logoutBtn = $('logoutBtn');
-        const logoutModal = $('logoutModal');
-        const confirmLogout = $('confirmLogout');
-        const cancelLogout = $('cancelLogout');
-        if (logoutBtn) logoutBtn.onclick = () => { if (logoutModal) logoutModal.classList.remove('hidden'); };
-        if (cancelLogout) cancelLogout.onclick = () => { if (logoutModal) logoutModal.classList.add('hidden'); };
-        if (logoutModal) logoutModal.onclick = e => { if (e.target === logoutModal) logoutModal.classList.add('hidden'); };
-        if (confirmLogout) confirmLogout.onclick = () => { if (logoutModal) logoutModal.classList.add('hidden'); if(auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
-
-        // Filter modal
-        let activeSort = 'termurah';
-        console.log('Filter setup starting...');
-        const filterModal = $('filterModal');
-        
-        // Validate Kisaran Harga inputs
-        function validatePriceInput(input) {
-            const val = parseInt(input.value);
-            if (input.value && (val < 1000000 || val > 13000000)) {
-                input.classList.add('input-invalid');
-                return false;
-            } else {
-                input.classList.remove('input-invalid');
-                return true;
-            }
-        }
-        
-        const filterMinPriceInput = document.getElementById('filterMinPrice');
-        const filterMaxPriceInput = document.getElementById('filterMaxPrice');
-        if (filterMinPriceInput) {
-            filterMinPriceInput.oninput = function() { validatePriceInput(this); };
-        }
-        if (filterMaxPriceInput) {
-            filterMaxPriceInput.oninput = function() { validatePriceInput(this); };
-        }
-        
-        // Close when clicking outside
-        if (filterModal) {
-            filterModal.addEventListener('click', function(e) {
-                if (e.target === filterModal) {
-                    filterModal.classList.add('hidden');
-                }
-            });
-        }
-        
-        function doFilterRating(r, el) {
-    activeFilters.ratings = [r];
-    document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
-    el.classList.add('selected');
-}
-function doFilterPrice(min, max, el) {
-    activeFilters.minPrice = min;
-    activeFilters.maxPrice = max;
-    document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
-    el.classList.add('selected');
-    document.getElementById('filterMinPrice').value = '';
-    document.getElementById('filterMaxPrice').value = '';
-}
-
-function doFilterSort(sort, el) {
-    activeSort = sort;
-    document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
-    el.classList.add('selected');
-}
-        let lastFilterKey = '';
-        function applyFilters() {
-            // Build a key to check if filters actually changed
-            const searchInput = $('searchInput');
-            const key = JSON.stringify({
-                term: searchInput ? searchInput.value : '',
-                ratings: activeFilters.ratings,
-                min: activeFilters.minPrice,
-                max: activeFilters.maxPrice,
-                type: activeFilters.type
-            });
-            
-            if (key === lastFilterKey) return; // Skip if nothing changed
-            lastFilterKey = key;
-            
-            // Show loading state
-            const phoneGrid = $('phoneGrid');
-            if (phoneGrid) phoneGrid.style.opacity = '0.5';
-            
-            setTimeout(() => {
-                let f = [...phones];
-                if (searchInput && searchInput.value) {
-                    const term = searchInput.value.toLowerCase();
-                    f = f.filter(p => p.name.toLowerCase().includes(term));
-                }
-                if(activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
-                if(activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
-                if(activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
-                updateFilterBadge();
-                renderPhones(f);
-                
-                if (phoneGrid) phoneGrid.style.opacity = '1';
-            }, 50);
-        }
-
-function doFilterType(type, el) {
-    if (activeFilters.type === type) {
-        activeFilters.type = null;
-        el.classList.remove('selected');
-    } else {
-        activeFilters.type = type;
-        document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); });
-        el.classList.add('selected');
+      }
     }
-}
 
-        function showSearchRecommendations(term) {
-            var rec = $('searchRecommendations');
-            if(rec) rec.remove();
-            if(!term || term.length < 1) return;
-    
-    const matches = phones.filter(p => p.name.toLowerCase().includes(term.toLowerCase())).slice(0, 5);
-    if(matches.length === 0) return;
-    
-    var div = document.createElement('div');
-    div.id = 'searchRecommendations';
-    div.className = 'absolute top-full left-0 right-0 mt-2 panel rounded-xl overflow-hidden z-50';
-    div.style.cssText = 'max-height: 300px; overflow-y: auto;';
-    
-    matches.forEach(function(p) {
+    function showToast(message, type) {
+      if (!type) type = 'info';
+      const container = $('toastContainer');
+      if (!container) return;
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.textContent = message;
+      container.appendChild(el);
+      requestAnimationFrame(function() { requestAnimationFrame(function() { el.classList.add('visible'); }); });
+      setTimeout(function() {
+        el.classList.remove('visible');
+        el.addEventListener('transitionend', function() { el.remove(); }, { once: true });
+      }, 4000);
+    }
+
+    function savePhonesToJSONBin() {
+      localStorage.setItem('freinzPhones', JSON.stringify(phones));
+      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+        body: JSON.stringify(phones)
+      }).then(res => res.json()).then(data => console.log('Saved to JSONBin:', data)).catch(err => console.error('Error saving to JSONBin:', err));
+    }
+
+    function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
+
+    function saveProfileToDB(user) {
+      if (!user) return;
+      const profileData = {
+        uid: user.uid, name: localStorage.getItem('myName') || user.displayName || 'User',
+        photoURL: localStorage.getItem('myProfilePic') || '', updatedAt: Date.now()
+      };
+      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+      }).then(res => res.json()).then(data => {
+        let allData = data.record || {};
+        if (Array.isArray(allData)) allData = { phones: allData, profiles: {} };
+        if (!allData.profiles) allData.profiles = {};
+        allData.profiles[user.uid] = profileData;
+        return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+          body: JSON.stringify(allData)
+        });
+      }).then(() => showToast('Profile synced!')).catch(err => showToast('Error syncing profile'));
+    }
+
+    function loadProfileFromDB(user) {
+      if (!user) return;
+      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+      }).then(res => res.json()).then(data => {
+        let allData = data.record || {};
+        if (Array.isArray(allData) || !allData.profiles) return;
+        const profileData = allData.profiles[user.uid];
+        if (profileData) {
+          if (profileData.name) localStorage.setItem('myName', profileData.name);
+          if (profileData.photoURL) localStorage.setItem('myProfilePic', profileData.photoURL);
+          updateUserUI(user);
+        }
+      }).catch(err => console.error('Error loading profile:', err));
+    }
+
+    function renderStars(r) {
+      const fillPercent = (r / 5) * 100;
+      const uid = 'sg' + Math.random().toString(36).substr(2, 5);
+      return '<span class="inline-flex items-center gap-1">' +
+        '<svg width="65" height="14" viewBox="0 0 65 14" style="display:inline-block;">' +
+        '<defs><linearGradient id="' + uid + '" x1="0%" y1="0%" x2="100%" y2="0%">' +
+        '<stop offset="' + fillPercent + '%" stop-color="#f97316"/>' +
+        '<stop offset="' + fillPercent + '%" stop-color="#4b5563"/>' +
+        '</linearGradient></defs>' +
+        '<text x="0" y="11" fill="url(#' + uid + ')" style="font-size:12px;font-family:FontAwesome;">★★★★★</text>' +
+        '</svg>' +
+        '<span class="text-gray-400 text-xs ml-0.5">' + r.toFixed(1) + '</span></span>';
+    }
+
+    function debounce(fn, delay) { let timer; return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); }; }
+    const debouncedSearch = debounce(function() { applyFilters(); }, 300);
+    const debouncedRecommendations = debounce(function(term) { showSearchRecommendations(term); }, 300);
+
+    function renderPhones(list = phones) {
+      const phoneGrid = $('phoneGrid');
+      const emptyState = $('emptyState');
+      const emptyMsg = $('emptyMsg');
+      if (!phoneGrid) return;
+      if (list.length === 0) {
+        if (emptyState) emptyState.classList.remove('hidden');
+        phoneGrid.classList.add('hidden');
+        if (emptyMsg) emptyMsg.textContent = 'No phones found';
+        return;
+      }
+      if (emptyState) emptyState.classList.add('hidden');
+      phoneGrid.classList.remove('hidden');
+      const typeColors = { 'Gaming': '#8b5cf6', 'Camera': '#ec4899', 'Daily': '#3b82f6', 'All-Rounder': '#10b981' };
+      const html = list.map(p => {
+        let typeHtml = p.type ? '<span class="absolute top-3 left-3 px-2 py-0.5 rounded text-xs font-semibold" style="background:' + (typeColors[p.type] || '#6b7280') + '">' + p.type + '</span>' : '';
+        let descHtml = p.description ? '<p class="text-xs text-gray-400 mb-2" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + p.description + '</p>' : '';
+        let stars = renderStars(p.rating);
+        return '<div class="panel rounded-xl overflow-hidden" style="transition:box-shadow 0.2s">' +
+          '<div class="relative h-40 md:h-48 overflow-hidden">' +
+          '<img src="' + p.image + '" class="w-full h-full object-cover" loading="lazy">' +
+          typeHtml + '</div>' +
+          '<div class="p-4">' +
+          '<h3 class="text-base font-bold mb-1 truncate">' + p.name + '</h3>' +
+          descHtml +
+          '<div class="flex items-center gap-1 mb-2 text-sm">' + stars + '</div>' +
+          '<div class="text-lg font-bold" style="background:linear-gradient(135deg,#f97316,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Rp ' + p.price.toLocaleString('id-ID') + '</div>' +
+          '</div></div>';
+      }).join('');
+      phoneGrid.innerHTML = html;
+    }
+
+    function updateFilterBadge() {
+      const count = activeFilters.ratings.length + (activeFilters.minPrice?1:0) + (activeFilters.maxPrice?1:0) + (activeFilters.type?1:0);
+      const filterBadge = $('filterBadge');
+      if (filterBadge) { filterBadge.classList.toggle('hidden', count === 0); filterBadge.textContent = count; }
+    }
+
+    function updateUserUI(user) {
+      var myName = localStorage.getItem('myName');
+      var myProfilePic = localStorage.getItem('myProfilePic');
+      const userAvatar = document.getElementById('userAvatar');
+      const userName = document.getElementById('userName');
+      const userSection = document.getElementById('userSection');
+      const tabNav = document.getElementById('tabNav');
+      const homeBtn = document.getElementById('homeBtn');
+      if (user) {
+        currentUser = user;
+        var email = user.email ? user.email.toLowerCase() : '';
+        isAdmin = (email === 'zennzgaming9@gmail.com');
+        var name = myName || (user.displayName || 'User');
+        if (isAdmin && !myName) name = 'ZENNZ Gaming';
+        if (userAvatar) userAvatar.src = myProfilePic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
+        if (userName) userName.innerText = name;
+        if (userSection) userSection.classList.remove('hidden');
+        if (isAdmin && tabNav) tabNav.classList.remove('hidden');
+        if (homeBtn) homeBtn.classList.add('hidden');
+      } else {
+        currentUser = null;
+        isAdmin = false;
+        if (userSection) userSection.classList.add('hidden');
+        if (tabNav) tabNav.classList.add('hidden');
+        if (homeBtn) homeBtn.classList.remove('hidden');
+      }
+      renderPhones(phones);
+    }
+
+    document.querySelectorAll('.filter-rating, .price-btn').forEach(btn => { btn.classList.remove('hidden'); btn.style.display = ''; });
+    window.closeFiltMod = function() { var fm = document.getElementById('filterModal'); if (fm) fm.classList.add('hidden'); };
+
+    function loadPhonesFromJSONBin() {
+      const phoneGrid = $('phoneGrid');
+      if (phoneGrid) phoneGrid.style.opacity = '0.5';
+      const cached = localStorage.getItem('freinzPhones');
+      if (cached) { try { phones = JSON.parse(cached); renderPhones(phones); } catch(e) {} }
+      const lastUpdate = localStorage.getItem('freinzPhonesLastUpdate');
+      const now = Date.now();
+      if (lastUpdate && (now - parseInt(lastUpdate)) < 30000) { if (phoneGrid) phoneGrid.style.opacity = '1'; return; }
+      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
+      }).then(res => res.json()).then(data => {
+        if (data && data.record && Array.isArray(data.record)) {
+          phones = data.record;
+          localStorage.setItem('freinzPhones', JSON.stringify(phones));
+          localStorage.setItem('freinzPhonesLastUpdate', now.toString());
+          renderPhones(phones);
+          if (isAdmin) renderAdminPhoneList();
+        }
+      }).catch(err => console.error('Error loading from JSONBin:', err))
+      .finally(() => { if (phoneGrid) phoneGrid.style.opacity = '1'; });
+    }
+
+    loadPhonesFromJSONBin();
+    var savedName = localStorage.getItem('myName');
+    if (savedName) { var nameEl = document.getElementById('userName'); if (nameEl) nameEl.innerText = savedName; }
+
+    if (auth) {
+      auth.onAuthStateChanged(function(user) {
+        if (user) { updateUserUI(user); showPage(document.getElementById('catalogPage')); renderPhones(phones); loadProfileFromDB(user); }
+        else { showPage(document.getElementById('landingPage')); }
+      });
+    }
+
+    const homeBtn = $('homeBtn');
+    if (homeBtn) homeBtn.onclick = function() { showPage($('landingPage')); };
+
+    // =====================================================
+    //  PREMIUM AUTH SYSTEM — Toast, Spinner, Toggle, Forgot
+    // =====================================================
+
+    const ERROR_MAP = {
+      'auth/user-not-found':      'No account found with this email.',
+      'auth/wrong-password':      'Wrong password. Try again.',
+      'auth/invalid-credential':  'Invalid email or password.',
+      'auth/invalid-email':       'Please enter a valid email address.',
+      'auth/email-already-in-use':'An account with this email already exists.',
+      'auth/weak-password':       'Password must be at least 6 characters.',
+      'auth/too-many-requests':   'Too many attempts. Please wait and try again.',
+      'auth/user-disabled':       'This account has been disabled.',
+      'auth/network-request-failed': 'Network error. Check your connection.'
+    };
+
+    function friendlyError(code) {
+      return ERROR_MAP[code] || code.replace('auth/', '').replace(/-/g, ' ');
+    }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.classList.toggle('loading', loading);
+    }
+
+    function shakeInput(input) {
+      input.classList.remove('shake');
+      void input.offsetWidth;
+      input.classList.add('shake');
+    }
+
+    // Mode toggle
+    var mode = 'signin';
+
+    function setMode(newMode) {
+      mode = newMode;
+      var isSignIn = mode === 'signin';
+      $('formTitle').textContent = isSignIn ? 'Welcome back' : 'Create account';
+      $('formSubtitle').textContent = isSignIn ? 'Sign in to your account.' : 'Get started with an account.';
+      $('submitBtn').querySelector('.btn-text').textContent = isSignIn ? 'Sign In' : 'Create Account';
+      $('nameGroup').style.display = isSignIn ? 'none' : 'block';
+      $('signInExtras').style.display = isSignIn ? 'flex' : 'none';
+      $('tabSignIn').classList.toggle('active', isSignIn);
+      $('tabSignUp').classList.toggle('active', !isSignIn);
+      $('toggleText').innerHTML = isSignIn
+        ? 'Don\'t have an account? <button type="button" id="switchToSignUp">Sign up</button>'
+        : 'Already have an account? <button type="button" id="switchToSignIn">Sign in</button>';
+      var up = document.getElementById('switchToSignUp');
+      var inn = document.getElementById('switchToSignIn');
+      if (up) up.addEventListener('click', function() { setMode('signup'); });
+      if (inn) inn.addEventListener('click', function() { setMode('signin'); });
+      $('password').autocomplete = isSignIn ? 'current-password' : 'new-password';
+    }
+
+    // Form submit
+    $('authForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var email = $('email').value.trim();
+      var password = $('password').value;
+      var name = $('displayName').value.trim();
+      if (!email || !password) {
+        showToast('Please fill in all fields.', 'error');
+        if (!email) shakeInput($('email'));
+        if (!password) shakeInput($('password'));
+        return;
+      }
+      setLoading($('submitBtn'), true);
+
+      function onSuccess(user) {
+        updateUserUI(user);
+        showPage($('catalogPage'));
+        showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
+        $('authForm').reset();
+        setLoading($('submitBtn'), false);
+      }
+
+      function onError(err) {
+        var msg = friendlyError(err.code);
+        showToast(msg, 'error');
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') shakeInput($('password'));
+        if (err.code === 'auth/email-already-in-use') shakeInput($('email'));
+        if (err.code === 'auth/weak-password') shakeInput($('password'));
+        setLoading($('submitBtn'), false);
+      }
+
+      if (mode === 'signin') {
+        auth.signInWithEmailAndPassword(email, password).then(onSuccess).catch(onError);
+      } else {
+        auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
+          if (name) { cred.user.updateProfile({ displayName: name }); }
+          onSuccess(cred.user);
+        }).catch(onError);
+      }
+    });
+
+    // Toggle tabs
+    $('tabSignIn').addEventListener('click', function() { setMode('signin'); });
+    $('tabSignUp').addEventListener('click', function() { setMode('signup'); });
+
+    // Forgot password modal
+    $('forgotBtn').addEventListener('click', function() {
+      $('forgotModal').classList.add('open');
+      $('resetEmail').value = $('email').value || '';
+      $('resetEmail').focus();
+    });
+
+    $('cancelResetBtn').addEventListener('click', function() { $('forgotModal').classList.remove('open'); });
+    $('forgotModal').addEventListener('click', function(e) { if (e.target === this) $('forgotModal').classList.remove('open'); });
+
+    $('sendResetBtn').addEventListener('click', function() {
+      var email = $('resetEmail').value.trim();
+      if (!email) { showToast('Please enter your email.', 'error'); shakeInput($('resetEmail')); return; }
+      setLoading($('sendResetBtn'), true);
+      auth.sendPasswordResetEmail(email)
+        .then(function() {
+          showToast('Reset link sent to ' + email, 'success');
+          $('forgotModal').classList.remove('open');
+        })
+        .catch(function(err) { showToast(friendlyError(err.code), 'error'); })
+        .finally(function() { setLoading($('sendResetBtn'), false); });
+    });
+
+    $('resetEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('sendResetBtn').click(); });
+
+    // Init mode
+    setMode('signin');
+
+    // Social login handlers
+    const loginGoogle = $('loginGoogle');
+    const loginFacebook = $('loginFacebook');
+    const loginApple = $('loginApple');
+
+    if (loginGoogle) {
+      loginGoogle.onclick = function() {
+        if (!auth) { showToast('Auth not available'); return; }
+        auth.signInWithPopup(googleProvider)
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
+          .catch(function(e) { showToast('Error: ' + e.message); });
+      };
+    }
+    if (loginFacebook) {
+      loginFacebook.onclick = function() {
+        if (!auth) { showToast('Auth not available'); return; }
+        auth.signInWithPopup(facebookProvider)
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
+          .catch(function(e) { showToast('Error: ' + e.message); });
+      };
+    }
+    if (loginApple) {
+      loginApple.onclick = function() {
+        if (!auth) { showToast('Auth not available'); return; }
+        auth.signInWithPopup(appleProvider)
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
+          .catch(function(e) { showToast('Error: ' + e.message); });
+      };
+    }
+
+    // Profile modal
+    const profileBtn = $('profileBtn');
+    const closeProfileModal = $('closeProfileModal');
+    const saveProfile = $('saveProfile');
+    const profileModal = $('profileModal');
+    const profilePicPreview = $('profilePicPreview');
+    const changeProfilePicBtn = $('changeProfilePicBtn');
+    const profilePicInput = $('profilePicInput');
+    let profilePicBase64 = localStorage.getItem('myProfilePic') || '';
+    const addProfilePicBtn = $('addProfilePicBtn');
+
+    if (profileBtn) {
+      profileBtn.onclick = function() {
+        const pu = $('profileUsername');
+        if (pu) pu.value = localStorage.getItem('myName') || '';
+        if (profilePicPreview) profilePicPreview.src = profilePicBase64 || ($('userAvatar') ? $('userAvatar').src : '');
+        if (addProfilePicBtn) addProfilePicBtn.textContent = profilePicBase64 ? 'Change Profile Picture' : 'Add Profile Picture';
+        if (profileModal) profileModal.classList.remove('hidden');
+      };
+    }
+    if (changeProfilePicBtn && profilePicInput) {
+      changeProfilePicBtn.onclick = function() { profilePicInput.click(); };
+      if (addProfilePicBtn) addProfilePicBtn.onclick = function() { profilePicInput.click(); };
+      profilePicInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) { profilePicBase64 = event.target.result; if (profilePicPreview) profilePicPreview.src = profilePicBase64; };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+    if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) profileModal.classList.add('hidden'); };
+    if (saveProfile) {
+      saveProfile.onclick = function() {
+        const pu = $('profileUsername');
+        const un = $('userName');
+        const ua = $('userAvatar');
+        if (pu) localStorage.setItem('myName', pu.value);
+        if (un) un.innerText = pu ? pu.value : '';
+        if (profilePicBase64) { localStorage.setItem('myProfilePic', profilePicBase64); if (ua) ua.src = profilePicBase64; }
+        if (profileModal) profileModal.classList.add('hidden');
+        saveProfileToDB(auth.currentUser);
+        showToast('Profile saved!');
+      };
+    }
+    if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) profileModal.classList.add('hidden'); };
+
+    // Logout modal
+    const logoutBtn = $('logoutBtn');
+    const logoutModal = $('logoutModal');
+    const confirmLogout = $('confirmLogout');
+    const cancelLogout = $('cancelLogout');
+    if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) logoutModal.classList.remove('hidden'); };
+    if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); };
+    if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) logoutModal.classList.add('hidden'); };
+    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); if (auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+
+    // Filter modal
+    let activeSort = 'termurah';
+    const filterModal = $('filterModal');
+
+    function validatePriceInput(input) {
+      const val = parseInt(input.value);
+      if (input.value && (val < 1000000 || val > 13000000)) { input.classList.add('input-invalid'); return false; }
+      else { input.classList.remove('input-invalid'); return true; }
+    }
+
+    const filterMinPriceInput = document.getElementById('filterMinPrice');
+    const filterMaxPriceInput = document.getElementById('filterMaxPrice');
+    if (filterMinPriceInput) filterMinPriceInput.oninput = function() { validatePriceInput(this); };
+    if (filterMaxPriceInput) filterMaxPriceInput.oninput = function() { validatePriceInput(this); };
+    if (filterModal) filterModal.addEventListener('click', function(e) { if (e.target === filterModal) filterModal.classList.add('hidden'); });
+
+    function doFilterRating(r, el) {
+      activeFilters.ratings = [r];
+      document.querySelectorAll('.filter-rating').forEach(function(btn) { btn.classList.remove('selected'); });
+      el.classList.add('selected');
+    }
+    function doFilterPrice(min, max, el) {
+      activeFilters.minPrice = min; activeFilters.maxPrice = max;
+      document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+      el.classList.add('selected');
+      document.getElementById('filterMinPrice').value = '';
+      document.getElementById('filterMaxPrice').value = '';
+    }
+    function doFilterSort(sort, el) {
+      activeSort = sort;
+      document.querySelectorAll('.sort-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+      el.classList.add('selected');
+    }
+    let lastFilterKey = '';
+    function applyFilters() {
+      const searchInput = $('searchInput');
+      const key = JSON.stringify({ term: searchInput ? searchInput.value : '', ratings: activeFilters.ratings, min: activeFilters.minPrice, max: activeFilters.maxPrice, type: activeFilters.type });
+      if (key === lastFilterKey) return;
+      lastFilterKey = key;
+      const phoneGrid = $('phoneGrid');
+      if (phoneGrid) phoneGrid.style.opacity = '0.5';
+      setTimeout(function() {
+        let f = [...phones];
+        if (searchInput && searchInput.value) { const term = searchInput.value.toLowerCase(); f = f.filter(p => p.name.toLowerCase().includes(term)); }
+        if (activeFilters.ratings.length) f = f.filter(p => activeFilters.ratings.some(r => p.rating >= r));
+        if (activeFilters.minPrice || activeFilters.maxPrice) f = f.filter(p => p.price >= (activeFilters.minPrice||0) && p.price <= (activeFilters.maxPrice||Infinity));
+        if (activeFilters.type) f = f.filter(p => p.type === activeFilters.type);
+        updateFilterBadge();
+        renderPhones(f);
+        if (phoneGrid) phoneGrid.style.opacity = '1';
+      }, 50);
+    }
+
+    function doFilterType(type, el) {
+      if (activeFilters.type === type) { activeFilters.type = null; el.classList.remove('selected'); }
+      else { activeFilters.type = type; document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('selected'); }); el.classList.add('selected'); }
+    }
+
+    function showSearchRecommendations(term) {
+      var rec = $('searchRecommendations');
+      if (rec) rec.remove();
+      if (!term || term.length < 1) return;
+      const matches = phones.filter(p => p.name.toLowerCase().includes(term.toLowerCase())).slice(0, 5);
+      if (matches.length === 0) return;
+      var div = document.createElement('div');
+      div.id = 'searchRecommendations';
+      div.className = 'absolute top-full left-0 right-0 mt-2 panel rounded-xl overflow-hidden z-50';
+      div.style.cssText = 'max-height: 300px; overflow-y: auto;';
+      matches.forEach(function(p) {
         var item = document.createElement('div');
         item.className = 'px-4 py-3 hover:bg-white/10 cursor-pointer flex items-center gap-3 border-b border-white/5';
-        item.onmousedown = function() {
-            var si = $('searchInput');
-            if(si) si.value = p.name;
-            applyFilters();
-            var r = $('searchRecommendations');
-            if(r) r.remove();
-        };
+        item.onmousedown = function() { var si = $('searchInput'); if (si) si.value = p.name; applyFilters(); var r = $('searchRecommendations'); if (r) r.remove(); };
         item.innerHTML = '<img src="' + p.image + '" class="w-10 h-10 object-cover rounded"><div><div class="font-medium text-sm">' + p.name + '</div><div class="text-xs text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</div></div>';
         div.appendChild(item);
-    });
-    
-    var searchContainer = $('searchInput').parentElement;
-    if(searchContainer) searchContainer.appendChild(div);
-}
-
- function doApplyFilter() {
-    const minInput = document.getElementById('filterMinPrice');
-    const maxInput = document.getElementById('filterMaxPrice');
-    
-    // Check if inputs are valid
-    if (minInput && minInput.classList.contains('input-invalid')) {
-        showToast('Min price must be between 1M and 13M');
-        return;
+      });
+      var searchContainer = $('searchInput').parentElement;
+      if (searchContainer) searchContainer.appendChild(div);
     }
-    if (maxInput && maxInput.classList.contains('input-invalid')) {
-        showToast('Max price must be between 1M and 13M');
-        return;
+
+    function doApplyFilter() {
+      const minInput = document.getElementById('filterMinPrice');
+      const maxInput = document.getElementById('filterMaxPrice');
+      if (minInput && minInput.classList.contains('input-invalid')) { showToast('Min price must be between 1M and 13M'); return; }
+      if (maxInput && maxInput.classList.contains('input-invalid')) { showToast('Max price must be between 1M and 13M'); return; }
+      const filterModal = $('filterModal');
+      if (filterModal) filterModal.classList.add('hidden');
+      const minVal = minInput ? minInput.value : '';
+      const maxVal = maxInput ? maxInput.value : '';
+      if (minVal || maxVal) { activeFilters.minPrice = minVal ? parseInt(minVal) : null; activeFilters.maxPrice = maxVal ? parseInt(maxVal) : null; document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); }); }
+      applyFilters();
+      showToast('Filter applied');
     }
-    
-    const filterModal = $('filterModal');
-    if (filterModal) filterModal.classList.add('hidden');
-    
-    const minVal = minInput ? minInput.value : '';
-    const maxVal = maxInput ? maxInput.value : '';
-    
-    if (minVal || maxVal) {
-        activeFilters.minPrice = minVal ? parseInt(minVal) : null;
-        activeFilters.maxPrice = maxVal ? parseInt(maxVal) : null;
-        document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
+
+    function doResetFilter() {
+      activeFilters = { ratings: [], minPrice: null, maxPrice: null, type: null };
+      activeSort = 'termurah';
+      const fmip = document.getElementById('filterMinPrice');
+      const fmaxp = document.getElementById('filterMaxPrice');
+      if (fmip) fmip.value = '';
+      if (fmaxp) fmaxp.value = '';
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.value = '';
+      document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { b.classList.remove('selected'); b.classList.remove('hidden'); b.style.display = ''; });
+      var fm = document.getElementById('filterModal');
+      if (fm) fm.classList.add('hidden');
+      renderPhones(phones);
+      updateFilterBadge();
+      showToast('Filter reset');
     }
-    applyFilters();
-    showToast('Filter applied');
-}
-function doResetFilter() {
-    activeFilters = { ratings: [], minPrice: null, maxPrice: null, type: null };
-    activeSort = 'termurah';
-    const fmip = document.getElementById('filterMinPrice');
-    const fmaxp = document.getElementById('filterMaxPrice');
-    if (fmip) fmip.value = '';
-    if (fmaxp) fmaxp.value = '';
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) searchInput.value = '';
-    document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { 
-        b.classList.remove('selected'); 
-        b.classList.remove('hidden'); 
-        b.style.display = ''; 
-    });
-    var fm = document.getElementById('filterModal');
-    if (fm) fm.classList.add('hidden');
-    renderPhones(phones);
-    updateFilterBadge();
-    showToast('Filter reset');
-}
 
-        // Tabs
-        let currentTab = 'catalog';
-        const tabCatalog = $('tabCatalog');
-        const tabAdmin = $('tabAdmin');
-        const phoneGrid = $('phoneGrid');
-        const adminPanel = $('adminPanel');
-        const searchBar = document.querySelector('.flex.flex-col.md\\:flex-row.gap-3');
-        const filterBtn = $('openFilterBtn');
-        
-        function switchTab(tab) {
-            currentTab = tab;
-            if (tab === 'catalog') {
-                if (tabCatalog) {
-                    tabCatalog.classList.remove('tab-inactive');
-                    tabCatalog.classList.add('tab-active');
-                }
-                if (tabAdmin) {
-                    tabAdmin.classList.remove('tab-active');
-                    tabAdmin.classList.add('tab-inactive');
-                }
-                if (phoneGrid) phoneGrid.classList.remove('hidden');
-                if (adminPanel) adminPanel.classList.add('hidden');
-                if (searchBar) searchBar.classList.remove('hidden');
-                if (filterBtn) filterBtn.classList.remove('hidden');
-            } else {
-                if (tabCatalog) {
-                    tabCatalog.classList.remove('tab-active');
-                    tabCatalog.classList.add('tab-inactive');
-                }
-                if (tabAdmin) {
-                    tabAdmin.classList.remove('tab-inactive');
-                    tabAdmin.classList.add('tab-active');
-                }
-                if (phoneGrid) phoneGrid.classList.add('hidden');
-                if (adminPanel) adminPanel.classList.remove('hidden');
-                if (searchBar) searchBar.classList.add('hidden');
-                if (filterBtn) filterBtn.classList.add('hidden');
-                renderAdminPhoneList();
-            }
-        }
-        
-        if (tabCatalog) tabCatalog.onclick = () => switchTab('catalog');
-        if (tabAdmin) tabAdmin.onclick = () => switchTab('admin');
-        
-        let phoneToDelete = null;
-        let editPhoneId = null;
-        
-        function renderAdminPhoneList() {
-            const adminPhoneList = $('adminPhoneList');
-            if (!adminPhoneList) return;
-            adminPhoneList.innerHTML = '';
-            phones.forEach(p => {
-                const item = document.createElement('div');
-                item.className = 'panel p-4 rounded-xl flex items-center gap-4';
-                
-                const img = document.createElement('img');
-                img.src = p.image;
-                img.className = 'w-16 h-16 object-cover rounded';
-                
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'flex-1';
-                infoDiv.innerHTML = '<h4 class="font-bold">' + p.name + '</h4>' +
-                    '<p class="text-sm text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</p>';
-                
-                const editBtn = document.createElement('button');
-                editBtn.className = 'px-4 py-2 rounded-lg gradient-bg font-semibold mr-2';
-                editBtn.textContent = 'Edit';
-                editBtn.onclick = function() {
-                    editPhoneId = p.id;
-                    const phoneNameInput = $('phoneName');
-                    const phonePriceInput = $('phonePrice');
-                    const phoneRatingInput = $('phoneRating');
-                    const phoneTypeInput = $('phoneType');
-                    const phoneDescInput = $('phoneDescription');
-                    if (phoneNameInput) phoneNameInput.value = p.name;
-                    if (phonePriceInput) phonePriceInput.value = p.price;
-                    if (phoneRatingInput) phoneRatingInput.value = p.rating;
-                if (phoneTypeInput) phoneTypeInput.value = p.type || '';
-                if (phoneDescInput) phoneDescInput.value = p.description || '';
-                // Highlight selected type button
-                document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
-                    b.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid');
-                    if (b.dataset.type === p.type) {
-                        b.classList.add('selected', 'bg-vivid/30', 'border', 'border-vivid');
-                    }
-                });
-                    const addPhoneBtn = $('addPhoneBtn');
-                    if (addPhoneBtn) addPhoneBtn.textContent = 'Update Phone';
-                    showToast('Editing ' + p.name);
-                };
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white';
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = function() {
-                    phoneToDelete = p.id;
-                    const deleteConfirmText = $('deleteConfirmText');
-                    const deleteConfirmModal = $('deleteConfirmModal');
-                    if (deleteConfirmText) deleteConfirmText.textContent = 'Delete ' + p.name + '?';
-                    if (deleteConfirmModal) deleteConfirmModal.classList.remove('hidden');
-                };
-                
-                item.appendChild(img);
-                item.appendChild(infoDiv);
-                item.appendChild(editBtn);
-                item.appendChild(deleteBtn);
-                adminPhoneList.appendChild(item);
-            });
-        }
-        
-        const deleteConfirmModal = $('deleteConfirmModal');
-        const confirmDeleteBtn = $('confirmDeleteBtn');
-        const cancelDeleteBtn = $('cancelDeleteBtn');
-        if (confirmDeleteBtn) {
-            confirmDeleteBtn.onclick = function() {
-                if (phoneToDelete !== null) {
-                    phones = phones.filter(phone => phone.id !== phoneToDelete);
-                    savePhonesToJSONBin();
-                    renderPhones(phones);
-                    renderAdminPhoneList();
-                    showToast('Phone deleted!');
-                    phoneToDelete = null;
-                }
-                if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden');
-            };
-        }
-        if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
-        if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
-        
-        // Phone type selector
-        function selectPhoneType(type, el) {
-            const phoneTypeInput = $('phoneType');
-            if (phoneTypeInput) phoneTypeInput.value = type;
-            document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
-                b.classList.remove('selected');
-            });
-            el.classList.add('selected');
-        }
+    // Tabs
+    let currentTab = 'catalog';
+    const tabCatalog = $('tabCatalog');
+    const tabAdmin = $('tabAdmin');
+    const phoneGrid = $('phoneGrid');
+    const adminPanel = $('adminPanel');
+    const filterBtn = $('openFilterBtn');
 
-        // Admin panel functions
-        base64Image = '';
-        const uploadImageBtn = $('uploadImageBtn');
-        const phoneImageInput = $('phoneImage');
-        const imagePreviewEl = $('imagePreview');
-        
-        if (uploadImageBtn && phoneImageInput) {
-            uploadImageBtn.onclick = () => phoneImageInput.click();
-        }
-        
-        if (phoneImageInput) {
-            phoneImageInput.onchange = function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        base64Image = event.target.result;
-                        if (imagePreviewEl) {
-                            imagePreviewEl.src = base64Image;
-                            imagePreviewEl.classList.remove('hidden');
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-        }
-        
-        const addPhoneBtn = $('addPhoneBtn');
-        if (addPhoneBtn) {
-            addPhoneBtn.onclick = function() {
-                const phoneNameInput = $('phoneName');
-                const phonePriceInput = $('phonePrice');
-                const phoneRatingInput = $('phoneRating');
-                const phoneTypeInput = $('phoneType');
-                const phoneDescInput = $('phoneDescription');
-                
-                if (!phoneNameInput || !phoneNameInput.value) {
-                    showToast('Please enter phone name');
-                    return;
-                }
-                if (!phonePriceInput || !phonePriceInput.value) {
-                    showToast('Please enter phone price');
-                    return;
-                }
-                if (!phoneRatingInput || !phoneRatingInput.value) {
-                    showToast('Please enter phone rating');
-                    return;
-                }
-                
-                if (editPhoneId !== null) {
-                    const idx = phones.findIndex(p => p.id === editPhoneId);
-                    if (idx !== -1) {
-                        phones[idx].name = phoneNameInput.value;
-                        phones[idx].price = parseFloat(phonePriceInput.value);
-                        phones[idx].rating = parseFloat(phoneRatingInput.value);
-                        phones[idx].type = phoneTypeInput ? phoneTypeInput.value : '';
-                        phones[idx].description = phoneDescInput ? phoneDescInput.value : '';
-                        if (base64Image) phones[idx].image = base64Image;
-                        savePhonesToJSONBin();
-                        showToast('Phone updated!');
-                    }
-                    editPhoneId = null;
-                    addPhoneBtn.textContent = 'Add Phone';
-                } else {
-                    const newId = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1;
-                    const newPhone = {
-                        id: newId,
-                        name: phoneNameInput.value,
-                        price: parseFloat(phonePriceInput.value),
-                        rating: parseFloat(phoneRatingInput.value),
-                        type: phoneTypeInput ? phoneTypeInput.value : '',
-                        description: phoneDescInput ? phoneDescInput.value : '',
-                        image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'
-                    };
-                    phones.push(newPhone);
-                    savePhonesToJSONBin();
-                    showToast('Phone added!');
-                }
-                
-                phoneNameInput.value = '';
-                phonePriceInput.value = '';
-                phoneRatingInput.value = '';
-                if (phoneTypeInput) phoneTypeInput.selectedIndex = 0;
-                if (phoneDescInput) phoneDescInput.value = '';
-                base64Image = '';
-                if (imagePreviewEl) imagePreviewEl.classList.add('hidden');
-                
-                 renderPhones(phones);
-                 renderAdminPhoneList();
-            };
-        }
+    function switchTab(tab) {
+      currentTab = tab;
+      if (tab === 'catalog') {
+        if (tabCatalog) { tabCatalog.classList.remove('tab-inactive'); tabCatalog.classList.add('tab-active'); }
+        if (tabAdmin) { tabAdmin.classList.remove('tab-active'); tabAdmin.classList.add('tab-inactive'); }
+        if (phoneGrid) phoneGrid.classList.remove('hidden');
+        if (adminPanel) adminPanel.classList.add('hidden');
+        if (filterBtn) filterBtn.classList.remove('hidden');
+      } else {
+        if (tabCatalog) { tabCatalog.classList.remove('tab-active'); tabCatalog.classList.add('tab-inactive'); }
+        if (tabAdmin) { tabAdmin.classList.remove('tab-inactive'); tabAdmin.classList.add('tab-active'); }
+        if (phoneGrid) phoneGrid.classList.add('hidden');
+        if (adminPanel) adminPanel.classList.remove('hidden');
+        if (filterBtn) filterBtn.classList.add('hidden');
+        renderAdminPhoneList();
+      }
+    }
+    if (tabCatalog) tabCatalog.onclick = function() { switchTab('catalog'); };
+    if (tabAdmin) tabAdmin.onclick = function() { switchTab('admin'); };
 
-        // Search
-        const searchInputEl = $('searchInput');
-        const searchBtn = $('searchBtn');
-        
-        function doSearch() {
-            applyFilters();
-            showSearchRecommendations(searchInputEl.value);
+    let phoneToDelete = null;
+    let editPhoneId = null;
+
+    function renderAdminPhoneList() {
+      const adminPhoneList = $('adminPhoneList');
+      if (!adminPhoneList) return;
+      adminPhoneList.innerHTML = '';
+      phones.forEach(function(p) {
+        const item = document.createElement('div');
+        item.className = 'panel p-4 rounded-xl flex items-center gap-4';
+        const img = document.createElement('img');
+        img.src = p.image; img.className = 'w-16 h-16 object-cover rounded';
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'flex-1';
+        infoDiv.innerHTML = '<h4 class="font-bold">' + p.name + '</h4><p class="text-sm text-gray-400">Rp ' + p.price.toLocaleString('id-ID') + '</p>';
+        const editBtn = document.createElement('button');
+        editBtn.className = 'px-4 py-2 rounded-lg gradient-bg font-semibold mr-2';
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = function() {
+          editPhoneId = p.id;
+          const phoneNameInput = $('phoneName');
+          const phonePriceInput = $('phonePrice');
+          const phoneRatingInput = $('phoneRating');
+          const phoneTypeInput = $('phoneType');
+          const phoneDescInput = $('phoneDescription');
+          if (phoneNameInput) phoneNameInput.value = p.name;
+          if (phonePriceInput) phonePriceInput.value = p.price;
+          if (phoneRatingInput) phoneRatingInput.value = p.rating;
+          if (phoneTypeInput) phoneTypeInput.value = p.type || '';
+          if (phoneDescInput) phoneDescInput.value = p.description || '';
+          document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) {
+            b.classList.remove('selected', 'bg-vivid/30', 'border', 'border-vivid');
+            if (b.dataset.type === p.type) b.classList.add('selected', 'bg-vivid/30', 'border', 'border-vivid');
+          });
+          const addPhoneBtn = $('addPhoneBtn');
+          if (addPhoneBtn) addPhoneBtn.textContent = 'Update Phone';
+          showToast('Editing ' + p.name);
+        };
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = function() {
+          phoneToDelete = p.id;
+          const deleteConfirmText = $('deleteConfirmText');
+          const deleteConfirmModal = $('deleteConfirmModal');
+          if (deleteConfirmText) deleteConfirmText.textContent = 'Delete ' + p.name + '?';
+          if (deleteConfirmModal) deleteConfirmModal.classList.remove('hidden');
+        };
+        item.appendChild(img); item.appendChild(infoDiv); item.appendChild(editBtn); item.appendChild(deleteBtn);
+        adminPhoneList.appendChild(item);
+      });
+    }
+
+    const deleteConfirmModal = $('deleteConfirmModal');
+    const confirmDeleteBtn = $('confirmDeleteBtn');
+    const cancelDeleteBtn = $('cancelDeleteBtn');
+
+    if (confirmDeleteBtn) confirmDeleteBtn.onclick = function() {
+      if (phoneToDelete !== null) { phones = phones.filter(phone => phone.id !== phoneToDelete); savePhonesToJSONBin(); renderPhones(phones); renderAdminPhoneList(); showToast('Phone deleted!'); phoneToDelete = null; }
+      if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden');
+    };
+    if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
+    if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
+
+    function selectPhoneType(type, el) {
+      const phoneTypeInput = $('phoneType');
+      if (phoneTypeInput) phoneTypeInput.value = type;
+      document.querySelectorAll('#phoneTypeBtns .type-select-btn').forEach(function(b) { b.classList.remove('selected'); });
+      el.classList.add('selected');
+    }
+
+    base64Image = '';
+    const uploadImageBtn = $('uploadImageBtn');
+    const phoneImageInput = $('phoneImage');
+    const imagePreviewEl = $('imagePreview');
+
+    if (uploadImageBtn && phoneImageInput) uploadImageBtn.onclick = function() { phoneImageInput.click(); };
+    if (phoneImageInput) phoneImageInput.onchange = function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          base64Image = event.target.result;
+          if (imagePreviewEl) { imagePreviewEl.src = base64Image; imagePreviewEl.classList.remove('hidden'); }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const addPhoneBtn = $('addPhoneBtn');
+    if (addPhoneBtn) addPhoneBtn.onclick = function() {
+      const phoneNameInput = $('phoneName');
+      const phonePriceInput = $('phonePrice');
+      const phoneRatingInput = $('phoneRating');
+      const phoneTypeInput = $('phoneType');
+      const phoneDescInput = $('phoneDescription');
+      if (!phoneNameInput || !phoneNameInput.value) { showToast('Please enter phone name'); return; }
+      if (!phonePriceInput || !phonePriceInput.value) { showToast('Please enter phone price'); return; }
+      if (!phoneRatingInput || !phoneRatingInput.value) { showToast('Please enter phone rating'); return; }
+      if (editPhoneId !== null) {
+        const idx = phones.findIndex(p => p.id === editPhoneId);
+        if (idx !== -1) {
+          phones[idx].name = phoneNameInput.value;
+          phones[idx].price = parseFloat(phonePriceInput.value);
+          phones[idx].rating = parseFloat(phoneRatingInput.value);
+          phones[idx].type = phoneTypeInput ? phoneTypeInput.value : '';
+          phones[idx].description = phoneDescInput ? phoneDescInput.value : '';
+          if (base64Image) phones[idx].image = base64Image;
+          savePhonesToJSONBin();
+          showToast('Phone updated!');
         }
-        
-        if (searchInputEl) {
-            searchInputEl.onkeyup = function(e) {
-                if (e.key === 'Enter') {
-                    doSearch();
-                } else if (this.value.length >= 2) {
-                    debouncedRecommendations(this.value);
-                }
-            };
-            searchInputEl.oninput = function() {
-                debouncedSearch();
-            };
-            searchInputEl.onblur = function() { setTimeout(() => { var rec = $('searchRecommendations'); if(rec) rec.remove(); }, 200); };
-        }
-        if (searchBtn) searchBtn.onclick = doSearch;
-    </script>
+        editPhoneId = null;
+        addPhoneBtn.textContent = 'Add Phone';
+      } else {
+        const newId = phones.length ? Math.max(...phones.map(p => p.id)) + 1 : 1;
+        const newPhone = {
+          id: newId, name: phoneNameInput.value, price: parseFloat(phonePriceInput.value),
+          rating: parseFloat(phoneRatingInput.value), type: phoneTypeInput ? phoneTypeInput.value : '',
+          description: phoneDescInput ? phoneDescInput.value : '',
+          image: base64Image || 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=400&fit=crop'
+        };
+        phones.push(newPhone);
+        savePhonesToJSONBin();
+        showToast('Phone added!');
+      }
+      phoneNameInput.value = ''; phonePriceInput.value = ''; phoneRatingInput.value = '';
+      if (phoneTypeInput) phoneTypeInput.value = '';
+      if (phoneDescInput) phoneDescInput.value = '';
+      base64Image = '';
+      if (imagePreviewEl) imagePreviewEl.classList.add('hidden');
+      renderPhones(phones);
+      renderAdminPhoneList();
+    };
+
+    // Search
+    const searchInputEl = $('searchInput');
+    const searchBtn = $('searchBtn');
+
+    function doSearch() { applyFilters(); showSearchRecommendations(searchInputEl ? searchInputEl.value : ''); }
+
+    if (searchInputEl) {
+      searchInputEl.onkeyup = function(e) { if (e.key === 'Enter') doSearch(); else if (this.value.length >= 2) debouncedRecommendations(this.value); };
+      searchInputEl.oninput = function() { debouncedSearch(); };
+      searchInputEl.onblur = function() { setTimeout(function() { var rec = $('searchRecommendations'); if (rec) rec.remove(); }, 200); };
+    }
+    if (searchBtn) searchBtn.onclick = doSearch;
+  </script>
 </body>
 </html>
