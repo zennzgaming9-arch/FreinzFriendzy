@@ -1048,7 +1048,8 @@
           renderPhones(phones);
           loadProfileFromDB(user);
           if (_pendingSetup) {
-            showPage(document.getElementById('setupPage'));
+            var hasProfile = getProfileName();
+            showPage(document.getElementById(hasProfile ? 'catalogPage' : 'setupPage'));
             _pendingSetup = false;
           } else {
             showPage(document.getElementById('catalogPage'));
@@ -1206,11 +1207,6 @@
 
     function afterSocialLogin(user) {
       updateUserUI(user);
-      var stored = getProfileName();
-      if (stored) {
-        _pendingSetup = false;
-        showPage($('catalogPage'));
-      }
     }
 
     if (loginGoogle) {
