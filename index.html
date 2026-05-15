@@ -167,6 +167,27 @@
       background: rgba(255,255,255,0.06); border-color: #f97316;
       box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
     }
+    .login-card-gm .input-icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .login-card-gm .input-icon-wrap .input-icon {
+      position: absolute;
+      left: 1.1rem;
+      color: rgba(255,255,255,0.18);
+      font-size: 0.9rem;
+      pointer-events: none;
+      transition: color 0.3s ease;
+      z-index: 1;
+    }
+    .login-card-gm .input-icon-wrap:focus-within .input-icon {
+      color: #f97316;
+    }
+    .login-card-gm .input-icon-wrap input.with-icon {
+      padding-left: 2.8rem;
+    }
+
     .login-card-gm .input-group input.shake { animation: shake 0.45s ease; }
     @keyframes shake {
       0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}
@@ -296,9 +317,68 @@
       width: 100%; padding: 0.75rem; font-size: 0.875rem; font-weight: 600;
       font-family: inherit; border: none; border-radius: 14px; cursor: pointer;
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06);
-      margin-top: 0.75rem; transition: background 0.2s ease;
+      transition: background 0.2s ease;
     }
     .modal-box .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+    .modal-icon-wrap {
+      width: 52px; height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(168,85,247,0.15));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.3rem;
+      color: #fff;
+    }
+    .modal-desc {
+      text-align: center;
+    }
+    .modal-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-input-wrap .input-icon {
+      position: absolute;
+      left: 1.1rem;
+      color: rgba(255,255,255,0.18);
+      font-size: 0.9rem;
+      pointer-events: none;
+      transition: color 0.3s ease;
+      z-index: 1;
+    }
+    .modal-input-wrap:focus-within .input-icon {
+      color: #f97316;
+    }
+    .modal-input-wrap input {
+      width: 100%;
+      padding: 0.85rem 1.1rem 0.85rem 2.8rem;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      border: 1.5px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      outline: none;
+      transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .modal-input-wrap input::placeholder { color: rgba(255,255,255,0.18); }
+    .modal-input-wrap input:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); }
+    .modal-input-wrap input:focus {
+      background: rgba(255,255,255,0.06); border-color: #f97316;
+      box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
+    }
+    .modal-input-wrap input.shake { animation: shake 0.45s ease; }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .modal-actions .sign-btn {
+      width: 100%; padding: 0.8rem; font-size: 0.875rem; font-weight: 600;
+    }
 
     @media (max-width: 640px) {
       .nav-icon-container { width: 56px; height: 56px; border-radius: 14px; }
@@ -326,17 +406,22 @@
   <!-- Forgot Password Modal -->
   <div class="modal-overlay" id="forgotModal">
     <div class="modal-box">
+      <div class="modal-icon-wrap">
+        <i class="fas fa-envelope"></i>
+      </div>
       <h3>Reset password</h3>
-      <p>Enter your email and we'll send you a reset link.</p>
-      <div class="input-group" style="margin-bottom:0;">
-        <label for="resetEmail">Email</label>
+      <p class="modal-desc">Enter your email address and we'll send you a link to reset your password.</p>
+      <div class="modal-input-wrap">
+        <i class="fas fa-envelope input-icon"></i>
         <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <button class="sign-btn" id="sendResetBtn" style="padding:0.75rem;font-size:0.875rem;">
-        <span class="btn-text">Send reset email</span>
-        <div class="spinner"></div>
-      </button>
-      <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
+      <div class="modal-actions">
+        <button class="sign-btn" id="sendResetBtn">
+          <span class="btn-text">Send reset link</span>
+          <div class="spinner"></div>
+        </button>
+        <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -367,11 +452,17 @@
           </div>
           <div class="input-group">
             <label for="email">Email</label>
-            <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required />
+            <div class="input-icon-wrap">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required class="with-icon" />
+            </div>
           </div>
           <div class="input-group">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+            <div class="input-icon-wrap">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required class="with-icon" />
+            </div>
           </div>
           <div class="form-actions" id="signInExtras">
             <label><input type="checkbox" id="rememberMe" /> Remember me</label>
