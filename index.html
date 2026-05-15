@@ -823,7 +823,7 @@
       const d = JSON.parse(localStorage.getItem(k) || '{}'); return d.photoURL || '';
     }
     function setProfileData(name, photoURL) {
-      const k = getProfileKey(); if (!k) return;
+      const k = getProfileKey(); if (!k) { showToast('Cannot save: not signed in', 'error'); return; }
       localStorage.setItem(k, JSON.stringify({ name: name || '', photoURL: photoURL || '' }));
     }
     function clearProfileData() {
@@ -1048,9 +1048,9 @@
           renderPhones(phones);
           loadProfileFromDB(user);
           if (_pendingSetup) {
-            var hasProfile = getProfileName();
-            showPage(document.getElementById(hasProfile ? 'catalogPage' : 'setupPage'));
             _pendingSetup = false;
+            var stored = getProfileName();
+            showPage(document.getElementById(stored ? 'catalogPage' : 'setupPage'));
           } else {
             showPage(document.getElementById('catalogPage'));
           }
@@ -1134,9 +1134,6 @@
 
       function onSuccess(user) {
         updateUserUI(user);
-        if (mode === 'signin') {
-          showPage($('catalogPage'));
-        }
         showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
         $('authForm').reset();
         setLoading($('submitBtn'), false);
