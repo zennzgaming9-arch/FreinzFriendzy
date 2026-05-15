@@ -6,8 +6,13 @@
   <title>Freinz Friendzy - Phone Ratings</title>
   <script>
     // Suppress Tailwind CDN production warning
-    const _twOrig = console.warn;
-    console.warn = function(m) { if (m && m.includes && m.includes('tailwindcss.com')) return; _twOrig.apply(console, arguments); };
+    (function() {
+      var _twOrig = console.warn;
+      console.warn = function(m) {
+        if (typeof m === 'string' && m.indexOf('tailwindcss.com') !== -1) return;
+        _twOrig.call(console, m);
+      };
+    })();
   </script>
   <script>
     window.tailwind = {};
@@ -21,6 +26,7 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    document.addEventListener('click', function(e) { alert('clicked: ' + (e.target.id || e.target.tagName)); });
     document.addEventListener('click', function(e) {
       var t = e.target.closest('#profileBtn,#logoutBtn,#homeBtn');
       if (!t) return;
@@ -555,7 +561,7 @@
             <i class="fas fa-home"></i>
             <span class="text-sm font-medium">Home</span>
           </button>
-          <div id="userSection" class="hidden flex items-center gap-2">
+          <div id="userSection" class="flex items-center gap-2">
             <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="alert('profile clicked');var pm=document.getElementById('profileModal');if(pm)pm.classList.remove('hidden');">
               <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
               <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
