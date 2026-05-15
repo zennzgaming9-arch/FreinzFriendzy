@@ -4,16 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Freinz Friendzy - Phone Ratings</title>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { vivid: '#f97316', deep: '#a855f7', obsidian: '#050505' }
-        }
-      }
-    }
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,6 +13,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
+    @import "tailwindcss";
+    @theme {
+      --color-vivid: #f97316;
+      --color-deep: #a855f7;
+      --color-obsidian: #050505;
+    }
     html { background: #0a0a1a; }
     * { box-sizing: border-box; }
     body { background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1a 50%, #000000 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; min-height: 100vh; position: relative; }
