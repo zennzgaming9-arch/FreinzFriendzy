@@ -645,7 +645,7 @@
       appId: "1:953972561417:web:2458d6790134a3b7878ad8"
     };
 
-    const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
+    const ADMIN_EMAILS = ['zennzgaming9@gmail.com', 'kevinarfa1122@gmail.com'];
     let phones = [];
     let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
     let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, setupUser = null, cropCallback = null;
@@ -805,7 +805,7 @@
       if (user) {
         currentUser = user;
         var email = user.email ? user.email.toLowerCase() : '';
-        isAdmin = (email === 'zennzgaming9@gmail.com');
+        isAdmin = ADMIN_EMAILS.includes(email);
         var name = myName || (user.displayName || 'User');
         if (isAdmin && !myName) name = 'ZENNZ Gaming';
         if (userAvatar) userAvatar.src = myProfilePic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
