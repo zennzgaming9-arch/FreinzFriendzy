@@ -840,7 +840,6 @@
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
     const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-    let _pendingSetup = false;
     let _lastForgotEmail = '';
     let cropper = null;
     let _cropCallback = null;
@@ -918,14 +917,14 @@
     }
 
     function loadProfileFromDB(user) {
-      if (!user) return;
+      if (!user) return Promise.resolve(false);
       currentUser = user;
-      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+      return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
         let allData = data.record || {};
-        if (Array.isArray(allData)) return;
-        if (!allData.profiles) return;
+        if (Array.isArray(allData)) return false;
+        if (!allData.profiles) return false;
         var profileData = allData.profiles[user.uid];
         if (!profileData && user.email) {
           var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
@@ -942,7 +941,8 @@
             body: JSON.stringify(allData)
           }).catch(function() {});
         }
-      }).catch(err => console.error('Error loading profile:', err));
+        return !!profileData;
+      }).catch(err => { console.error('Error loading profile:', err); return false; });
     }
 
     function renderStars(r) {
@@ -1066,14 +1066,9 @@
         if (user) {
           updateUserUI(user);
           renderPhones(phones);
-          loadProfileFromDB(user);
-          if (_pendingSetup) {
-            _pendingSetup = false;
-            var stored = getProfileName();
-            showPage(document.getElementById(stored ? 'catalogPage' : 'setupPage'));
-          } else {
-            showPage(document.getElementById('catalogPage'));
-          }
+          loadProfileFromDB(user).then(function(hasProfile) {
+            showPage(document.getElementById(hasProfile ? 'catalogPage' : 'setupPage'));
+          });
         } else {
           showPage(document.getElementById('landingPage'));
         }
@@ -1157,7 +1152,6 @@
         showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
         $('authForm').reset();
         setLoading($('submitBtn'), false);
-        saveProfileToDB(user, true);
       }
 
       function onError(err) {
@@ -1177,11 +1171,10 @@
           auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
         }).catch(onError);
       } else {
-        _pendingSetup = true;
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
           onSuccess(cred.user);
-        }).catch(function(err) { _pendingSetup = false; onError(err); });
+        }).catch(function(err) { onError(err); });
       }
     });
 
@@ -1225,34 +1218,30 @@
 
     function afterSocialLogin(user) {
       updateUserUI(user);
-      saveProfileToDB(user, true);
     }
 
     if (loginGoogle) {
       loginGoogle.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
-        _pendingSetup = true;
         auth.signInWithPopup(googleProvider)
           .then(function(result) { afterSocialLogin(result.user); })
-          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
+          .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
     if (loginFacebook) {
       loginFacebook.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
-        _pendingSetup = true;
         auth.signInWithPopup(facebookProvider)
           .then(function(result) { afterSocialLogin(result.user); })
-          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
+          .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
     if (loginApple) {
       loginApple.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
-        _pendingSetup = true;
         auth.signInWithPopup(appleProvider)
           .then(function(result) { afterSocialLogin(result.user); })
-          .catch(function(e) { _pendingSetup = false; showToast('Error: ' + e.message); });
+          .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
 
@@ -1305,7 +1294,7 @@
         setProfileData(newName, profilePicBase64);
         if (ua) ua.src = profilePicBase64 || ua.src;
         if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); }
-        saveProfileToDB(auth.currentUser);
+        saveProfileToDB(auth.currentUser, true);
         showToast('Profile saved!');
       };
     }
@@ -1356,7 +1345,7 @@
         if (auth.currentUser && name) {
           auth.currentUser.updateProfile({ displayName: name }).catch(function() {});
         }
-        saveProfileToDB(auth.currentUser);
+        saveProfileToDB(auth.currentUser, true);
         showPage($('catalogPage'));
         showToast('Profile set up!', 'success');
         setLoading(setupContinueBtn, false);
