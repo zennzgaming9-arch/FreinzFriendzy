@@ -6,6 +6,7 @@
   <title>Freinz Friendzy - Phone Ratings</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -292,13 +293,13 @@
       margin-bottom: 0.35rem;
     }
     .modal-box p { font-size: 0.85rem; color: rgba(255,255,255,0.45); margin-bottom: 1.5rem; }
-    .modal-box .btn-secondary {
+    .modal-box .btn-secondary, .login-card-gm .btn-secondary {
       width: 100%; padding: 0.75rem; font-size: 0.875rem; font-weight: 600;
       font-family: inherit; border: none; border-radius: 14px; cursor: pointer;
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06);
       margin-top: 0.75rem; transition: background 0.2s ease;
     }
-    .modal-box .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .modal-box .btn-secondary:hover, .login-card-gm .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
     @media (max-width: 640px) {
       .nav-icon-container { width: 56px; height: 56px; border-radius: 14px; }
@@ -579,6 +580,20 @@
     </div>
   </div>
 
+  <!-- Crop Modal -->
+  <div id="cropModal" class="modal-overlay">
+    <div class="glass p-5 rounded-xl max-w-md w-full mx-4">
+      <h3 class="text-lg font-bold mb-3">Crop Image</h3>
+      <div class="w-full max-h-80 overflow-hidden rounded-xl mb-3">
+        <img id="cropImage" src="" alt="Crop">
+      </div>
+      <div class="flex gap-3">
+        <button id="cropCancelBtn" class="flex-1 py-2.5 rounded-xl font-semibold text-sm text-gray-400 border border-white/10 hover:bg-white/5 transition-colors">Cancel</button>
+        <button id="cropConfirmBtn" class="flex-1 py-2.5 rounded-xl font-semibold text-sm gradient-bg hover:opacity-80 transition-opacity">Crop</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Logout Confirm Modal -->
   <div id="logoutModal" class="modal-overlay">
     <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
@@ -601,6 +616,7 @@
 
 
 
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAk6RZ_epQdkl213qy-Dqdcim-ZDRe3Xbs",
@@ -1013,10 +1029,43 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(event) { profilePicBase64 = event.target.result; if (profilePicPreview) profilePicPreview.src = profilePicBase64; };
+          reader.onload = function(event) {
+            const cropImg = $('cropImage');
+            const cropModal = $('cropModal');
+            if (cropImg && cropModal) {
+              cropImg.src = event.target.result;
+              cropModal.classList.add('open');
+              if (cropImg.cropper) cropImg.cropper.destroy();
+              cropImg.cropper = new Cropper(cropImg, { aspectRatio: 1, viewMode: 1, dragMode: 'move', cropBoxResizable: true, cropBoxMovable: true, background: false });
+            } else {
+              profilePicBase64 = event.target.result;
+              if (profilePicPreview) profilePicPreview.src = profilePicBase64;
+            }
+          };
           reader.readAsDataURL(file);
         }
+        e.target.value = '';
       };
+    }
+    const cropConfirmBtn = $('cropConfirmBtn');
+    const cropCancelBtn = $('cropCancelBtn');
+    const cropModal = $('cropModal');
+    const cropImage = $('cropImage');
+    if (cropConfirmBtn && cropModal) {
+      cropConfirmBtn.onclick = function() {
+        if (cropImage && cropImage.cropper) {
+          const canvas = cropImage.cropper.getCroppedCanvas({ width: 256, height: 256 });
+          profilePicBase64 = canvas.toDataURL('image/jpeg', 0.9);
+          if (profilePicPreview) profilePicPreview.src = profilePicBase64;
+        }
+        cropModal.classList.remove('open');
+      };
+    }
+    if (cropCancelBtn && cropModal) {
+      cropCancelBtn.onclick = function() { cropModal.classList.remove('open'); };
+    }
+    if (cropModal) {
+      cropModal.onclick = function(e) { if (e.target === cropModal) cropModal.classList.remove('open'); };
     }
     if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) profileModal.classList.remove('open'); };
     if (saveProfile) {
