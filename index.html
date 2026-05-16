@@ -554,10 +554,11 @@
           </div>
         <div class="p-4 border-b border-gray-700">
           <h3 class="font-semibold mb-3 text-sm">Price Range</h3>
-          <div class="relative h-6" style="direction:ltr">
+          <div id="sliderContainer" class="relative h-6" style="direction:ltr">
             <div class="absolute inset-x-0" style="top:5px;height:3px;background:rgba(255,255,255,0.15);border-radius:9999px;z-index:0;"></div>
             <input type="range" id="filterMinPrice" min="0" max="13000000" step="500000" value="0" class="absolute inset-x-0 w-full" style="top:0;height:13px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;border:none;outline:none;z-index:1;transition:transform 0.2s cubic-bezier(.4,0,.2,1),opacity 0.2s;">
             <input type="range" id="filterMaxPrice" min="0" max="13000000" step="500000" value="13000000" class="absolute inset-x-0 w-full" style="top:0;height:13px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;border:none;outline:none;z-index:1;transition:transform 0.2s cubic-bezier(.4,0,.2,1),opacity 0.2s;">
+            <div id="sliderHitbox" class="absolute inset-x-0" style="top:0;height:100%;z-index:2;cursor:pointer;"></div>
           </div>
           <div class="flex justify-between text-xs text-gray-400 mt-1">
             <span id="minPriceLabel">0</span>
@@ -1205,6 +1206,7 @@
     const filterMaxPriceInput = document.getElementById('filterMaxPrice');
     const minPriceLabel = document.getElementById('minPriceLabel');
     const maxPriceLabel = document.getElementById('maxPriceLabel');
+    const sliderHitbox = document.getElementById('sliderHitbox');
 
     function updateSliderLabels() {
       if (minPriceLabel) minPriceLabel.textContent = fmtM(parseInt(filterMinPriceInput.value));
@@ -1213,18 +1215,31 @@
     function sliderInactive(s) { s.style.opacity = '0.785'; s.style.transform = 'scale(0.88)'; }
     function sliderActive(s) { s.style.opacity = ''; s.style.transform = ''; }
 
-    function swapSliderZ() {
-      var a = parseInt(filterMinPriceInput.value), b = parseInt(filterMaxPriceInput.value);
-      filterMinPriceInput.style.zIndex = a <= b ? 2 : 1;
-      filterMaxPriceInput.style.zIndex = b >= a ? 2 : 1;
+    function bringToFront(el) {
+      var other = el === filterMinPriceInput ? filterMaxPriceInput : filterMinPriceInput;
+      el.style.zIndex = 3; sliderActive(el);
+      other.style.zIndex = 1; sliderInactive(other);
+    }
+
+    function nearestSlider(clientX) {
+      var rect = sliderHitbox.getBoundingClientRect();
+      var x = (clientX - rect.left) / rect.width;
+      var clickVal = Math.round(Math.max(0, Math.min(1, x)) * 13000000 / 500000) * 500000;
+      var min = parseInt(filterMinPriceInput.value), max = parseInt(filterMaxPriceInput.value);
+      return Math.abs(clickVal - min) <= Math.abs(clickVal - max) ? filterMinPriceInput : filterMaxPriceInput;
+    }
+
+    if (sliderHitbox) {
+      sliderHitbox.addEventListener('mousedown', function(e) { bringToFront(nearestSlider(e.clientX)); });
+      sliderHitbox.addEventListener('touchstart', function(e) { bringToFront(nearestSlider(e.touches[0].clientX)); }, { passive: true });
     }
 
     if (filterMinPriceInput) {
       filterMinPriceInput.oninput = function() {
         var val = parseInt(this.value), max = parseInt(filterMaxPriceInput.value);
         if (val > max) { filterMaxPriceInput.value = val; }
-        updateSliderLabels(); swapSliderZ();
-        sliderActive(filterMinPriceInput); sliderInactive(filterMaxPriceInput);
+        updateSliderLabels();
+        bringToFront(this);
       };
       filterMinPriceInput.onchange = function() { sliderActive(filterMinPriceInput); sliderActive(filterMaxPriceInput); };
     }
@@ -1232,8 +1247,8 @@
       filterMaxPriceInput.oninput = function() {
         var val = parseInt(this.value), min = parseInt(filterMinPriceInput.value);
         if (val < min) { filterMinPriceInput.value = val; }
-        updateSliderLabels(); swapSliderZ();
-        sliderActive(filterMaxPriceInput); sliderInactive(filterMinPriceInput);
+        updateSliderLabels();
+        bringToFront(this);
       };
       filterMaxPriceInput.onchange = function() { sliderActive(filterMinPriceInput); sliderActive(filterMaxPriceInput); };
     }
@@ -1317,11 +1332,10 @@
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.value = '';
       document.querySelectorAll('.filter-rating, .price-btn, .type-btn').forEach(function(b) { b.classList.remove('selected'); });
-      if (filterMinPriceInput) { filterMinPriceInput.value = 0; sliderActive(filterMinPriceInput); }
-      if (filterMaxPriceInput) { filterMaxPriceInput.value = 13000000; sliderActive(filterMaxPriceInput); }
+      if (filterMinPriceInput) { filterMinPriceInput.value = 0; filterMinPriceInput.style.zIndex = 3; sliderActive(filterMinPriceInput); }
+      if (filterMaxPriceInput) { filterMaxPriceInput.value = 13000000; filterMaxPriceInput.style.zIndex = 1; sliderActive(filterMaxPriceInput); }
       if (minPriceLabel) minPriceLabel.textContent = '0';
       if (maxPriceLabel) maxPriceLabel.textContent = '13M';
-      swapSliderZ();
       var fm = document.getElementById('filterModal');
       if (fm) fm.classList.add('hidden');
       renderPhones(phones);
