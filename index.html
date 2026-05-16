@@ -889,24 +889,32 @@
 
     function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
 
-    function saveProfileToDB(user) {
+    function saveProfileToDB(user, silent) {
       if (!user) return;
+      const userName = getProfileName() || user.displayName || 'User';
+      const userPhoto = getProfilePic() || user.photoURL || '';
       const profileData = {
-        uid: user.uid, name: getProfileName() || user.displayName || 'User',
-        photoURL: getProfilePic() || '', updatedAt: Date.now()
+        uid: user.uid, email: user.email || '',
+        name: userName, photoURL: userPhoto, updatedAt: Date.now()
       };
       fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
         let allData = data.record || {};
-        if (Array.isArray(allData)) allData = { phones: allData, profiles: {} };
+        if (Array.isArray(allData)) allData = { phones: allData, profiles: {}, registeredEmails: {} };
         if (!allData.profiles) allData.profiles = {};
+        if (!allData.registeredEmails) allData.registeredEmails = {};
         allData.profiles[user.uid] = profileData;
+        if (user.email) {
+          var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
+          allData.profiles[ek] = profileData;
+          allData.registeredEmails[user.email.toLowerCase()] = { uid: user.uid, lastSignIn: Date.now() };
+        }
         return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
           method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
           body: JSON.stringify(allData)
         });
-      }).then(() => showToast('Profile synced!')).catch(err => showToast('Error syncing profile'));
+      }).then(function() { if (!silent) showToast('Profile synced!'); }).catch(function(err) { if (!silent) showToast('Error syncing profile'); });
     }
 
     function loadProfileFromDB(user) {
@@ -916,11 +924,23 @@
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
         let allData = data.record || {};
-        if (Array.isArray(allData) || !allData.profiles) return;
-        const profileData = allData.profiles[user.uid];
+        if (Array.isArray(allData)) return;
+        if (!allData.profiles) return;
+        var profileData = allData.profiles[user.uid];
+        if (!profileData && user.email) {
+          var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
+          profileData = allData.profiles[ek];
+        }
         if (profileData) {
           setProfileData(profileData.name, profileData.photoURL);
           updateUserUI(user);
+        }
+        if (allData.registeredEmails && user.email) {
+          allData.registeredEmails[user.email.toLowerCase()] = { uid: user.uid, lastSignIn: Date.now() };
+          fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+            body: JSON.stringify(allData)
+          }).catch(function() {});
         }
       }).catch(err => console.error('Error loading profile:', err));
     }
@@ -1137,6 +1157,7 @@
         showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
         $('authForm').reset();
         setLoading($('submitBtn'), false);
+        saveProfileToDB(user, true);
       }
 
       function onError(err) {
@@ -1204,6 +1225,7 @@
 
     function afterSocialLogin(user) {
       updateUserUI(user);
+      saveProfileToDB(user, true);
     }
 
     if (loginGoogle) {
