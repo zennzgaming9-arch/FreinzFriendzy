@@ -580,6 +580,23 @@
     </div>
   </div>
 
+  <!-- Profile Setup Modal -->
+  <div id="setupModal" class="modal-overlay">
+    <div class="glass p-6 rounded-xl max-w-sm w-full mx-4">
+      <h3 class="text-lg font-bold mb-1 text-center">Set Up Your Profile</h3>
+      <p class="text-sm text-gray-400 text-center mb-5">Add a photo and your name to get started.</p>
+      <div class="flex flex-col items-center gap-3 mb-5">
+        <div class="relative">
+          <img id="setupAvatar" class="w-20 h-20 rounded-full object-cover border-2 border-white/10" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff&bold=true" alt="Avatar">
+          <button id="setupAddPhotoBtn" class="absolute bottom-0 right-0 w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-xs"><i class="fas fa-camera"></i></button>
+        </div>
+      </div>
+      <input type="text" id="setupName" placeholder="Your name" class="w-full p-3 rounded-xl glass mb-4 text-white">
+      <button id="setupSaveBtn" class="w-full py-3 rounded-xl gradient-bg font-semibold">Save & Continue</button>
+    </div>
+  </div>
+  <input type="file" id="setupPicInput" accept="image/*" class="hidden">
+
   <!-- Crop Modal -->
   <div id="cropModal" class="modal-overlay">
     <div class="glass p-5 rounded-xl max-w-md w-full mx-4">
@@ -631,7 +648,7 @@
     const ADMIN_EMAILS = ['zennzgaming9@gmail.com'];
     let phones = [];
     let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
-    let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
+    let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false, setupUser = null, cropCallback = null;
 
     const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
     const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
@@ -935,7 +952,13 @@
       } else {
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
-          onSuccess(cred.user);
+          setupUser = cred.user;
+          const sm = $('setupModal');
+          const sn = $('setupName');
+          if (sn) sn.value = name || '';
+          if (sm) sm.classList.add('open');
+          $('authForm').reset();
+          setLoading($('submitBtn'), false);
         }).catch(onError);
       }
     });
@@ -1033,6 +1056,10 @@
             const cropImg = $('cropImage');
             const cropModal = $('cropModal');
             if (cropImg && cropModal) {
+              cropCallback = function(dataUrl) {
+                profilePicBase64 = dataUrl;
+                if (profilePicPreview) profilePicPreview.src = dataUrl;
+              };
               cropImg.src = event.target.result;
               cropModal.classList.add('open');
               if (cropImg.cropper) cropImg.cropper.destroy();
@@ -1055,8 +1082,8 @@
       cropConfirmBtn.onclick = function() {
         if (cropImage && cropImage.cropper) {
           const canvas = cropImage.cropper.getCroppedCanvas({ width: 256, height: 256 });
-          profilePicBase64 = canvas.toDataURL('image/jpeg', 0.9);
-          if (profilePicPreview) profilePicPreview.src = profilePicBase64;
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          if (cropCallback) cropCallback(dataUrl);
         }
         cropModal.classList.remove('open');
       };
@@ -1067,6 +1094,60 @@
     if (cropModal) {
       cropModal.onclick = function(e) { if (e.target === cropModal) cropModal.classList.remove('open'); };
     }
+
+    // Setup modal
+    const setupModal = $('setupModal');
+    const setupName = $('setupName');
+    const setupAvatar = $('setupAvatar');
+    const setupAddPhotoBtn = $('setupAddPhotoBtn');
+    const setupPicInput = $('setupPicInput');
+    const setupSaveBtn = $('setupSaveBtn');
+    let setupPicBase64 = '';
+    if (setupAddPhotoBtn && setupPicInput) {
+      setupAddPhotoBtn.onclick = function() { setupPicInput.click(); };
+      setupPicInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const cropImg = $('cropImage');
+            const cropModal = $('cropModal');
+            if (cropImg && cropModal) {
+              cropCallback = function(dataUrl) {
+                setupPicBase64 = dataUrl;
+                if (setupAvatar) setupAvatar.src = dataUrl;
+              };
+              cropImg.src = event.target.result;
+              cropModal.classList.add('open');
+              if (cropImg.cropper) cropImg.cropper.destroy();
+              cropImg.cropper = new Cropper(cropImg, { aspectRatio: 1, viewMode: 1, dragMode: 'move', cropBoxResizable: true, cropBoxMovable: true, background: false });
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+        e.target.value = '';
+      };
+    }
+    if (setupSaveBtn && setupModal) {
+      setupSaveBtn.onclick = function() {
+        const nameVal = setupName ? setupName.value.trim() : '';
+        if (!nameVal) { showToast('Please enter your name.', 'error'); if (setupName) shakeInput(setupName); return; }
+        if (setupPicBase64) { localStorage.setItem('myProfilePic', setupPicBase64); }
+        if (nameVal) { localStorage.setItem('myName', nameVal); }
+        setupModal.classList.remove('open');
+        if (setupUser) {
+          if (nameVal) setupUser.updateProfile({ displayName: nameVal });
+          updateUserUI(setupUser);
+          showPage($('catalogPage'));
+          showToast('Account created!', 'success');
+          setupUser = null;
+        }
+      };
+    }
+    if (setupModal) {
+      setupModal.onclick = function(e) { if (e.target === setupModal) return; };
+    }
+
     if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) profileModal.classList.remove('open'); };
     if (saveProfile) {
       saveProfile.onclick = function() {
