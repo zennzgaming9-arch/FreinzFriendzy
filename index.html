@@ -325,18 +325,18 @@
 
   <!-- Forgot Password Modal -->
   <div class="modal-overlay" id="forgotModal">
-    <div class="modal-box">
-      <h3>Reset password</h3>
-      <p>Enter your email and we'll send you a reset link.</p>
-      <div class="input-group" style="margin-bottom:0;">
+    <div class="login-card-gm" style="max-width:400px;padding:2rem 1.75rem;">
+      <h2 style="font-size:1.35rem;margin-bottom:0.2rem;">Reset password</h2>
+      <p class="subtitle" style="margin-bottom:1.5rem;">Enter your email and we'll send you a reset link.</p>
+      <div class="input-group" style="margin-bottom:1rem;">
         <label for="resetEmail">Email</label>
         <input type="email" id="resetEmail" placeholder="Example@gmail.com" autocomplete="email" />
       </div>
-      <button class="sign-btn" id="sendResetBtn" style="padding:0.75rem;font-size:0.875rem;">
+      <button class="sign-btn" id="sendResetBtn">
         <span class="btn-text">Send reset email</span>
         <div class="spinner"></div>
       </button>
-      <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
+      <button class="btn-secondary" id="cancelResetBtn" style="margin-top:0.6rem;">Cancel</button>
     </div>
   </div>
 
