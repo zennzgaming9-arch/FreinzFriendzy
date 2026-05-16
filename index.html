@@ -888,7 +888,7 @@
 
     function saveUserProfile() { localStorage.setItem('freinzUserProfile', JSON.stringify(userProfile)); }
 
-    function saveProfileToDB(user, silent) {
+    function saveProfileToDB(user) {
       if (!user) return;
       const userName = getProfileName() || user.displayName || 'User';
       const userPhoto = getProfilePic() || user.photoURL || '';
@@ -906,14 +906,14 @@
         allData.profiles[user.uid] = profileData;
         if (user.email) {
           var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
-          allData.profiles[ek] = profileData;
+          allData.profiles[ek] = user.uid;
           allData.registeredEmails[user.email.toLowerCase()] = { uid: user.uid, lastSignIn: Date.now() };
         }
         return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
           method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
           body: JSON.stringify(allData)
         });
-      }).then(function() { if (!silent) showToast('Profile synced!'); }).catch(function(err) { if (!silent) showToast('Error syncing profile'); });
+      }).then(function() { showToast('Profile saved!'); }).catch(function(err) { showToast('Error saving profile'); });
     }
 
     function loadProfileFromDB(user) {
@@ -928,10 +928,13 @@
         var profileData = allData.profiles[user.uid];
         if (!profileData && user.email) {
           var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
-          profileData = allData.profiles[ek];
+          var mappedUid = allData.profiles[ek];
+          if (typeof mappedUid === 'string' && allData.profiles[mappedUid]) {
+            profileData = allData.profiles[mappedUid];
+          }
         }
-        if (profileData) {
-          setProfileData(profileData.name, profileData.photoURL);
+        if (profileData && typeof profileData === 'object') {
+          setProfileData(profileData.name || '', profileData.photoURL || '');
           updateUserUI(user);
         }
         if (allData.registeredEmails && user.email) {
@@ -941,7 +944,7 @@
             body: JSON.stringify(allData)
           }).catch(function() {});
         }
-        return !!profileData;
+        return !!(profileData && typeof profileData === 'object');
       }).catch(err => { console.error('Error loading profile:', err); return false; });
     }
 
@@ -1294,8 +1297,7 @@
         setProfileData(newName, profilePicBase64);
         if (ua) ua.src = profilePicBase64 || ua.src;
         if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); }
-        saveProfileToDB(auth.currentUser, true);
-        showToast('Profile saved!');
+        saveProfileToDB(auth.currentUser);
       };
     }
     if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
@@ -1345,9 +1347,8 @@
         if (auth.currentUser && name) {
           auth.currentUser.updateProfile({ displayName: name }).catch(function() {});
         }
-        saveProfileToDB(auth.currentUser, true);
+        saveProfileToDB(auth.currentUser);
         showPage($('catalogPage'));
-        showToast('Profile set up!', 'success');
         setLoading(setupContinueBtn, false);
       };
     }
