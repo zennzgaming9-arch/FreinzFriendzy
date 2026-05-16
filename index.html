@@ -513,12 +513,12 @@
 
   <!-- Filter Modal -->
   <div id="filterModal" class="hidden fixed inset-0 z-50" style="background:rgba(0,0,0,0.7);">
-    <div class="h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;background:rgba(20,20,30,0.7);border-left:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);">
-      <div style="position:sticky;top:0;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex justify-between items-center">
+    <div class="h-full overflow-y-auto" style="position:absolute;right:0;top:0;width:100%;max-width:28rem;background:rgba(20,20,30,0.7);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);">
+      <div style="position:sticky;top:0;background:rgba(255,255,255,0.03);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex justify-between items-center">
         <h2 class="text-lg font-bold">Filter</h2>
         <button type="button" onclick="document.getElementById('filterModal').classList.add('hidden')" style="width:36px;height:36px;border-radius:9999px;cursor:pointer;">×</button>
       </div>
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4">
         <h3 class="font-semibold mb-3 text-sm">Rating</h3>
         <div class="flex flex-wrap gap-2">
           <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="5" onclick="doFilterRating(5, this)"><span class="text-vivid">★</span> 5</button>
@@ -526,7 +526,7 @@
           <button class="filter-rating px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-rating="3" onclick="doFilterRating(3, this)"><span class="text-vivid">★</span> 3+</button>
         </div>
       </div>
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4">
         <h3 class="font-semibold mb-3 text-sm">Phone Type</h3>
         <div class="flex flex-wrap gap-2">
           <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="Gaming" onclick="doFilterType('Gaming', this)">Gaming</button>
@@ -535,7 +535,7 @@
           <button class="type-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-type="All-Rounder" onclick="doFilterType('All-Rounder', this)">All-Rounder</button>
         </div>
       </div>
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4">
         <h3 class="font-semibold mb-3 text-sm">Price</h3>
         <div class="flex flex-wrap gap-2">
           <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="1000000" data-max="2000000" onclick="doFilterPrice(1000000, 2000000, this)">1-2M</button>
@@ -545,7 +545,7 @@
           <button class="price-btn px-4 py-2 rounded-xl panel text-sm hover:bg-white/10" data-min="10000000" data-max="999999999" onclick="doFilterPrice(10000000, 999999999, this)">&gt; 10M</button>
         </div>
       </div>
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4">
         <h3 class="font-semibold mb-3 text-sm">Price Range</h3>
         <div class="relative h-6" style="direction:ltr">
           <div class="absolute inset-x-0" style="top:3px;height:6px;background:rgba(255,255,255,0.12);border-radius:9999px;z-index:0;"></div>
@@ -557,7 +557,7 @@
           <span id="maxPriceLabel">13M</span>
         </div>
       </div>
-      <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
+      <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);" class="p-4 flex gap-3">
         <button class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;" onclick="doResetFilter()">Reset</button>
         <button class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm" onclick="doApplyFilter()">Apply</button>
       </div>
