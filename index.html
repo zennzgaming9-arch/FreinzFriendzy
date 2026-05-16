@@ -547,19 +547,14 @@
       </div>
       <div class="p-4 border-b border-gray-700">
         <h3 class="font-semibold mb-3 text-sm">Price Range</h3>
-        <div class="space-y-4">
-          <div>
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Min: <span id="minPriceLabel">0</span></span>
-            </div>
-            <input type="range" id="filterMinPrice" min="0" max="13000000" step="500000" value="0" class="w-full accent-orange-500">
-          </div>
-          <div>
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Max: <span id="maxPriceLabel">13M</span></span>
-            </div>
-            <input type="range" id="filterMaxPrice" min="0" max="13000000" step="500000" value="13000000" class="w-full accent-orange-500">
-          </div>
+        <div class="relative h-6" style="direction:ltr">
+          <div class="absolute inset-x-0" style="top:3px;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;z-index:0;"></div>
+          <input type="range" id="filterMinPrice" min="0" max="13000000" step="500000" value="0" class="absolute inset-x-0 w-full accent-orange-500" style="top:0;height:24px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;z-index:3">
+          <input type="range" id="filterMaxPrice" min="0" max="13000000" step="500000" value="13000000" class="absolute inset-x-0 w-full accent-orange-500" style="top:0;height:24px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;z-index:2">
+        </div>
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span id="minPriceLabel">0</span>
+          <span id="maxPriceLabel">13M</span>
         </div>
       </div>
       <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
@@ -1196,7 +1191,7 @@
     let activeSort = 'termurah';
     const filterModal = $('filterModal');
 
-    function fmtM(val) { return (val / 1000000) + 'M'; }
+    function fmtM(val) { return val ? (val / 1000000) + 'M' : '0'; }
 
     const filterMinPriceInput = document.getElementById('filterMinPrice');
     const filterMaxPriceInput = document.getElementById('filterMaxPrice');
@@ -1204,12 +1199,20 @@
     const maxPriceLabel = document.getElementById('maxPriceLabel');
     if (filterMinPriceInput && minPriceLabel) {
       filterMinPriceInput.oninput = function() {
-        minPriceLabel.textContent = this.value ? fmtM(parseInt(this.value)) : '0';
+        const min = parseInt(this.value);
+        const max = parseInt(filterMaxPriceInput.value);
+        if (min > max) { this.value = max; }
+        minPriceLabel.textContent = fmtM(parseInt(this.value));
+        this.style.zIndex = parseInt(this.value) > max ? 3 : 2;
       };
     }
     if (filterMaxPriceInput && maxPriceLabel) {
       filterMaxPriceInput.oninput = function() {
-        maxPriceLabel.textContent = this.value ? fmtM(parseInt(this.value)) : '0';
+        const max = parseInt(this.value);
+        const min = parseInt(filterMinPriceInput.value);
+        if (max < min) { this.value = min; }
+        maxPriceLabel.textContent = fmtM(parseInt(this.value));
+        this.style.zIndex = parseInt(this.value) < min ? 3 : 2;
       };
     }
     if (filterModal) filterModal.addEventListener('click', function(e) { if (e.target === filterModal) filterModal.classList.add('hidden'); });
