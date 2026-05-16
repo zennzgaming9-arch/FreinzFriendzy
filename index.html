@@ -4,18 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Freinz Friendzy - Phone Ratings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script>
-    // Suppress Tailwind CDN production warning
-    (function() {
-      var _twOrig = console.warn;
-      console.warn = function(m) {
-        if (typeof m === 'string' && m.indexOf('tailwindcss.com') !== -1) return;
-        _twOrig.call(console, m);
-      };
-    })();
-  </script>
-  <script>
-    window.tailwind = {};
     tailwind.config = {
       theme: {
         extend: {
@@ -24,26 +22,6 @@
       }
     }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    document.addEventListener('click', function(e) {
-      var t = e.target.closest('#profileBtn,#logoutBtn,#homeBtn');
-      if (!t) return;
-      if (t.id === 'logoutBtn') { var m = document.getElementById('logoutModal'); if (m) { m.classList.remove('hidden'); m.classList.add('open'); } }
-      else if (t.id === 'homeBtn') { var lp = document.getElementById('landingPage'), cp = document.getElementById('catalogPage'); if (lp) lp.classList.remove('hidden'); if (cp) cp.classList.add('hidden'); t.classList.add('hidden'); }
-      else if (t.id === 'profileBtn') { var pu = document.getElementById('profileUsername'), pp = document.getElementById('profilePicPreview'), ua = document.getElementById('userAvatar'), ap = document.getElementById('addProfilePicBtn'), pm = document.getElementById('profileModal'); if (pu) pu.value = getProfileName() || ''; if (pp) pp.src = getProfilePic() || (ua ? ua.src : ''); if (ap) ap.textContent = getProfilePic() ? 'Change Profile Picture' : 'Add Profile Picture'; if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); } }
-    });
-  </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <style>
     html { background: #0a0a1a; }
     * { box-sizing: border-box; }
@@ -189,27 +167,6 @@
       background: rgba(255,255,255,0.06); border-color: #f97316;
       box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
     }
-    .login-card-gm .input-icon-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .login-card-gm .input-icon-wrap .input-icon {
-      position: absolute;
-      left: 1.1rem;
-      color: rgba(255,255,255,0.18);
-      font-size: 0.9rem;
-      pointer-events: none;
-      transition: color 0.3s ease;
-      z-index: 1;
-    }
-    .login-card-gm .input-icon-wrap:focus-within .input-icon {
-      color: #f97316;
-    }
-    .login-card-gm .input-icon-wrap input.with-icon {
-      padding-left: 2.8rem;
-    }
-
     .login-card-gm .input-group input.shake { animation: shake 0.45s ease; }
     @keyframes shake {
       0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}
@@ -339,68 +296,9 @@
       width: 100%; padding: 0.75rem; font-size: 0.875rem; font-weight: 600;
       font-family: inherit; border: none; border-radius: 14px; cursor: pointer;
       color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06);
-      transition: background 0.2s ease;
+      margin-top: 0.75rem; transition: background 0.2s ease;
     }
     .modal-box .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-
-    .modal-icon-wrap {
-      width: 52px; height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(168,85,247,0.15));
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1.25rem;
-      font-size: 1.3rem;
-      color: #fff;
-    }
-    .modal-desc {
-      text-align: center;
-    }
-    .modal-input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .modal-input-wrap .input-icon {
-      position: absolute;
-      left: 1.1rem;
-      color: rgba(255,255,255,0.18);
-      font-size: 0.9rem;
-      pointer-events: none;
-      transition: color 0.3s ease;
-      z-index: 1;
-    }
-    .modal-input-wrap:focus-within .input-icon {
-      color: #f97316;
-    }
-    .modal-input-wrap input {
-      width: 100%;
-      padding: 0.85rem 1.1rem 0.85rem 2.8rem;
-      font-size: 0.9375rem;
-      font-family: inherit;
-      border: 1.5px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.04);
-      color: #fff;
-      outline: none;
-      transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-    }
-    .modal-input-wrap input::placeholder { color: rgba(255,255,255,0.18); }
-    .modal-input-wrap input:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); }
-    .modal-input-wrap input:focus {
-      background: rgba(255,255,255,0.06); border-color: #f97316;
-      box-shadow: 0 0 0 4px rgba(249,115,22,0.08);
-    }
-    .modal-input-wrap input.shake { animation: shake 0.45s ease; }
-
-    .modal-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .modal-actions .sign-btn {
-      width: 100%; padding: 0.8rem; font-size: 0.875rem; font-weight: 600;
-    }
 
     @media (max-width: 640px) {
       .nav-icon-container { width: 56px; height: 56px; border-radius: 14px; }
@@ -428,22 +326,17 @@
   <!-- Forgot Password Modal -->
   <div class="modal-overlay" id="forgotModal">
     <div class="modal-box">
-      <div class="modal-icon-wrap">
-        <i class="fas fa-envelope"></i>
-      </div>
       <h3>Reset password</h3>
-      <p class="modal-desc">Enter your email address and we'll send you a link to reset your password.</p>
-      <div class="modal-input-wrap">
-        <i class="fas fa-envelope input-icon"></i>
-        <input type="email" id="resetEmail" placeholder="Example@gmail.com" autocomplete="email" />
+      <p>Enter your email and we'll send you a reset link.</p>
+      <div class="input-group" style="margin-bottom:0;">
+        <label for="resetEmail">Email</label>
+        <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <div class="modal-actions">
-        <button class="sign-btn" id="sendResetBtn">
-          <span class="btn-text">Send reset link</span>
-          <div class="spinner"></div>
-        </button>
-        <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
-      </div>
+      <button class="sign-btn" id="sendResetBtn" style="padding:0.75rem;font-size:0.875rem;">
+        <span class="btn-text">Send reset email</span>
+        <div class="spinner"></div>
+      </button>
+      <button class="btn-secondary" id="cancelResetBtn">Cancel</button>
     </div>
   </div>
 
@@ -474,17 +367,11 @@
           </div>
           <div class="input-group">
             <label for="email">Email</label>
-            <div class="input-icon-wrap">
-              <i class="fas fa-envelope input-icon"></i>
-              <input type="email" id="email" placeholder="Example@gmail.com" autocomplete="email" required class="with-icon" />
-            </div>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required />
           </div>
           <div class="input-group">
             <label for="password">Password</label>
-            <div class="input-icon-wrap">
-              <i class="fas fa-lock input-icon"></i>
-              <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required class="with-icon" />
-            </div>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
           </div>
           <div class="form-actions" id="signInExtras">
             <label><input type="checkbox" id="rememberMe" /> Remember me</label>
@@ -549,51 +436,6 @@
     </div>
   </div>
 
-  <!-- Setup Profile Page (shown after sign-up) -->
-  <div id="setupPage" class="hidden">
-    <nav class="py-3 px-4 md:py-4 md:px-6 relative z-50" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
-      <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <img src="https://i.ibb.co.com/fVz0mLxY/New-Project-31-EB15110.png" class="h-10 md:h-12 w-auto object-contain">
-          <span class="text-xl md:text-2xl font-bold gradient-text" style="font-family: 'Montserrat', sans-serif; font-weight: 700;">Freinzz Friendzy</span>
-        </div>
-      </div>
-    </nav>
-    <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
-      <div class="login-card-gm" style="max-width:440px;">
-        <div class="flex justify-center mb-4">
-          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(249,115,22,0.15),rgba(168,85,247,0.15));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;">
-            <i class="fas fa-user-plus"></i>
-          </div>
-        </div>
-        <h2 style="text-align:center;">Welcome!</h2>
-        <p class="subtitle" id="setupSubtitle">Set up your profile to get started.</p>
-
-        <div class="flex flex-col items-center gap-2 mb-5 mt-2">
-          <div class="relative" style="cursor:pointer;">
-            <img id="setupProfilePreview" class="w-24 h-24 rounded-full object-cover border-2" style="border-color:rgba(249,115,22,0.3);" src="https://ui-avatars.com/api/?name=U&background=a855f7&color=fff&bold=true" alt="Profile">
-            <button id="setupChangePicBtn" type="button" class="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center text-xs" style="background:rgba(249,115,22,0.2);border:1px solid rgba(249,115,22,0.5);color:#f97316;"><i class="fas fa-camera"></i></button>
-          </div>
-          <button id="setupAddPicBtn" type="button" class="text-sm" style="background:none;border:none;color:#f97316;cursor:pointer;font-family:inherit;">Add Profile Picture</button>
-        </div>
-        <input type="file" id="setupPicInput" accept="image/*" class="hidden">
-
-        <div class="input-group">
-          <label for="setupUsername">Display name</label>
-          <div class="input-icon-wrap">
-            <i class="fas fa-user input-icon"></i>
-            <input type="text" id="setupUsername" placeholder="Choose a display name" autocomplete="name" class="with-icon" />
-          </div>
-        </div>
-
-        <button id="setupContinueBtn" class="sign-btn" type="button">
-          <span class="btn-text">Continue</span>
-          <div class="spinner"></div>
-        </button>
-      </div>
-    </main>
-  </div>
-
   <!-- Catalog Page -->
   <div id="catalogPage" class="hidden">
     <nav class="sticky top-0 z-50 py-3 px-4 md:py-4 md:px-6" style="background:rgba(10,10,26,0.6);border-bottom:1px solid rgba(255,255,255,0.05);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);-webkit-transform:translateZ(0);transform:translateZ(0);">
@@ -608,41 +450,15 @@
             <span class="text-sm font-medium">Home</span>
           </button>
           <div id="userSection" class="hidden flex items-center gap-2">
-            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10" onclick="var pm=document.getElementById('profileModal');if(pm){pm.classList.remove('hidden');pm.classList.add('open');}">
+            <button id="profileBtn" class="flex items-center gap-2 p-2 rounded-lg glass hover:bg-white/10">
               <img id="userAvatar" class="w-7 h-7 md:w-8 md:h-8 rounded-full" src="">
               <span id="userName" class="text-xs md:text-sm font-medium hidden md:inline"></span>
             </button>
-            <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout" onclick="var lm=document.getElementById('logoutModal');if(lm){lm.classList.remove('hidden');lm.classList.add('open');}"><i class="fas fa-sign-out-alt"></i></button>
+            <button id="logoutBtn" class="p-2 rounded-lg glass hover:bg-white/10" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
           </div>
         </div>
       </div>
     </nav>
-    <script>
-      document.addEventListener('click', function(e) {
-        var t = e.target.closest('#profileBtn,#logoutBtn,#homeBtn');
-        if (!t) return;
-        if (t.id === 'profileBtn') {
-          var pu = document.getElementById('profileUsername');
-          var pp = document.getElementById('profilePicPreview');
-          var ua = document.getElementById('userAvatar');
-          var ap = document.getElementById('addProfilePicBtn');
-          if (pu) pu.value = getProfileName() || '';
-          if (pp) pp.src = getProfilePic() || (ua ? ua.src : '');
-          if (ap) ap.textContent = getProfilePic() ? 'Change Profile Picture' : 'Add Profile Picture';
-          var pm = document.getElementById('profileModal');
-          if (pm) { pm.classList.remove('hidden'); pm.classList.add('open'); }
-        } else if (t.id === 'logoutBtn') {
-          var lm = document.getElementById('logoutModal');
-          if (lm) { lm.classList.remove('hidden'); lm.classList.add('open'); }
-        } else if (t.id === 'homeBtn') {
-          var lp = document.getElementById('landingPage');
-          var cp = document.getElementById('catalogPage');
-          if (lp) lp.classList.remove('hidden');
-          if (cp) cp.classList.add('hidden');
-          t.classList.add('hidden');
-        }
-      });
-    </script>
     <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
       <h1 class="text-3xl md:text-5xl font-bold text-center mb-6 md:mb-8">Phone Catalog</h1>
 
@@ -783,19 +599,7 @@
     </div>
   </div>
 
-  <!-- Crop Modal -->
-  <div id="cropModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center modal-overlay">
-    <div class="glass p-4 rounded-xl max-w-lg w-full mx-4" style="max-height:90vh;">
-      <h3 class="text-lg font-bold mb-3">Crop Profile Picture</h3>
-      <div style="max-height:50vh;overflow:hidden;">
-        <img id="cropImage" src="" alt="Crop" style="max-width:100%;">
-      </div>
-      <div class="flex gap-2 mt-4">
-        <button id="cropCancelBtn" class="flex-1 py-3 rounded-xl font-semibold text-sm" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#9ca3af;">Cancel</button>
-        <button id="cropConfirmBtn" class="flex-1 py-3 rounded-xl gradient-bg font-semibold text-sm">Crop & Save</button>
-      </div>
-    </div>
-  </div>
+
 
   <script>
     const firebaseConfig = {
@@ -813,24 +617,6 @@
     let userProfile = JSON.parse(localStorage.getItem('freinzUserProfile')) || {};
     let currentUser = null, isAdmin = false, base64Image = '', auth = null, authAvailable = false;
 
-    function getProfileKey() { return currentUser ? 'freinzProfile_' + currentUser.uid : null; }
-    function getProfileName() {
-      const k = getProfileKey(); if (!k) return '';
-      const d = JSON.parse(localStorage.getItem(k) || '{}'); return d.name || '';
-    }
-    function getProfilePic() {
-      const k = getProfileKey(); if (!k) return '';
-      const d = JSON.parse(localStorage.getItem(k) || '{}'); return d.photoURL || '';
-    }
-    function setProfileData(name, photoURL) {
-      const k = getProfileKey(); if (!k) { showToast('Cannot save: not signed in', 'error'); return; }
-      localStorage.setItem(k, JSON.stringify({ name: name || '', photoURL: photoURL || '' }));
-    }
-    function clearProfileData() {
-      if (!currentUser) return;
-      localStorage.removeItem('freinzProfile_' + currentUser.uid);
-    }
-
     const JSONBIN_BIN_ID = '69ef4b86856a68218979ef10';
     const JSONBIN_API_KEY = '$2a$10$IceYneLo/oxtqlRhsSXn9OBQJzG0jSCzQ56X.xcz11IDPpIvg5x8W';
 
@@ -840,9 +626,6 @@
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
     const appleProvider = new firebase.auth.OAuthProvider('apple.com');
 
-    let _lastForgotEmail = '';
-    let cropper = null;
-    let _cropCallback = null;
     let activeFilters = { ratings:[], minPrice:null, maxPrice:null, type:null };
     const $ = id => {
       const el = document.getElementById(id);
@@ -854,8 +637,6 @@
       if ($('landingPage') && $('catalogPage')) {
         $('landingPage').classList.toggle('hidden', p !== $('landingPage'));
         $('catalogPage').classList.toggle('hidden', p !== $('catalogPage'));
-        var sp = $('setupPage');
-        if (sp) sp.classList.toggle('hidden', p !== sp);
         if ($('homeBtn')) {
           $('homeBtn').classList.toggle('hidden', p === $('landingPage') || currentUser !== null);
         }
@@ -890,62 +671,38 @@
 
     function saveProfileToDB(user) {
       if (!user) return;
-      const userName = getProfileName() || user.displayName || 'User';
-      const userPhoto = getProfilePic() || user.photoURL || '';
       const profileData = {
-        uid: user.uid, email: user.email || '',
-        name: userName, photoURL: userPhoto, updatedAt: Date.now()
+        uid: user.uid, name: localStorage.getItem('myName') || user.displayName || 'User',
+        photoURL: localStorage.getItem('myProfilePic') || '', updatedAt: Date.now()
       };
       fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
         let allData = data.record || {};
-        if (Array.isArray(allData)) allData = { phones: allData, profiles: {}, registeredEmails: {} };
+        if (Array.isArray(allData)) allData = { phones: allData, profiles: {} };
         if (!allData.profiles) allData.profiles = {};
-        if (!allData.registeredEmails) allData.registeredEmails = {};
         allData.profiles[user.uid] = profileData;
-        if (user.email) {
-          var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
-          allData.profiles[ek] = user.uid;
-          allData.registeredEmails[user.email.toLowerCase()] = { uid: user.uid, lastSignIn: Date.now() };
-        }
         return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
           method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
           body: JSON.stringify(allData)
         });
-      }).then(function() { showToast('Profile saved!'); }).catch(function(err) { showToast('Error saving profile'); });
+      }).then(() => showToast('Profile synced!')).catch(err => showToast('Error syncing profile'));
     }
 
     function loadProfileFromDB(user) {
-      if (!user) return Promise.resolve(false);
-      currentUser = user;
-      return fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
+      if (!user) return;
+      fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID + '/latest', {
         headers: { 'X-Master-Key': JSONBIN_API_KEY }
       }).then(res => res.json()).then(data => {
         let allData = data.record || {};
-        if (Array.isArray(allData)) return false;
-        if (!allData.profiles) return false;
-        var profileData = allData.profiles[user.uid];
-        if (!profileData && user.email) {
-          var ek = 'email_' + user.email.toLowerCase().replace(/\./g, ',');
-          var mappedUid = allData.profiles[ek];
-          if (typeof mappedUid === 'string' && allData.profiles[mappedUid]) {
-            profileData = allData.profiles[mappedUid];
-          }
-        }
-        if (profileData && typeof profileData === 'object') {
-          setProfileData(profileData.name || '', profileData.photoURL || '');
+        if (Array.isArray(allData) || !allData.profiles) return;
+        const profileData = allData.profiles[user.uid];
+        if (profileData) {
+          if (profileData.name) localStorage.setItem('myName', profileData.name);
+          if (profileData.photoURL) localStorage.setItem('myProfilePic', profileData.photoURL);
           updateUserUI(user);
         }
-        if (allData.registeredEmails && user.email) {
-          allData.registeredEmails[user.email.toLowerCase()] = { uid: user.uid, lastSignIn: Date.now() };
-          fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID, {
-            method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_API_KEY },
-            body: JSON.stringify(allData)
-          }).catch(function() {});
-        }
-        return !!(profileData && typeof profileData === 'object');
-      }).catch(err => { console.error('Error loading profile:', err); return false; });
+      }).catch(err => console.error('Error loading profile:', err));
     }
 
     function renderStars(r) {
@@ -1005,6 +762,8 @@
     }
 
     function updateUserUI(user) {
+      var myName = localStorage.getItem('myName');
+      var myProfilePic = localStorage.getItem('myProfilePic');
       const userAvatar = document.getElementById('userAvatar');
       const userName = document.getElementById('userName');
       const userSection = document.getElementById('userSection');
@@ -1012,14 +771,11 @@
       const homeBtn = document.getElementById('homeBtn');
       if (user) {
         currentUser = user;
-        profilePicBase64 = getProfilePic() || '';
         var email = user.email ? user.email.toLowerCase() : '';
         isAdmin = (email === 'zennzgaming9@gmail.com');
-        var savedName = getProfileName();
-        var savedPic = getProfilePic();
-        var name = savedName || (user.displayName || 'User');
-        if (isAdmin && !savedName) name = 'ZENNZ Gaming';
-        if (userAvatar) userAvatar.src = savedPic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
+        var name = myName || (user.displayName || 'User');
+        if (isAdmin && !myName) name = 'ZENNZ Gaming';
+        if (userAvatar) userAvatar.src = myProfilePic || user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=f97316&color=fff&bold=true';
         if (userName) userName.innerText = name;
         if (userSection) userSection.classList.remove('hidden');
         if (isAdmin && tabNav) tabNav.classList.remove('hidden');
@@ -1027,7 +783,6 @@
       } else {
         currentUser = null;
         isAdmin = false;
-        profilePicBase64 = '';
         if (userSection) userSection.classList.add('hidden');
         if (tabNav) tabNav.classList.add('hidden');
         if (homeBtn) homeBtn.classList.remove('hidden');
@@ -1061,20 +816,13 @@
     }
 
     loadPhonesFromJSONBin();
-    var savedName = getProfileName();
+    var savedName = localStorage.getItem('myName');
     if (savedName) { var nameEl = document.getElementById('userName'); if (nameEl) nameEl.innerText = savedName; }
 
     if (auth) {
       auth.onAuthStateChanged(function(user) {
-        if (user) {
-          updateUserUI(user);
-          renderPhones(phones);
-          loadProfileFromDB(user).then(function(hasProfile) {
-            showPage(document.getElementById(hasProfile ? 'catalogPage' : 'setupPage'));
-          });
-        } else {
-          showPage(document.getElementById('landingPage'));
-        }
+        if (user) { updateUserUI(user); showPage(document.getElementById('catalogPage')); renderPhones(phones); loadProfileFromDB(user); }
+        else { showPage(document.getElementById('landingPage')); }
       });
     }
 
@@ -1138,7 +886,6 @@
     // Form submit
     $('authForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      if (!auth) { showToast('Auth not available', 'error'); return; }
       var email = $('email').value.trim();
       var password = $('password').value;
       var name = $('displayName').value.trim();
@@ -1152,6 +899,7 @@
 
       function onSuccess(user) {
         updateUserUI(user);
+        showPage($('catalogPage'));
         showToast(mode === 'signin' ? 'Welcome back!' : 'Account created!', 'success');
         $('authForm').reset();
         setLoading($('submitBtn'), false);
@@ -1167,17 +915,12 @@
       }
 
       if (mode === 'signin') {
-        var persist = $('rememberMe') && $('rememberMe').checked
-          ? firebase.auth.Auth.Persistence.LOCAL
-          : firebase.auth.Auth.Persistence.SESSION;
-        auth.setPersistence(persist).then(function() {
-          auth.signInWithEmailAndPassword(email, password).then(function(cred) { onSuccess(cred.user); }).catch(onError);
-        }).catch(onError);
+        auth.signInWithEmailAndPassword(email, password).then(onSuccess).catch(onError);
       } else {
         auth.createUserWithEmailAndPassword(email, password).then(function(cred) {
           if (name) { cred.user.updateProfile({ displayName: name }); }
           onSuccess(cred.user);
-        }).catch(function(err) { onError(err); });
+        }).catch(onError);
       }
     });
 
@@ -1188,21 +931,20 @@
     // Forgot password modal
     $('forgotBtn').addEventListener('click', function() {
       $('forgotModal').classList.add('open');
-      $('resetEmail').value = _lastForgotEmail || $('email').value || '';
+      $('resetEmail').value = $('email').value || '';
       $('resetEmail').focus();
     });
 
-    $('cancelResetBtn').addEventListener('click', function() { _lastForgotEmail = $('resetEmail').value; $('forgotModal').classList.remove('open'); });
-    $('forgotModal').addEventListener('click', function(e) { if (e.target === this) { _lastForgotEmail = $('resetEmail').value; $('forgotModal').classList.remove('open'); } });
+    $('cancelResetBtn').addEventListener('click', function() { $('forgotModal').classList.remove('open'); });
+    $('forgotModal').addEventListener('click', function(e) { if (e.target === this) $('forgotModal').classList.remove('open'); });
 
     $('sendResetBtn').addEventListener('click', function() {
       var email = $('resetEmail').value.trim();
       if (!email) { showToast('Please enter your email.', 'error'); shakeInput($('resetEmail')); return; }
-      _lastForgotEmail = email;
       setLoading($('sendResetBtn'), true);
       auth.sendPasswordResetEmail(email)
         .then(function() {
-          showToast('Reset link sent to ' + email + '. Check your Spam folder if missing.', 'success');
+          showToast('Reset link sent to ' + email, 'success');
           $('forgotModal').classList.remove('open');
         })
         .catch(function(err) { showToast(friendlyError(err.code), 'error'); })
@@ -1212,22 +954,18 @@
     $('resetEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('sendResetBtn').click(); });
 
     // Init mode
-    try { setMode('signin'); } catch(e) { console.error('setMode error:', e); }
+    setMode('signin');
 
     // Social login handlers
     const loginGoogle = $('loginGoogle');
     const loginFacebook = $('loginFacebook');
     const loginApple = $('loginApple');
 
-    function afterSocialLogin(user) {
-      updateUserUI(user);
-    }
-
     if (loginGoogle) {
       loginGoogle.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
         auth.signInWithPopup(googleProvider)
-          .then(function(result) { afterSocialLogin(result.user); })
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
           .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
@@ -1235,7 +973,7 @@
       loginFacebook.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
         auth.signInWithPopup(facebookProvider)
-          .then(function(result) { afterSocialLogin(result.user); })
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
           .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
@@ -1243,7 +981,7 @@
       loginApple.onclick = function() {
         if (!auth) { showToast('Auth not available'); return; }
         auth.signInWithPopup(appleProvider)
-          .then(function(result) { afterSocialLogin(result.user); })
+          .then(function(result) { updateUserUI(result.user); showPage($('catalogPage')); })
           .catch(function(e) { showToast('Error: ' + e.message); });
       };
     }
@@ -1256,16 +994,16 @@
     const profilePicPreview = $('profilePicPreview');
     const changeProfilePicBtn = $('changeProfilePicBtn');
     const profilePicInput = $('profilePicInput');
-    let profilePicBase64 = getProfilePic() || '';
+    let profilePicBase64 = localStorage.getItem('myProfilePic') || '';
     const addProfilePicBtn = $('addProfilePicBtn');
 
     if (profileBtn) {
       profileBtn.onclick = function() {
         const pu = $('profileUsername');
-        if (pu) pu.value = getProfileName() || '';
+        if (pu) pu.value = localStorage.getItem('myName') || '';
         if (profilePicPreview) profilePicPreview.src = profilePicBase64 || ($('userAvatar') ? $('userAvatar').src : '');
         if (addProfilePicBtn) addProfilePicBtn.textContent = profilePicBase64 ? 'Change Profile Picture' : 'Add Profile Picture';
-        if (profileModal) { profileModal.classList.remove('hidden'); profileModal.classList.add('open'); }
+        if (profileModal) profileModal.classList.remove('hidden');
       };
     }
     if (changeProfilePicBtn && profilePicInput) {
@@ -1275,93 +1013,36 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(event) {
-            openCropModal(event.target.result, function(cropped) {
-              profilePicBase64 = cropped;
-              if (profilePicPreview) profilePicPreview.src = cropped;
-            });
-          };
+          reader.onload = function(event) { profilePicBase64 = event.target.result; if (profilePicPreview) profilePicPreview.src = profilePicBase64; };
           reader.readAsDataURL(file);
         }
-        e.target.value = '';
       };
     }
-    if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
+    if (closeProfileModal) closeProfileModal.onclick = function() { if (profileModal) profileModal.classList.add('hidden'); };
     if (saveProfile) {
       saveProfile.onclick = function() {
         const pu = $('profileUsername');
         const un = $('userName');
         const ua = $('userAvatar');
-        const newName = pu ? pu.value : '';
-        if (un) un.innerText = newName;
-        setProfileData(newName, profilePicBase64);
-        if (ua) ua.src = profilePicBase64 || ua.src;
-        if (profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); }
+        if (pu) localStorage.setItem('myName', pu.value);
+        if (un) un.innerText = pu ? pu.value : '';
+        if (profilePicBase64) { localStorage.setItem('myProfilePic', profilePicBase64); if (ua) ua.src = profilePicBase64; }
+        if (profileModal) profileModal.classList.add('hidden');
         saveProfileToDB(auth.currentUser);
+        showToast('Profile saved!');
       };
     }
-    if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) { profileModal.classList.add('hidden'); profileModal.classList.remove('open'); } };
-
-    // Setup profile page handlers
-    let setupPicBase64 = '';
-    const setupUsername = $('setupUsername');
-    const setupContinueBtn = $('setupContinueBtn');
-    const setupProfilePreview = $('setupProfilePreview');
-    const setupChangePicBtn = $('setupChangePicBtn');
-    const setupAddPicBtn = $('setupAddPicBtn');
-    const setupPicInput = $('setupPicInput');
-
-    if (setupChangePicBtn && setupPicInput) {
-      setupChangePicBtn.onclick = function() { setupPicInput.click(); };
-      if (setupAddPicBtn) setupAddPicBtn.onclick = function() { setupPicInput.click(); };
-      setupPicInput.onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            openCropModal(event.target.result, function(cropped) {
-              setupPicBase64 = cropped;
-              if (setupProfilePreview) setupProfilePreview.src = cropped;
-            });
-          };
-          reader.readAsDataURL(file);
-        }
-        e.target.value = '';
-      };
-    }
-
-    if (setupContinueBtn) {
-      setupContinueBtn.onclick = function() {
-        const name = setupUsername ? setupUsername.value.trim() : '';
-        if (!name) {
-          showToast('Please enter a display name', 'error');
-          if (setupUsername) shakeInput(setupUsername);
-          return;
-        }
-        setLoading(setupContinueBtn, true);
-        setProfileData(name, setupPicBase64);
-        var un = $('userName');
-        var ua = $('userAvatar');
-        if (un) un.innerText = name;
-        if (ua) ua.src = setupPicBase64 || ua.src;
-        if (auth.currentUser && name) {
-          auth.currentUser.updateProfile({ displayName: name }).catch(function() {});
-        }
-        saveProfileToDB(auth.currentUser);
-        showPage($('catalogPage'));
-        setLoading(setupContinueBtn, false);
-      };
-    }
+    if (profileModal) profileModal.onclick = function(e) { if (e.target === profileModal) profileModal.classList.add('hidden'); };
 
     // Logout modal
     const logoutBtn = $('logoutBtn');
     const logoutModal = $('logoutModal');
     const confirmLogout = $('confirmLogout');
     const cancelLogout = $('cancelLogout');
-    if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) { logoutModal.classList.remove('hidden'); logoutModal.classList.add('open'); } };
-    if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
-    if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } };
-    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) { logoutModal.classList.add('hidden'); logoutModal.classList.remove('open'); } if (auth.currentUser) auth.signOut(); clearProfileData(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
+    if (logoutBtn) logoutBtn.onclick = function() { if (logoutModal) logoutModal.classList.remove('hidden'); };
+    if (cancelLogout) cancelLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); };
+    if (logoutModal) logoutModal.onclick = function(e) { if (e.target === logoutModal) logoutModal.classList.add('hidden'); };
+    if (confirmLogout) confirmLogout.onclick = function() { if (logoutModal) logoutModal.classList.add('hidden'); if (auth.currentUser) auth.signOut(); updateUserUI(null); showPage($('landingPage')); showToast('Signed out'); };
 
     // Filter modal
     let activeSort = 'termurah';
@@ -1429,7 +1110,7 @@
       if (matches.length === 0) return;
       var div = document.createElement('div');
       div.id = 'searchRecommendations';
-      div.className = 'absolute bottom-full left-0 right-0 mb-2 panel rounded-xl overflow-hidden z-50';
+      div.className = 'absolute top-full left-0 right-0 mt-2 panel rounded-xl overflow-hidden z-50';
       div.style.cssText = 'max-height: 300px; overflow-y: auto;';
       matches.forEach(function(p) {
         var item = document.createElement('div');
@@ -1547,7 +1228,7 @@
           const deleteConfirmText = $('deleteConfirmText');
           const deleteConfirmModal = $('deleteConfirmModal');
           if (deleteConfirmText) deleteConfirmText.textContent = 'Delete ' + p.name + '?';
-          if (deleteConfirmModal) { deleteConfirmModal.classList.remove('hidden'); deleteConfirmModal.classList.add('open'); }
+          if (deleteConfirmModal) deleteConfirmModal.classList.remove('hidden');
         };
         item.appendChild(img); item.appendChild(infoDiv); item.appendChild(editBtn); item.appendChild(deleteBtn);
         adminPhoneList.appendChild(item);
@@ -1560,10 +1241,10 @@
 
     if (confirmDeleteBtn) confirmDeleteBtn.onclick = function() {
       if (phoneToDelete !== null) { phones = phones.filter(phone => phone.id !== phoneToDelete); savePhonesToJSONBin(); renderPhones(phones); renderAdminPhoneList(); showToast('Phone deleted!'); phoneToDelete = null; }
-      if (deleteConfirmModal) { deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); }
+      if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden');
     };
-    if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) { deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); } };
-    if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); deleteConfirmModal.classList.remove('open'); } };
+    if (cancelDeleteBtn) cancelDeleteBtn.onclick = function() { phoneToDelete = null; if (deleteConfirmModal) deleteConfirmModal.classList.add('hidden'); };
+    if (deleteConfirmModal) deleteConfirmModal.onclick = function(e) { if (e.target === deleteConfirmModal) { phoneToDelete = null; deleteConfirmModal.classList.add('hidden'); } };
 
     function selectPhoneType(type, el) {
       const phoneTypeInput = $('phoneType');
@@ -1647,45 +1328,6 @@
       searchInputEl.onblur = function() { setTimeout(function() { var rec = $('searchRecommendations'); if (rec) rec.remove(); }, 200); };
     }
     if (searchBtn) searchBtn.onclick = doSearch;
-
-    // Crop modal handlers
-    function openCropModal(imageSrc, callback) {
-      _cropCallback = callback;
-      var cropImg = $('cropImage');
-      var cm = $('cropModal');
-      if (!cropImg || !cm) return;
-      cropImg.src = imageSrc;
-      cm.classList.remove('hidden');
-      cm.classList.add('open');
-      if (cropper) cropper.destroy();
-      setTimeout(function() {
-        cropper = new Cropper(cropImg, {
-          aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 0.8,
-          responsive: true,
-          background: false
-        });
-      }, 300);
-    }
-
-    function destroyCropModal() {
-      if (cropper) { cropper.destroy(); cropper = null; }
-      var cm = $('cropModal');
-      if (cm) { cm.classList.add('hidden'); cm.classList.remove('open'); }
-      _cropCallback = null;
-    }
-
-    $('cropCancelBtn').onclick = destroyCropModal;
-    $('cropModal').onclick = function(e) { if (e.target === this) destroyCropModal(); };
-
-    $('cropConfirmBtn').onclick = function() {
-      if (!cropper || !_cropCallback) return;
-      var canvas = cropper.getCroppedCanvas({ width: 256, height: 256 });
-      var croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      _cropCallback(croppedDataUrl);
-      destroyCropModal();
-    };
   </script>
 </body>
 </html>
