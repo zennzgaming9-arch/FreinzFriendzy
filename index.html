@@ -547,10 +547,19 @@
       </div>
       <div class="p-4 border-b border-gray-700">
         <h3 class="font-semibold mb-3 text-sm">Price Range</h3>
-        <div class="flex items-center gap-3">
-          <div class="flex-1"><input type="text" id="filterMinPrice" placeholder="Min" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
-          <span class="text-gray-400">-</span>
-          <div class="flex-1"><input type="text" id="filterMaxPrice" placeholder="Max" class="w-full px-3 py-2 rounded-lg text-sm" inputmode="numeric"></div>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Min: <span id="minPriceLabel">0</span></span>
+            </div>
+            <input type="range" id="filterMinPrice" min="0" max="13000000" step="500000" value="0" class="w-full accent-orange-500">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Max: <span id="maxPriceLabel">13M</span></span>
+            </div>
+            <input type="range" id="filterMaxPrice" min="0" max="13000000" step="500000" value="13000000" class="w-full accent-orange-500">
+          </div>
         </div>
       </div>
       <div style="position:sticky;bottom:0;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);" class="p-4 flex gap-3">
@@ -1187,16 +1196,22 @@
     let activeSort = 'termurah';
     const filterModal = $('filterModal');
 
-    function validatePriceInput(input) {
-      const val = parseInt(input.value);
-      if (input.value && (val < 1000000 || val > 13000000)) { input.classList.add('input-invalid'); return false; }
-      else { input.classList.remove('input-invalid'); return true; }
-    }
+    function fmtM(val) { return (val / 1000000) + 'M'; }
 
     const filterMinPriceInput = document.getElementById('filterMinPrice');
     const filterMaxPriceInput = document.getElementById('filterMaxPrice');
-    if (filterMinPriceInput) filterMinPriceInput.oninput = function() { validatePriceInput(this); };
-    if (filterMaxPriceInput) filterMaxPriceInput.oninput = function() { validatePriceInput(this); };
+    const minPriceLabel = document.getElementById('minPriceLabel');
+    const maxPriceLabel = document.getElementById('maxPriceLabel');
+    if (filterMinPriceInput && minPriceLabel) {
+      filterMinPriceInput.oninput = function() {
+        minPriceLabel.textContent = this.value ? fmtM(parseInt(this.value)) : '0';
+      };
+    }
+    if (filterMaxPriceInput && maxPriceLabel) {
+      filterMaxPriceInput.oninput = function() {
+        maxPriceLabel.textContent = this.value ? fmtM(parseInt(this.value)) : '0';
+      };
+    }
     if (filterModal) filterModal.addEventListener('click', function(e) { if (e.target === filterModal) filterModal.classList.add('hidden'); });
 
     function doFilterRating(r, el) {
@@ -1208,8 +1223,10 @@
       activeFilters.minPrice = min; activeFilters.maxPrice = max;
       document.querySelectorAll('.price-btn').forEach(function(btn) { btn.classList.remove('selected'); });
       el.classList.add('selected');
-      document.getElementById('filterMinPrice').value = '';
-      document.getElementById('filterMaxPrice').value = '';
+      if (filterMinPriceInput) filterMinPriceInput.value = min;
+      if (filterMaxPriceInput) filterMaxPriceInput.value = max;
+      if (minPriceLabel) minPriceLabel.textContent = fmtM(min);
+      if (maxPriceLabel) maxPriceLabel.textContent = fmtM(max);
     }
     function doFilterSort(sort, el) {
       activeSort = sort;
@@ -1263,15 +1280,13 @@
     }
 
     function doApplyFilter() {
-      const minInput = document.getElementById('filterMinPrice');
-      const maxInput = document.getElementById('filterMaxPrice');
-      if (minInput && minInput.classList.contains('input-invalid')) { showToast('Min price must be between 1M and 13M'); return; }
-      if (maxInput && maxInput.classList.contains('input-invalid')) { showToast('Max price must be between 1M and 13M'); return; }
+      const minVal = filterMinPriceInput ? parseInt(filterMinPriceInput.value) : 0;
+      const maxVal = filterMaxPriceInput ? parseInt(filterMaxPriceInput.value) : 0;
       const filterModal = $('filterModal');
       if (filterModal) filterModal.classList.add('hidden');
-      const minVal = minInput ? minInput.value : '';
-      const maxVal = maxInput ? maxInput.value : '';
-      if (minVal || maxVal) { activeFilters.minPrice = minVal ? parseInt(minVal) : null; activeFilters.maxPrice = maxVal ? parseInt(maxVal) : null; document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); }); }
+      activeFilters.minPrice = minVal || null;
+      activeFilters.maxPrice = maxVal || null;
+      document.querySelectorAll('.price-btn').forEach(function(b) { b.classList.remove('selected'); });
       applyFilters();
       showToast('Filter applied');
     }
@@ -1279,10 +1294,10 @@
     function doResetFilter() {
       activeFilters = { ratings: [], minPrice: null, maxPrice: null, type: null };
       activeSort = 'termurah';
-      const fmip = document.getElementById('filterMinPrice');
-      const fmaxp = document.getElementById('filterMaxPrice');
-      if (fmip) fmip.value = '';
-      if (fmaxp) fmaxp.value = '';
+      if (filterMinPriceInput) { filterMinPriceInput.value = 0; }
+      if (filterMaxPriceInput) { filterMaxPriceInput.value = 13000000; }
+      if (minPriceLabel) minPriceLabel.textContent = '0';
+      if (maxPriceLabel) maxPriceLabel.textContent = '13M';
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.value = '';
       document.querySelectorAll('.filter-rating, .price-btn').forEach(function(b) { b.classList.remove('selected'); b.classList.remove('hidden'); b.style.display = ''; });
